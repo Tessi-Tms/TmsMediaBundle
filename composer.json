@@ -1,0 +1,27 @@
+{
+    "name": "tms/media-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony ParticipationBundle",
+    "keywords": [],
+    "license": "",
+    "authors": [
+        {
+            "name": "TESSI MARKETING",
+            "email": "contact@tessi.fr",
+            "homepage": "http://www.tessi.fr"
+        }
+    ],
+    "require": {
+        "php":                            ">=5.3.3",
+        "symfony/framework-bundle":       ">=2.3",
+        "doctrine/orm":                   ">=2.2.3,<2.4-dev",
+        "doctrine/doctrine-bundle":       "1.2.*",
+        "twig/twig":                      "*"
+    },
+    "autoload": {
+        "psr-0": { "Tms\\Bundle\\MediaBundle": "" }
+    },
+    "target-dir": "Tms/Bundle/MediaBundle",
+    "minimum-stability": "dev"
+}
+
