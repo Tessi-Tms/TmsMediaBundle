@@ -157,36 +157,6 @@ class Media
     }
 
     /**
-     * Get provider
-     *
-     * @return ProviderInterface
-     */
-    public function getProvider()
-    {
-        return ProviderFactory::getInstance($this->getProviderName());
-    }
-
-    /**
-     * isTransformable
-     *
-     * @return boolean
-     */
-    public function isTransformable()
-    {
-        return $this->getProvider()->isTransformable($this);
-    }
-
-    /**
-     * Get url
-     *
-     * @return string 
-     */
-    public function getUrl()
-    {
-        return $this->getProvider()->getPublicUrl($this);
-    }
-
-    /**
      * onCreation
      *
      * @ORM\PrePersist()
@@ -196,7 +166,6 @@ class Media
         $now = new \DateTime('now');
         $this->setCreatedAt($now);
         $this->setUpdatedAt($now);
-        $this->getProvider()->transform($this);
     }
 
     /**
@@ -208,17 +177,6 @@ class Media
     {
         $now = new \DateTime('now');
         $this->setUpdatedAt($now);
-        $this->getProvider()->transform($this);
-    }
-
-    /**
-     * onRemove
-     *
-     * @ORM\PreRemove
-     */
-    public function onRemove()
-    {
-        $this->getProvider()->remove($this);
     }
 
     /**
