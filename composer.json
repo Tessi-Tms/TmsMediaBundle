@@ -1,7 +1,7 @@
 {
     "name": "tms/media-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony ParticipationBundle",
+    "description": "Symfony MediaBundle",
     "keywords": [],
     "license": "",
     "authors": [
@@ -12,8 +12,8 @@
         }
     ],
     "require": {
-        "php":                            ">=5.3.3",
-        "symfony/framework-bundle":       ">=2.3",
+        "php":                            ">=5.3.2",
+        "symfony/framework-bundle":       ">=2.1",
         "doctrine/orm":                   ">=2.2.3,<2.4-dev",
         "doctrine/doctrine-bundle":       "1.2.*",
         "twig/twig":                      "*",
