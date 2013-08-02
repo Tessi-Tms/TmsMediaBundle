@@ -38,5 +38,10 @@ public function registerBundles()
     );
 }
 ```
-
 Now the Bundle is installed.
+
+How to use it
+=============
+
+This bundle uses the storage service of [Gaufrette](https://github.com/KnpLabs/Gaufrette.git).
+
