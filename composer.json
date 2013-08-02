@@ -23,6 +23,6 @@
         "psr-0": { "Tms\\Bundle\\MediaBundle": "" }
     },
     "target-dir": "Tms/Bundle/MediaBundle",
-    "minimum-stability": "dev"
+    "minimum-stability": "dev-master"
 }
 
