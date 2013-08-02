@@ -12,17 +12,16 @@
         }
     ],
     "require": {
-        "php":                            ">=5.3.2",
-        "symfony/framework-bundle":       ">=2.1",
+        "php":                            ">=5.3.3",
+        "symfony/framework-bundle":       ">=2.3",
         "doctrine/orm":                   ">=2.2.3,<2.4-dev",
         "doctrine/doctrine-bundle":       "1.2.*",
-        "twig/twig":                      "*",
-        "knplabs/knp-gaufrette-bundle" : "dev-master"
+        "twig/twig":                      "*"
     },
     "autoload": {
         "psr-0": { "Tms\\Bundle\\MediaBundle": "" }
     },
     "target-dir": "Tms/Bundle/MediaBundle",
-    "minimum-stability": "dev-master"
+    "minimum-stability": "dev"
 }
 
