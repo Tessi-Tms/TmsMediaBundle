@@ -27,98 +27,98 @@ class Media
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255)
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
      */
-    private $description;
+    protected $description;
 
     /**
      * @var boolean
      * 
      * @ORM\Column(name="enabled", type="boolean")
      */
-    private $enabled;
+    protected $enabled;
 
     /**
      * @var string
      *
      * @ORM\Column(name="providerName", type="string")
      */
-    private $providerName;
+    protected $providerName;
 
     /**
      * @var string
      *
      * @ORM\Column(name="providerReference", type="string")
      */
-    private $providerReference;
+    protected $providerReference;
 
     /**
      * @var string
      *
      * @ORM\Column(name="providerMetadata", type="json_array")
      */
-    private $providerMetadata;
+    protected $providerMetadata;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="width", type="integer", nullable=true)
      */
-    private $width;
+    protected $width;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="heigth", type="integer", nullable=true)
      */
-    private $height;
+    protected $height;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="size", type="integer", nullable=true)
      */
-    private $size;
+    protected $size;
 
     /**
      * @var string
      *
      * @ORM\Column(name="contentType", type="string", length=255)
      */
-    private $contentType;
+    protected $contentType;
 
     /**
      * @var string
      *
      * @ORM\Column(name="author", type="string", length=255, nullable=true)
      */
-    private $author;
+    protected $author;
 
     /**
      * @var datetime $updated_at
      * 
      * @ORM\Column(name="updated_at", type="datetime")
      */
-    private $updated_at;
+    protected $updated_at;
 
     /**
      * @var datetime $created_at
      * 
      * @ORM\Column(name="created_at", type="datetime")
      */
-    private $created_at;
+    protected $created_at;
 
     /**
      * @var Symfony\Component\HttpFoundation\File\UploadedFile $binaryContent
