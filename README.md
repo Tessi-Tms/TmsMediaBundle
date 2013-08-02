@@ -11,6 +11,7 @@ To install this bundle please follow the next steps:
 
 First add the dependency in your `composer.json` file:
 
+```json
 "require": {
         ...,
         "tms/media-bundle": "dev-master"
