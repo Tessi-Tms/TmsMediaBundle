@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Media
  *
- * @ORM\Table(name="idci_media_media")
+ * @ORM\Table(name="tms_media_media")
  * @ORM\HasLifecycleCallbacks
  */
 class Media
