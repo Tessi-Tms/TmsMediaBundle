@@ -53,23 +53,9 @@ class Media
     /**
      * @var string
      *
-     * @ORM\Column(name="providerName", type="string")
+     * @ORM\Column(name="providerServiceName", type="string")
      */
-    protected $providerName;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="providerReference", type="string")
-     */
-    protected $providerReference;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="providerMetadata", type="json_array")
-     */
-    protected $providerMetadata;
+    protected $providerServiceName;
 
     /**
      * @var integer
@@ -279,52 +265,6 @@ class Media
     public function getProviderName()
     {
         return $this->providerName;
-    }
-
-    /**
-     * Set providerReference
-     *
-     * @param string $providerReference
-     * @return Media
-     */
-    public function setProviderReference($providerReference)
-    {
-        $this->providerReference = $providerReference;
-
-        return $this;
-    }
-
-    /**
-     * Get providerReference
-     *
-     * @return string 
-     */
-    public function getProviderReference()
-    {
-        return $this->providerReference;
-    }
-
-    /**
-     * Set providerMetadata
-     *
-     * @param string $providerMetadata
-     * @return Media
-     */
-    public function setProviderMetadata($providerMetadata)
-    {
-        $this->providerMetadata = $providerMetadata;
-
-        return $this;
-    }
-
-    /**
-     * Get providerMetadata
-     *
-     * @return string 
-     */
-    public function getProviderMetadata()
-    {
-        return $this->providerMetadata;
     }
 
     /**
