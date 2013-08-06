@@ -22,7 +22,6 @@ class Media
 {
     /**
      * @var integer
-     *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -31,85 +30,81 @@ class Media
 
     /**
      * @var string
-     *
      * @ORM\Column(name="name", type="string", length=255)
      */
     protected $name;
 
     /**
      * @var string
-     *
      * @ORM\Column(name="description", type="text", nullable=true)
      */
     protected $description;
 
     /**
      * @var boolean
-     * 
      * @ORM\Column(name="enabled", type="boolean")
      */
     protected $enabled;
 
     /**
      * @var string
-     *
      * @ORM\Column(name="providerServiceName", type="string")
      */
     protected $providerServiceName;
 
     /**
+     * @var array
+     * @ORM\Column(name="providerData", type="json_array")
+     */
+    protected $providerData;
+
+    /**
      * @var integer
-     *
      * @ORM\Column(name="width", type="integer", nullable=true)
      */
     protected $width;
 
     /**
      * @var integer
-     *
      * @ORM\Column(name="heigth", type="integer", nullable=true)
      */
     protected $height;
 
     /**
      * @var integer
-     *
      * @ORM\Column(name="size", type="integer", nullable=true)
      */
     protected $size;
 
     /**
      * @var string
-     *
      * @ORM\Column(name="contentType", type="string", length=255)
      */
     protected $contentType;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="author", type="string", length=255, nullable=true)
+     * @ORM\Column(name="owner", type="string", length=255, nullable=true)
      */
-    protected $author;
+    protected $owner;
 
     /**
      * @var datetime $updated_at
-     * 
      * @ORM\Column(name="updated_at", type="datetime")
      */
     protected $updated_at;
 
     /**
      * @var datetime $created_at
-     * 
      * @ORM\Column(name="created_at", type="datetime")
      */
     protected $created_at;
 
     /**
-     * @var Symfony\Component\HttpFoundation\File\UploadedFile $binaryContent
+     * @var string $logo_path
+     * @ORM\Column(name="logo_path", type="string")
      */
-    protected $binaryContent;
+    protected $logo_path;
 
     /**
      * Constructor
@@ -117,29 +112,6 @@ class Media
     public function __construct()
     {
         $this->setEnabled(true);
-    }
-
-    /**
-     * Set binaryContent
-     *
-     * @param $binaryContent
-     * @return Media
-     */
-    public function setBinaryContent($binaryContent)
-    {
-        $this->binaryContent = $binaryContent;
-
-        return $this;
-    }
-
-    /**
-     * Get name
-     *
-     * @return string 
-     */
-    public function getBinaryContent()
-    {
-        return $this->binaryContent;
     }
 
     /**
@@ -245,26 +217,49 @@ class Media
     }
 
     /**
-     * Set providerName
+     * Set providerServiceName
      *
-     * @param string $providerName
+     * @param string $providerServiceName
      * @return Media
      */
-    public function setProviderName($providerName)
+    public function setProviderServiceName($providerServiceName)
     {
-        $this->providerName = $providerName;
+        $this->providerServiceName = $providerServiceName;
 
         return $this;
     }
 
     /**
-     * Get providerName
+     * Get providerServiceName
      *
      * @return string 
      */
-    public function getProviderName()
+    public function getProviderServiceName()
     {
-        return $this->providerName;
+        return $this->providerServiceName;
+    }
+
+    /**
+     * Set providerData
+     *
+     * @param array $providerData
+     * @return MediaEntity
+     */
+    public function setProviderData($providerData)
+    {
+        $this->providerData = $providerData;
+
+        return $this;
+    }
+
+    /**
+     * Get providerData
+     *
+     * @return array 
+     */
+    public function getProviderData()
+    {
+        return $this->providerData;
     }
 
     /**
@@ -360,26 +355,26 @@ class Media
     }
 
     /**
-     * Set author
+     * Set owner
      *
-     * @param string $author
+     * @param string $owner
      * @return Media
      */
-    public function setAuthor($author)
+    public function setOwner($owner)
     {
-        $this->author = $author;
+        $this->owner = $owner;
 
         return $this;
     }
 
     /**
-     * Get author
+     * Get owner
      *
      * @return string 
      */
-    public function getAuthor()
+    public function getOwner()
     {
-        return $this->author;
+        return $this->owner;
     }
 
     /**
@@ -427,4 +422,28 @@ class Media
     {
         return $this->created_at;
     }
+
+    /**
+     * Set logo path
+     *
+     * @param string $logoPath
+     * @return Media
+     */
+    public function setLogoPath($logoPath)
+    {
+        $this->logoPath = $logoPath;
+
+        return $this;
+    }
+
+    /**
+     * Get logo path
+     *
+     * @return string
+     */
+    public function getLogoPath()
+    {
+        return $this->logoPath;
+    }
+
 }
