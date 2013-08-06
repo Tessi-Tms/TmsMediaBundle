@@ -18,7 +18,7 @@
         "doctrine/doctrine-bundle":       "1.2.*",
         "twig/twig":                      "*",
         "knplabs/gaufrette": "*",
-        "vich/uploader-bundle": "dev-master"
+        "vich/uploader-bundle": "*"
     },
     "autoload": {
         "psr-0": { "Tms\\Bundle\\MediaBundle": "" }
