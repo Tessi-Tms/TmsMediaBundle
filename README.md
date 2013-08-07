@@ -50,6 +50,6 @@ Now the Bundle is installed.
 How to use it
 =============
 
-This bundle uses [Gaufrette bundle](https://github.com/KnpLabs/Gaufrette.git) to handle the storage issues and
+This bundle uses [Gaufrette bundle](https://github.com/KnpLabs/Gaufrette.git) as storage layer and
 [Vich uploader bundle](https://github.com/dustin10/VichUploaderBundle.git) to make entities uploadable.
 
