@@ -89,22 +89,22 @@ class Media
     protected $owner;
 
     /**
-     * @var datetime $updated_at
+     * @var datetime $updatedAt
      * @ORM\Column(name="updated_at", type="datetime")
      */
-    protected $updated_at;
+    protected $updatedAt;
 
     /**
-     * @var datetime $created_at
+     * @var datetime $createdAt
      * @ORM\Column(name="created_at", type="datetime")
      */
-    protected $created_at;
+    protected $createdAt;
 
     /**
-     * @var string $logo_path
+     * @var string $logoPath
      * @ORM\Column(name="logo_path", type="string")
      */
-    protected $logo_path;
+    protected $logoPath;
 
     /**
      * Constructor
