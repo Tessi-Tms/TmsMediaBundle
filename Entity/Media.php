@@ -115,7 +115,7 @@ class Media
     }
 
     /**
-     * onCreation
+     * on creation
      *
      * @ORM\PrePersist()
      */
@@ -127,7 +127,7 @@ class Media
     }
 
     /**
-     * onUpdate
+     * on update
      *
      * @ORM\PreUpdate()
      */
@@ -217,7 +217,7 @@ class Media
     }
 
     /**
-     * Set providerServiceName
+     * Set provider service name
      *
      * @param string $providerServiceName
      * @return Media
@@ -230,7 +230,7 @@ class Media
     }
 
     /**
-     * Get providerServiceName
+     * Get provider service name
      *
      * @return string 
      */
@@ -240,7 +240,7 @@ class Media
     }
 
     /**
-     * Set providerData
+     * Set provider data
      *
      * @param array $providerData
      * @return MediaEntity
@@ -253,7 +253,7 @@ class Media
     }
 
     /**
-     * Get providerData
+     * Get provider data
      *
      * @return array 
      */
@@ -332,7 +332,7 @@ class Media
     }
 
     /**
-     * Set contentType
+     * Set content type
      *
      * @param string $contentType
      * @return Media
@@ -345,7 +345,7 @@ class Media
     }
 
     /**
-     * Get contentType
+     * Get content type
      *
      * @return string 
      */
@@ -378,7 +378,7 @@ class Media
     }
 
     /**
-     * Set updated_at
+     * Set updated at
      *
      * @param \DateTime $updatedAt
      * @return Media
@@ -391,7 +391,7 @@ class Media
     }
 
     /**
-     * Get updated_at
+     * Get updated at
      *
      * @return \DateTime 
      */
@@ -401,7 +401,7 @@ class Media
     }
 
     /**
-     * Set created_at
+     * Set created at
      *
      * @param \DateTime $createdAt
      * @return Media
@@ -414,7 +414,7 @@ class Media
     }
 
     /**
-     * Get created_at
+     * Get created at
      *
      * @return \DateTime 
      */
