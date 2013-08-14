@@ -35,11 +35,10 @@ class MediaController extends Controller
     /**
      * Add
      *
-     * @Route("/medias/add/{mediaId}", requirements={"_method" = "GET"}, name="media_add")
+     * @Route("/medias/add", requirements={"_method" = "POST"}, name="media_add")
      * @param Request $request
-     * @param integer $mediaId
      */
-    public function AddAction(Request $request, $mediaId)
+    public function AddAction(Request $request)
     {
         return array();
     }

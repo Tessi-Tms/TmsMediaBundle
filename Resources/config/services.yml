@@ -1,0 +1,4 @@
+services:
+    media_manager:
+        class: Tms\Bundle\MediaBundle\Service\Manager
+        arguments: [@doctrine.orm.entity_manager]
