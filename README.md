@@ -52,18 +52,18 @@ How to use it
 
 ### Definition of the webservices
 
-## Create a media
+#### Create a media
 
-| Route           | Method | Parameters
-|-----------------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-| /medias         | POST   | field@/dir/file
+| Route           | Method | Parameters         | Header
+|-----------------|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
+| /medias         | POST   | field@/dir/file    | multipart/form-data
 
 **Parameters description:**
 
-- *field*: file field, it presence results in a multipart/form-data request.
-- *@*: file separator.
-- *dir*: The directory where the file will be saved.
-- *file*: The file to save.
+- *field* : File field, it presence results in a multipart/form-data request.
+- *@* : File separator.
+- *dir* : The directory where the file will be saved.
+- *file* : The file to save.
 
 **Parameters examples:**
 
@@ -72,6 +72,26 @@ How to use it
     screenshot@~/Pictures/img.png
     ...
 ```
+
+#### Delete a media
+
+| Route                 | Method | Parameters         | Header
+|-----------------------|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
+| /medias/{mediaId}     | DELETE |                    |
+
+**Parameters description:**
+
+- *mediaId*: The id of the media.
+
+#### Get a media
+
+| Route                 | Method | Parameters         | Header
+|-----------------------|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
+| /medias/{mediaId}     | GET    |                    |
+
+**Parameters description:**
+
+- *mediaId*: The id of the media.
 
 ### Filesystems configuration
 
@@ -90,3 +110,5 @@ knp_gaufrette:
             adapter: gallery
 ```
 More details about [Gaufrette bundle](https://github.com/KnpLabs/Gaufrette.git).
+
+//Work in progress
