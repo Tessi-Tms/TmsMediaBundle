@@ -1,7 +1,12 @@
 TmsMediaBundle
 ==============
 
-The MediaBundle for Symfony2 provides an API to upload and retrieve media.
+The MediaBundle for Symfony2 provides an API to retrieve and upload a media in a specific filesystem.
+
+Features included
+-----------------
+
+- Support [Gaufrette](https://github.com/KnpLabs/Gaufrette.git) to handle the filesystem storage layer
 
 
 Installation
@@ -56,7 +61,7 @@ How to use it
 
 | Route           | Method | Parameters             | Header
 |-----------------|--------|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
-| /media          | POST   | file={fileContent}    | Content-type=multipart/form-data
+| /media          | POST   | file={fileContent}    | Content-Type=multipart/form-data
 
 **Parameters description:**
 
@@ -84,7 +89,12 @@ How to use it
 
 ### Configure your filesystems
 
-The following is a local sample configuration for the KnpGaufretteBundle. It will create a filesystem service called **gaufrette_gallery_filesyytem** which can be used in the MediaBundle.
+
+The filesystem abstract layer permits you to develop your application without the need to know where you media will be stored and how. Another advantage of this is the possibility to update your files location without any on the code apart from the definition of your filesystem.
+
+#### Example of configuration
+
+The following configuration is a local sample configuration for the KnpGaufretteBundle. It will create a filesystem service called **gaufrette_gallery_filesyytem** which can be used in the MediaBundle. All the uploaded files will be stored in */web/uploads* directory.
 
 
 ```php
@@ -102,6 +112,6 @@ knp_gaufrette:
             adapter: gallery
 ```
 
-For a complete list of features refer to the [officiel documentation](https://github.com/KnpLabs/Gaufrette.git).
+For a complete list of features refer to the [official documentation](https://github.com/KnpLabs/Gaufrette.git).
 
 //Work in progress
