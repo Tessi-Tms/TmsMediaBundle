@@ -12,6 +12,7 @@ namespace Tms\Bundle\MediaBundle\Controller;
 
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\DependencyInjection\ContainerAware;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -21,50 +22,26 @@ use Tms\Bundle\MediaBundle\Entity\Media;
 class MediaController extends Controller
 {
     /**
-     * Get
-     *
-     * @Route("/medias/get/{mediaId}", requirements={"_method" = "GET"}, name="media_get")
-     * @param Request $request
-     * @param integer $mediaId
+     * [POST] /media
      */
-    public function getAction(Request $request, $mediaId)
+    public function postAction()
     {
         return array();
     }
 
     /**
-     * Add
-     *
-     * @Route("/medias/add", requirements={"_method" = "POST"}, name="media_add")
-     * @param Request $request
+     * [DELETE] /media/{mediaId}
      */
-    public function AddAction(Request $request)
+    public function deleteAction($mediaId)
     {
         return array();
     }
 
     /**
-     * Delete
-     *
-     * @Route("/medias/delete/{mediaId}", requirements={"_method" = "GET"}, name="media_delete")
-     * @param Request $request
-     * @param integer $mediaId
+     * [GET] /media/{mediaId}
      */
-    public function deleteAction(Request $request, $mediaId)
+    public function getAction($mediaId)
     {
         return array();
     }
-
-    /**
-     * Show
-     *
-     * @Route("/medias/show/{mediaId}", requirements={"_method" = "GET"}, name="media_show")
-     * @param Request $request
-     * @param integer $mediaId
-     */
-    public function showAction(Request $request, $mediaId)
-    {
-        return array();
-    }
-
 }

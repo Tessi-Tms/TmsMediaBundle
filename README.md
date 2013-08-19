@@ -1,7 +1,7 @@
 TmsMediaBundle
 ==============
 
-Media bundle provides an API for media
+Media bundle provides an API to upload and retrieve media.
 
 
 Installation
@@ -54,30 +54,19 @@ How to use it
 
 #### Create a media
 
-| Route           | Method | Parameters         | Header
-|-----------------|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
-| /medias         | POST   | field@/dir/file    | multipart/form-data
+| Route           | Method | Parameters             | Header
+|-----------------|--------|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
+| /media          | POST   | file={fileContent}    | Content-type=multipart/form-data
 
 **Parameters description:**
 
-- *field* : File field, it presence results in a multipart/form-data request.
-- *@* : File separator.
-- *dir* : The directory where the file will be saved.
-- *file* : The file to save.
-
-**Parameters examples:**
-
-``` html
-    logoPath@~/Documents/cv.pdf
-    screenshot@~/Pictures/img.png
-    ...
-```
+- *file* : Contains the file content.
 
 #### Delete a media
 
 | Route                 | Method | Parameters         | Header
 |-----------------------|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
-| /medias/{mediaId}     | DELETE |                    |
+| /media/{mediaId}      | DELETE |                    |
 
 **Parameters description:**
 
@@ -87,13 +76,16 @@ How to use it
 
 | Route                 | Method | Parameters         | Header
 |-----------------------|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
-| /medias/{mediaId}     | GET    |                    |
+| /media/{mediaId}      | GET    |                    |
 
 **Parameters description:**
 
 - *mediaId*: The id of the media.
 
 ### Filesystems configuration
+
+We are using Gaufrette Bundle to handle the storage layer, below is an example of gaufrette configuration
+for a local storage in */web/uploads* directory.
 
 ```php
 
@@ -109,6 +101,6 @@ knp_gaufrette:
         gallery:
             adapter: gallery
 ```
-More details about [Gaufrette bundle](https://github.com/KnpLabs/Gaufrette.git).
+I you you want to use another adapter (FTP, GridFS, ...) to store your files, we recommend you to have a look in the [documentation of Gaufrette](https://github.com/KnpLabs/Gaufrette.git).
 
 //Work in progress
