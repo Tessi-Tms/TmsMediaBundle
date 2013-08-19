@@ -1,7 +1,7 @@
 TmsMediaBundle
 ==============
 
-Media bundle provides an API to upload and retrieve media.
+The MediaBundle for Symfony2 provides an API to upload and retrieve media.
 
 
 Installation
@@ -82,10 +82,10 @@ How to use it
 
 - *mediaId*: The id of the media.
 
-### Filesystems configuration
+### Configure your filesystems
 
-We are using Gaufrette Bundle to handle the storage layer, below is an example of gaufrette configuration
-for a local storage in */web/uploads* directory.
+The following is a local sample configuration for the KnpGaufretteBundle. It will create a filesystem service called **gaufrette_gallery_filesyytem** which can be used in the MediaBundle.
+
 
 ```php
 
@@ -101,6 +101,7 @@ knp_gaufrette:
         gallery:
             adapter: gallery
 ```
-I you you want to use another adapter (FTP, GridFS, ...) to store your files, we recommend you to have a look in the [documentation of Gaufrette](https://github.com/KnpLabs/Gaufrette.git).
+
+For a complete list of features refer to the [officiel documentation](https://github.com/KnpLabs/Gaufrette.git).
 
 //Work in progress
