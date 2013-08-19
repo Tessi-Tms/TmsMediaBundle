@@ -90,11 +90,11 @@ How to use it
 ### Configure your filesystems
 
 
-The filesystem abstract layer permits you to develop your application without the need to know where you media will be stored and how. Another advantage of this is the possibility to update your files location without any on the code apart from the definition of your filesystem.
+The filesystem abstract layer permits you to develop your application without the need to know where your media will be stored and how. Another advantage of this is the possibility to update your files location without any impact on the code apart from the definition of your filesystem.
 
 #### Example of configuration
 
-The following configuration is a local sample configuration for the KnpGaufretteBundle. It will create a filesystem service called **gaufrette_gallery_filesyytem** which can be used in the MediaBundle. All the uploaded files will be stored in */web/uploads* directory.
+The following configuration is a local sample configuration for the KnpGaufretteBundle. It will create a filesystem service called `gaufrette_gallery_filesyytem` which can be used in the MediaBundle. All the uploaded files will be stored in `/web/uploads` directory.
 
 
 ```php
