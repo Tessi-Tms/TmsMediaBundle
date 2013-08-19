@@ -1,11 +1,11 @@
 TmsMediaBundle
 ==============
 
-Symfony2 media bundle
+Media bundle provides an API for media
 
 
 Installation
-============
+------------
 
 To install this bundle please follow the next steps:
 
@@ -48,33 +48,45 @@ public function registerBundles()
 Now the Bundle is installed.
 
 How to use it
-=============
+-------------
 
+### Definition of the webservices
 
-API multipart request
-=====================
+## Create a media
 
-The request to gather information from a media should look like the following : 
+| Route           | Method | Parameters
+|-----------------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| /medias         | POST   | field@/dir/file
 
-```http
-http://your_domain/api/get logoPath@~/img.png
+**Parameters description:**
+
+- *field*: file field, it presence results in a multipart/form-data request.
+- *@*: file separator.
+- *dir*: The directory where the file will be saved.
+- *file*: The file to save.
+
+**Parameters examples:**
+
+``` html
+    logoPath@~/Documents/cv.pdf
+    screenshot@~/Pictures/img.png
+    ...
 ```
 
-The structure of the storage
-============================
+### Filesystems configuration
 
-You have to define the structure of your media directory in order to simplify the configuration of Gaufrette.
+```php
 
-//TODO
+# app/config/config.yml
+knp_gaufrette:
+    adapters:
+        gallery:
+            local:
+                directory: %kernel.root_dir%/../web/uploads
+                create: true
 
-Using gaufrette service
-=======================
-
-To handle the storage layer we are using [Gaufrette bundle](https://github.com/KnpLabs/Gaufrette.git).
-
-
-Using vichUploader service
-==========================
-
-To handle file upload, we use [Vich uploader bundle](https://github.com/dustin10/VichUploaderBundle.git) to make our entities uploadable.
-
+    filesystems:
+        gallery:
+            adapter: gallery
+```
+More details about [Gaufrette bundle](https://github.com/KnpLabs/Gaufrette.git).
