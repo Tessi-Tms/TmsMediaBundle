@@ -60,8 +60,6 @@ The request to gather information from a media should look like the following :
 http://your_domain/api/get logoPath@~/img.png
 ```
 
-In this case we are using an example of multipart request using the [httpie](https://github.com/jkbr/httpie.git) syntax.
-
 The structure of the storage
 ============================
 
@@ -72,7 +70,7 @@ You have to define the structure of your media directory in order to simplify th
 Using gaufrette service
 =======================
 
-To handle the storage layer we are using Gaufrette, you can have a look on its documentation in order to configure your storage [Gaufrette bundle](https://github.com/KnpLabs/Gaufrette.git).
+To handle the storage layer we are using [Gaufrette bundle](https://github.com/KnpLabs/Gaufrette.git).
 
 
 Using vichUploader service
