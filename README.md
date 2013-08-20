@@ -71,21 +71,21 @@ How to use it
 
 | Route                 | Method | Parameters         | Header
 |-----------------------|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
-| /media/{mediaId}      | DELETE |                    |
+| /media/{id}           | DELETE |                    |
 
 **Parameters description:**
 
-- *mediaId*: The id of the media.
+- *id*: The id of the media.
 
 #### Get a media
 
 | Route                 | Method | Parameters         | Header
 |-----------------------|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
-| /media/{mediaId}      | GET    |                    |
+| /media/{id}           | GET    |                    |
 
 **Parameters description:**
 
-- *mediaId*: The id of the media.
+- *idd*: The id of the media.
 
 ### Configure your filesystems
 
@@ -94,7 +94,7 @@ The filesystem abstract layer permits you to develop your application without th
 
 #### Example of configuration
 
-The following configuration is a local sample configuration for the KnpGaufretteBundle. It will create a filesystem service called `gaufrette_gallery_filesyytem` which can be used in the MediaBundle. All the uploaded files will be stored in `/web/uploads` directory.
+The following configuration is a local sample configuration for the KnpGaufretteBundle. It will create a filesystem service called `gaufrette_gallery_filesystem` which can be used in the MediaBundle. All the uploaded files will be stored in `/web/uploads` directory.
 
 
 ```php
