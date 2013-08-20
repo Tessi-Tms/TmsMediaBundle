@@ -28,7 +28,9 @@ class ApiController extends Controller
      */
     public function addAction(Request $request)
     {
-        
+        $mediaRaw = $request->files->get('media');
+        $mediaRaw->move('/tmp/test', $mediaRaw->getClientOriginalName());
+        die('good');
         $response = new Response();
 
         return $response;
