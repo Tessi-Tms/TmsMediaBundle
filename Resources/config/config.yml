@@ -1,0 +1,10 @@
+# Gaufrette configuration
+knp_gaufrette:
+    adapters:
+        media:
+            local:
+                directory: %kernel.root_dir%/../web/uploads/media
+                create: true
+    filesystems:
+        media:
+            adapter: media

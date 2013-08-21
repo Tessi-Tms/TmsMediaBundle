@@ -19,6 +19,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Tms\Bundle\MediaBundle\Entity\Media;
+use Gaufrette\Filesystem;
+use Gaufrette\adapter;
+use Gaufrette\File as File;
+use Gaufrette\FilesystemMap;
+use Gaufrette\Adapter\Local as LocalAdapter;
 
 class ApiController extends Controller
 {
@@ -26,11 +31,11 @@ class ApiController extends Controller
      * @Route("/media")
      * @Method({"POST"})
      */
-    public function addAction(Request $request)
+    public function postAction(Request $request)
     {
         $mediaRaw = $request->files->get('media');
-        $mediaRaw->move('/tmp/test', $mediaRaw->getClientOriginalName());
-        die('good');
+        $this->get('tms_media.manager')->addMedia($mediaRaw);
+
         $response = new Response();
 
         return $response;
@@ -51,7 +56,7 @@ class ApiController extends Controller
      * @Route("/media/{id}")
      * @Method({"GET"})
      */
-    public function retrieveAction(Request $request, $id)
+    public function getAction(Request $request, $id)
     {
         $response = new Response();
 

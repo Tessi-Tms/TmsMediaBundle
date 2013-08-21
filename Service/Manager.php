@@ -16,12 +16,16 @@ use Tms\Bundle\MediaBundle\Util\Inflector;
 class Manager
 {
     protected $entityManager;
+
+    protected $storeManager;
+
     /**
      * Constructor
      */
-    public function __construct(\Doctrine\ORM\EntityManager $entityManager $entityManager)
+    public function __construct(\Doctrine\ORM\EntityManager $entityManager $entityManager, $storeManager)
     {
         $this->entityManager = $entityManager;
+        $this->storeManager = $storeManagers;
     }
 
     /**
@@ -35,11 +39,42 @@ class Manager
     }
 
     /**
+     * Get Store Manager
+     *
+     * @return 
+     */
+    public function getStoreManager()
+    {
+        return $this->storeManager;
+    }
+
+    /**
      * Add Media
      *
-     * @return Doctrine\ORM\EntityManager
+     * @param File $media
      */
-    public function addMedia()
+    public function addMedia($media)
+    {
+        // 1] Enregistrer le media via store manager (gaufrette)
+        $this->getStoreManager()->write(
+            $media->getClientOriginalName(),
+            $media
+        );
+
+        // 2] Ajouter les information du media en base
+        //Todo
+
+        
+    }
+
+    /**
+     * Get Media
+     */
+    public function getMedia()
+    {
+    }
+
+    public function deleteMedia()
     {
     }
 }

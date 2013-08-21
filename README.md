@@ -6,7 +6,8 @@ The MediaBundle for Symfony2 provides an API to retrieve and upload a media in a
 Features included
 -----------------
 
-- Support [Gaufrette](https://github.com/KnpLabs/Gaufrette.git) to handle the filesystem storage layer
+- Supports [Gaufrette](https://github.com/KnpLabs/Gaufrette.git) to handle filesystem abstraction layer
+- uses [KnpGaufretteBundle](https://github.com/KnpLabs/KnpGaufretteBundle.git) to provide a Gaufrette integration for your Symfony projects
 
 
 Installation
@@ -94,7 +95,7 @@ The filesystem abstract layer permits you to develop your application without th
 
 #### Example of configuration
 
-The following configuration is a local sample configuration for the KnpGaufretteBundle. It will create a filesystem service called `gaufrette_gallery_filesystem` which can be used in the MediaBundle. All the uploaded files will be stored in `/web/uploads` directory.
+The following configuration is a local sample configuration for the KnpGaufretteBundle. It will create a filesystem service called `gaufrette.gallery_filesystem` which can be used in the MediaBundle. All the uploaded files will be stored in `/web/uploads` directory.
 
 
 ```php
