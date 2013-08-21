@@ -85,7 +85,7 @@ How to use it
 
 **Parameters description:**
 
-- *idd*: The id of the media.
+- *id*: The id of the media.
 
 ### Configure your filesystems
 
