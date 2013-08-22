@@ -19,22 +19,25 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Tms\Bundle\MediaBundle\Entity\Media;
-use Gaufrette\Filesystem;
-use Gaufrette\adapter;
-use Gaufrette\File as File;
-use Gaufrette\FilesystemMap;
-use Gaufrette\Adapter\Local as LocalAdapter;
+
 
 class ApiController extends Controller
 {
     /**
+     * Post
+     *
+     * @param Request $request
      * @Route("/media")
      * @Method({"POST"})
      */
     public function postAction(Request $request)
     {
-        $mediaRaw = $request->files->get('media');
-        $this->get('tms_media.manager')->addMedia($mediaRaw);
+        try {
+            $mediaRaw = $request->files->get('media');
+            $this->get('tms_media.manager')->addMedia($mediaRaw);
+        } catch (\Exception $e) {
+            die('TODO');
+        }
 
         $response = new Response();
 
@@ -42,23 +45,41 @@ class ApiController extends Controller
     }
 
     /**
+     * Delete
+     *
+     * @param Request $request
+     * @param string $id
      * @Route("/media/{id}")
      * @Method({"DELETE"})
      */
     public function deleteAction(Request $request, $id)
     {
-        $response = new Response();
+        try {
+            $this->get('tms_media.manager')->deleteMedia($id);
+            $response = new Response();
+        } catch (\Exception $e) {
+            die('TODO');
+        }
 
         return $response;
     }
 
     /**
+     * Get
+     *
+     * @param Request $request
+     * @param string $id
      * @Route("/media/{id}")
      * @Method({"GET"})
      */
     public function getAction(Request $request, $id)
     {
-        $response = new Response();
+        try {
+            $this->get('tms_media.manager')->retrieveMedia($id);
+            $response = new Response();
+        } catch (\Exception $e) {
+            die('TODO');
+        }
 
         return $response;
     }

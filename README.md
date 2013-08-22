@@ -7,7 +7,7 @@ Features included
 -----------------
 
 - Supports [Gaufrette](https://github.com/KnpLabs/Gaufrette.git) to handle filesystem abstraction layer
-- uses [KnpGaufretteBundle](https://github.com/KnpLabs/KnpGaufretteBundle.git) to provide a Gaufrette integration for your Symfony projects
+- Uses [KnpGaufretteBundle](https://github.com/KnpLabs/KnpGaufretteBundle.git) to provide a Gaufrette integration for your Symfony projects
 
 
 Installation

@@ -16,16 +16,18 @@ use Tms\Bundle\MediaBundle\Util\Inflector;
 class Manager
 {
     protected $entityManager;
-
     protected $storeManager;
 
     /**
      * Constructor
+     *
+     * @param \Doctrine\ORM\EntityManager $entityManager
+     * @param \Gaufrette\Filesystem $storeManager
      */
-    public function __construct(\Doctrine\ORM\EntityManager $entityManager $entityManager, $storeManager)
+    public function __construct(\Doctrine\ORM\EntityManager $entityManager, \Gaufrette\Filesystem $storeManager)
     {
         $this->entityManager = $entityManager;
-        $this->storeManager = $storeManagers;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -41,7 +43,7 @@ class Manager
     /**
      * Get Store Manager
      *
-     * @return 
+     * @return \Gaufrette\Filesystem
      */
     public function getStoreManager()
     {
@@ -51,32 +53,79 @@ class Manager
     /**
      * Add Media
      *
-     * @param File $media
+     * @param File $mediaRaw
+     * @throw UnavailableMediaException
      */
-    public function addMedia($media)
+    public function addMedia($mediaRaw)
     {
         // 1] Enregistrer le media via store manager (gaufrette)
         $this->getStoreManager()->write(
-            $media->getClientOriginalName(),
-            $media
+            $mediaRaw->getClientOriginalName(),
+            $mediaRaw
         );
 
-        // 2] Ajouter les information du media en base
-        //Todo
+        // 2] Ajouter les informations du media en base
+        $media = new Media();
+        $media->setName(trim($mediaRaw->getClientOriginalName()));
+        //$media->setDescription();
+        //$media->setProviderServiceName();
+        //$media->setProviderData();
+        //$media->setWidth();
+        //$media->setHeight();
+        $media->setSize($mediaRaw->getClientSize());
+        $media->setContentType(trim($mediaRaw->getMimeType()));
+        var_dump($media);
+        die('Every thing is done');
 
-        
+        $this->getEntityManager()->persist($media);
+        $this->getEntityManager()->flush();
     }
 
     /**
-     * Get Media
+     * Retrieve Media
+     *
+     * @param string $id
+     * @return array
      */
-    public function getMedia()
+    public function retrieveMedia($id)
     {
     }
 
-    public function deleteMedia()
+    /**
+     * Delete Media
+     *
+     * @param string $id
+     */
+    public function deleteMedia($id)
     {
+    }
+
+    /**
+     * Generate media id
+     *
+     * @param File $imediaRaw
+     * @return string
+     */
+    public function generateMediaId($mediaRaw)
+    {
+        //TODO generateMediaId with extension - mimeType - size
+        $fileName = sprintf('%s/%s.%s', 
+            $mediaRaw->getClientOriginalExtension(), 
+            $mediaRaw->getMimeType(),
+            $mediaRaw->getClientSize())
+        ;
+
+        return $fileName;
+    }
+
+    /**
+     * Guess provider service
+     *
+     * @param File $mediaRaw
+     * @return string
+     */
+    public function guessProviderService($mediaRaw)
+    {
+        //TODO return providerName according giving provider
     }
 }
-
-

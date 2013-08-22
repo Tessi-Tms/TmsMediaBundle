@@ -15,7 +15,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Media
  *
- * @ORM\Table(name="tms_media_media")
+ * @ORM\Table(name="media")
+ * @ORM\Entity(repositoryClass="Tms\Bundle\MediaBundle\Repository\MediaRepository")
  * @ORM\HasLifecycleCallbacks
  */
 class Media
@@ -48,7 +49,7 @@ class Media
 
     /**
      * @var string
-     * @ORM\Column(name="providerServiceName", type="string")
+     * @ORM\Column(name="providerServiceName", type="string", nullable=false)
      */
     protected $providerServiceName;
 
@@ -445,5 +446,4 @@ class Media
     {
         return $this->logoPath;
     }
-
 }

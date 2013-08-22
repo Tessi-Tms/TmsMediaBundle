@@ -44,31 +44,6 @@ class Inflector
     }
 
     /**
-     * Get mime type
-     *
-     *@param string $format
-     *@return string
-     */
-    static public function getMimeType($format)
-    {
-        $mimeTypes = array("jpg" => "image/jpeg",
-            "png"       => "image/png",
-            "gif"       => "image/gif",
-            "csv"       => "text/csv",
-            "flv"       => "video/x-flv",
-            "mpeg-1"    => "video/mpeg",
-            "mp4"       => "video/mp4",
-            "avi"       => "video/x-msvideo",
-            "pdf"       => "application/pdf",
-            "doc"       => "application/msword",
-            "docx"      => "application/msword",
-            "zip"       => "application/zip")
-        ;
-
-        return $mimeTypes[$format];
-    }
-
-    /**
      * Get  extension
      *
      *@param string $filename
