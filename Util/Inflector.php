@@ -42,28 +42,4 @@ class Inflector
             preg_replace('/([A-Z]+)([A-Z][a-z])/', '\1_\2', $word))))
         ;
     }
-
-    /**
-     * Get  extension
-     *
-     *@param string $filename
-     *@return string
-     */
-    static public function getExtension($filename)
-    {
-        $parts = explode('.', $filename);
-
-        return array_pop($parts);
-    }
-
-    /**
-     *  Get valid image extensions
-     *
-     * @return string
-     */
-    static public function getValidImageExtensions()
-    {
-        return $this->container->getParameter('valid_image_extensions');
-    }
-
 }

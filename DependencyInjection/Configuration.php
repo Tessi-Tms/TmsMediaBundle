@@ -28,6 +28,21 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('tms_media');
 
+        $rootNode
+            ->children()
+                ->arrayNode('providers')
+                    ->isRequired()
+                    ->requiresAtLeastOneElement()
+                    ->prototype('array')
+                    ->children()
+                        ->scalarNode('service')->isRequired()->end()
+                        ->variableNode('rules')->end()
+                        ->integerNode('priority')->defaultValue(0)->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+
         // Here you should define the parameters that are allowed to
         // configure your bundle. See the documentation linked above for
         // more information on that topic.

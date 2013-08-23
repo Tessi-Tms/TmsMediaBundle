@@ -12,11 +12,13 @@ namespace Tms\Bundle\MediaBundle\Service;
 
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Tms\Bundle\MediaBundle\Util\Inflector;
+use \Doctrine\ORM\EntityManager;
+use \Gaufrette\Filesystem;
 
 class Manager
 {
     protected $entityManager;
-    protected $storeManager;
+    protected $storageProviders = array();
 
     /**
      * Constructor
@@ -24,10 +26,9 @@ class Manager
      * @param \Doctrine\ORM\EntityManager $entityManager
      * @param \Gaufrette\Filesystem $storeManager
      */
-    public function __construct(\Doctrine\ORM\EntityManager $entityManager, \Gaufrette\Filesystem $storeManager)
+    public function __construct(EntityManager $entityManager)
     {
         $this->entityManager = $entityManager;
-        $this->storeManager = $storeManager;
     }
 
     /**
@@ -53,11 +54,15 @@ class Manager
     /**
      * Add Media
      *
-     * @param File $mediaRaw
-     * @throw UnavailableMediaException
+     * @param File 
      */
     public function addMedia($mediaRaw)
     {
+        foreach ($this->storageProviders as $storageProvider)
+        {
+            echo $storageProvider->vilainGabriel();
+        }die;
+
         // 1] Enregistrer le media via store manager (gaufrette)
         $this->getStoreManager()->write(
             $mediaRaw->getClientOriginalName(),
@@ -74,8 +79,7 @@ class Manager
         //$media->setHeight();
         $media->setSize($mediaRaw->getClientSize());
         $media->setContentType(trim($mediaRaw->getMimeType()));
-        var_dump($media);
-        die('Every thing is done');
+        var_dump($media);die;
 
         $this->getEntityManager()->persist($media);
         $this->getEntityManager()->flush();
@@ -127,5 +131,15 @@ class Manager
     public function guessProviderService($mediaRaw)
     {
         //TODO return providerName according giving provider
+    }
+
+    /**
+     * Add storage provider
+     *
+     * @param string $provider
+     */
+    public function addStorageProvider($provider)
+    {
+        $this->storageProviders[] = $provider;
     }
 }

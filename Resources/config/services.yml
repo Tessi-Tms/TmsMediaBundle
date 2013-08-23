@@ -1,4 +1,10 @@
 services:
     tms_media.manager:
         class: Tms\Bundle\MediaBundle\Service\Manager
-        arguments: [@doctrine.orm.entity_manager, @gaufrette.media_filesystem]
+        arguments: [@doctrine.orm.entity_manager]
+
+    tms_media.storage_provider:
+        class: Tms\Bundle\MediaBundle\Storage\StorageProvider
+        arguments: [null]
+        public: false
+        abstract: true
