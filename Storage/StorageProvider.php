@@ -12,6 +12,20 @@ namespace Tms\Bundle\MediaBundle\Storage;
 
 use \Gaufrette\Filesystem;
 
-class StorageProvider
+class StorageProvider implements StorageProviderInterface
 {
+    private $rules = array();
+    private $providers = array();
+
+    /**
+     * Add provider rules
+     *
+     * @param array $providers
+     * @param array $rules
+     */
+    public function addProviderRules($providers, $rules)
+    {
+        //TODO add rules to a specific provider
+        //$this->providers[] = $provider;
+    }
 }

@@ -60,7 +60,7 @@ class Manager
     {
         foreach ($this->storageProviders as $storageProvider)
         {
-            echo $storageProvider->vilainGabriel();
+            $storageProvider->testProvider();
         }die;
 
         // 1] Enregistrer le media via store manager (gaufrette)
@@ -71,18 +71,19 @@ class Manager
 
         // 2] Ajouter les informations du media en base
         $media = new Media();
-        $media->setName(trim($mediaRaw->getClientOriginalName()));
+        $media->setName($mediaRaw->getClientOriginalName());
         //$media->setDescription();
         //$media->setProviderServiceName();
         //$media->setProviderData();
         //$media->setWidth();
         //$media->setHeight();
         $media->setSize($mediaRaw->getClientSize());
-        $media->setContentType(trim($mediaRaw->getMimeType()));
+        $media->setContentType($mediaRaw->getMimeType());
         var_dump($media);die;
 
         $this->getEntityManager()->persist($media);
         $this->getEntityManager()->flush();
+
     }
 
     /**

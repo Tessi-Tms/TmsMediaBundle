@@ -27,6 +27,8 @@ First add the dependency in your `composer.json` file:
 ],
 "require": {
         ...,
+        "knplabs/gaufrette": "0.2.*@dev",
+        "knplabs/knp-gaufrette-bundle": "dev-master",
         "tms/media-bundle": "dev-master"
     },
 ```
@@ -47,6 +49,7 @@ public function registerBundles()
 {
     $bundles = array(
         //
+        new Knp\Bundle\GaufretteBundle\KnpGaufretteBundle(),
         new Tms\Bundle\MediaBundle\TmsMediaBundle(),
     );
 }
