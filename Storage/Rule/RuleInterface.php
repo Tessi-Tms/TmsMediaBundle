@@ -10,7 +10,7 @@
 
 namespace Tms\Bundle\MediaBundle\Storage\Rule;
 
-interface CreatedAfterRule
+interface RuleInterface
 {
     /**
      * Check
