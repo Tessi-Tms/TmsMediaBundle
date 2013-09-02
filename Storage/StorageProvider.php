@@ -26,6 +26,5 @@ class StorageProvider implements StorageProviderInterface
     public function addProviderRules($providers, $rules)
     {
         //TODO add rules to a specific provider
-        //$this->providers[] = $provider;
     }
 }
