@@ -81,7 +81,7 @@ class Manager
         // 2] Ajouter les informations du media en base
         $media = new Media();
         $media->setName($mediaRaw->getClientOriginalName());
-        $media->setSize($meNoMatchedStorageProviderExceptiondiaRaw->getClientSize());
+        $media->setSize($mediaRaw->getClientSize());
         $media->setContentType($mediaRaw->getMimeType());
         var_dump($media);die;
 
@@ -118,7 +118,6 @@ class Manager
      */
     public function generateMediaId(File $mediaRaw)
     {
-        //TODO generateMediaId with extension - mimeType - size
         $fileName = sprintf('%s/%s.%s', 
             $mediaRaw->getClientOriginalExtension(), 
             $mediaRaw->getMimeType(),
