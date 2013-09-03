@@ -10,6 +10,15 @@
 
 namespace Tms\Bundle\MediaBundle\Storage\Rule;
 
+use Symfony\Component\HttpFoundation\File\File;
+
 class CreatedBeforeRule implements RuleInterface
 {
+    /**
+     * {@inheritdoc}
+     */
+    function check(File $media)
+    {
+        return false;
+    }
 }

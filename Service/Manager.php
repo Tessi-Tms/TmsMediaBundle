@@ -10,10 +10,12 @@
 
 namespace Tms\Bundle\MediaBundle\Service;
 
+use Symfony\Component\HttpFoundation\File\File;
 use Tms\Bundle\MediaBundle\Entity\Media;
-use Tms\Bundle\MediaBundle\Util\Inflector;
-use \Doctrine\ORM\EntityManager;
-use \Gaufrette\Filesystem;
+use Tms\Bundle\MediaBundle\Storage\StorageProviderInterface;
+use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageProviderException;
+use Doctrine\ORM\EntityManager;
+use Gaufrette\Filesystem;
 
 class Manager
 {
@@ -32,6 +34,16 @@ class Manager
     }
 
     /**
+     * Add storage provider
+     *
+     * @param StorageProviderInterface $provider
+     */
+    public function addStorageProvider(StorageProviderInterface $provider)
+    {
+        $this->storageProviders[] = $provider;
+    }
+
+    /**
      * Get Entity Manager
      *
      * @return Doctrine\ORM\EntityManager
@@ -46,22 +58,19 @@ class Manager
      *
      * @return \Gaufrette\Filesystem
      */
-    public function getStoreManager()
+/*    public function getStoreManager()
     {
         return $this->storeManager;
-    }
+    }*/
 
     /**
      * Add Media
-     *
+     *File
      * @param File 
      */
     public function addMedia($mediaRaw)
     {
-        foreach ($this->storageProviders as $storageProvider)
-        {
-            $storageProvider->testProvider();
-        }die;
+        //echo $this->guessStorageProvider($mediaRaw); die();
 
         // 1] Enregistrer le media via store manager (gaufrette)
         $this->getStoreManager()->write(
@@ -72,12 +81,7 @@ class Manager
         // 2] Ajouter les informations du media en base
         $media = new Media();
         $media->setName($mediaRaw->getClientOriginalName());
-        //$media->setDescription();
-        //$media->setProviderServiceName();
-        //$media->setProviderData();
-        //$media->setWidth();
-        //$media->setHeight();
-        $media->setSize($mediaRaw->getClientSize());
+        $media->setSize($meNoMatchedStorageProviderExceptiondiaRaw->getClientSize());
         $media->setContentType($mediaRaw->getMimeType());
         var_dump($media);die;
 
@@ -109,9 +113,10 @@ class Manager
      * Generate media id
      *
      * @param File $imediaRaw
+     *
      * @return string
      */
-    public function generateMediaId($mediaRaw)
+    public function generateMediaId(File $mediaRaw)
     {
         //TODO generateMediaId with extension - mimeType - size
         $fileName = sprintf('%s/%s.%s', 
@@ -124,23 +129,20 @@ class Manager
     }
 
     /**
-     * Guess provider service
+     * Guess and retrieve the good storage provider for a mediaRaw.
      *
      * @param File $mediaRaw
-     * @return string
-     */
-    public function guessProviderService($mediaRaw)
-    {
-        //TODO return providerName according giving provider
-    }
-
-    /**
-     * Add storage provider
      *
-     * @param string $provider
+     * @return StorageProviderInterface The storage provider.
      */
-    public function addStorageProvider($provider)
+    public function guessStorageProvider(File $mediaRaw)
     {
-        $this->storageProviders[] = $provider;
+        foreach ($this->storageProviders as $storageProvider) {
+            if ($storageProvider->checkRules($mediaRaw)) {
+                return $storageProvider;
+            }
+        }
+
+        throw new NoMatchedStorageProviderException();
     }
 }

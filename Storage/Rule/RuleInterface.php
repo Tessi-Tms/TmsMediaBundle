@@ -10,15 +10,14 @@
 
 namespace Tms\Bundle\MediaBundle\Storage\Rule;
 
+use Symfony\Component\HttpFoundation\File\File;
+
 interface RuleInterface
 {
     /**
-     * Check
+     * Check the rule for a media.
      *
      * @param File $media
      */
-    public function check($media)
-    {
-        //TODO
-    }
+    function check(File $media);
 }

@@ -10,15 +10,22 @@
 
 namespace Tms\Bundle\MediaBundle\Storage;
 
+use Symfony\Component\HttpFoundation\File\File;
+use Tms\Bundle\MediaBundle\Storage\Rule\RuleInterface;
+
 interface StorageProviderInterface
 {
     /**
-     * Check rules
+     * Check the rules.
      *
      * @param File $media
      */
-    public function checkRules($media)
-    {
-        //TODO
-    }
+    function checkRules(File $media);
+
+    /**
+     * Add a rule to the provider.
+     *
+     * @param RuleInterface $rule
+     */
+    function addRule(RuleInterface $rule);
 }

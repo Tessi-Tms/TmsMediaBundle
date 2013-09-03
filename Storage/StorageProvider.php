@@ -10,21 +10,33 @@
 
 namespace Tms\Bundle\MediaBundle\Storage;
 
-use \Gaufrette\Filesystem;
+use Symfony\Component\HttpFoundation\File\File;
+use Gaufrette\Filesystem;
+use Tms\Bundle\MediaBundle\Storage\Rule\RuleInterface;
 
 class StorageProvider implements StorageProviderInterface
 {
-    private $rules = array();
-    private $providers = array();
+    protected $rules = array();
 
     /**
-     * Add provider rules
-     *
-     * @param array $providers
-     * @param array $rules
+     * {@inheritdoc}
      */
-    public function addProviderRules($providers, $rules)
+    public function addRule(RuleInterface $rule)
     {
-        //TODO add rules to a specific provider
+        $this->rules[] = $rule;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function checkRules(File $media)
+    {
+        foreach($this->rules as $rule) {
+            if (!$rule->check($media)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

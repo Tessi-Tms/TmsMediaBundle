@@ -1,10 +1,54 @@
+parameters:
+    tms_media.storage_provider.class: Tms\Bundle\MediaBundle\Storage\StorageProvider
+
 services:
     tms_media.manager:
         class: Tms\Bundle\MediaBundle\Service\Manager
         arguments: [@doctrine.orm.entity_manager]
 
     tms_media.storage_provider:
-        class: Tms\Bundle\MediaBundle\Storage\StorageProvider
+        class: %tms_media.storage_provider.class%
         arguments: [null]
         public: false
         abstract: true
+
+    tms_media.rule.min_size:
+        class: Tms\Bundle\MediaBundle\Storage\Rule\MinSizeRule
+        arguments: [null]
+        public: false
+        abstract: true
+        tags:
+            - { name: tms_media.rule, alias: min_size }
+
+    tms_media.rule.max_size:
+        class: Tms\Bundle\MediaBundle\Storage\Rule\MaxSizeRule
+        arguments: [null]
+        public: false
+        abstract: true
+        tags:
+            - { name: tms_media.rule, alias: max_size }
+
+    tms_media.rule.mime_types:
+        class: Tms\Bundle\MediaBundle\Storage\Rule\MimeTypesRule
+        arguments: [null]
+        public: false
+        abstract: true
+        tags:
+            - { name: tms_media.rule, alias: mime_types }
+
+    tms_media.rule.created_before:
+        class: Tms\Bundle\MediaBundle\Storage\Rule\CreatedBeforeRule
+        arguments: [null]
+        public: false
+        abstract: true
+        tags:
+            - { name: tms_media.rule, alias: created_before }
+
+
+    tms_media.rule.created_after:
+        class: Tms\Bundle\MediaBundle\Storage\Rule\CreatedAfterRule
+        arguments: [null]
+        public: false
+        abstract: true
+        tags:
+            - { name: tms_media.rule, alias: created_after }

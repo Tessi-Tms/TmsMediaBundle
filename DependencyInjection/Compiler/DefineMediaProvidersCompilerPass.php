@@ -27,8 +27,15 @@ class DefineMediaProvidersCompilerPass implements CompilerPassInterface
 
         $definition = $container->getDefinition('tms_media.manager');
 
-        $providersConfig = $container->getParameter('tms_media.config.providers');
+        $ruleServiceIds = array();
+        $ruleServices = $container->findTaggedServiceIds(
+            'tms_media.rule'
+        );
+        foreach ($ruleServices as $id => $attributes) {
+            $ruleServiceIds[$attributes[0]['alias']] = $id;
+        }
 
+        $providersConfig = $container->getParameter('tms_media.config.providers');
         foreach ($providersConfig as $providerId => $providerConfig)
         {
             $providerDefinition = new DefinitionDecorator('tms_media.storage_provider');
@@ -38,6 +45,28 @@ class DefineMediaProvidersCompilerPass implements CompilerPassInterface
                 'tms_media.storage_provider.%s',
                 $providerId
             );
+
+            // Injection of the rules in the provider.
+            foreach ($providerConfig['rules'] as $ruleAlias => $ruleArguments)
+            {
+                $ruleDefinition = new DefinitionDecorator($ruleServiceIds[$ruleAlias]);
+                $ruleDefinition->setAbstract(false);
+                $ruleDefinition->replaceArgument(0, $ruleArguments);
+
+                $ruleServiceId = sprintf(
+                    '%s.%s',
+                    $ruleServiceIds[$ruleAlias],
+                    $providerId
+                );
+
+                $container->setDefinition($ruleServiceId, $ruleDefinition);
+
+                $providerDefinition->addMethodCall(
+                    'addRule',
+                    array(new Reference($ruleServiceId))
+                );
+            }
+
             $container->setDefinition($providerServiceId, $providerDefinition);
 
             $definition->addMethodCall(
