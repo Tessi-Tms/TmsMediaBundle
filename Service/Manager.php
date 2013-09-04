@@ -25,8 +25,7 @@ class Manager
     /**
      * Constructor
      *
-     * @param \Doctrine\ORM\EntityManager $entityManager
-     * @param \Gaufrette\Filesystem $storeManager
+     * @param Doctrine\ORM\EntityManager $entityManager
      */
     public function __construct(EntityManager $entityManager)
     {
@@ -58,35 +57,37 @@ class Manager
      *
      * @return \Gaufrette\Filesystem
      */
-/*    public function getStoreManager()
+    /*public function getStoreManager()
     {
         return $this->storeManager;
     }*/
 
     /**
      * Add Media
-     *File
-     * @param File 
+     *
+     * @param File $mediaRaw
      */
     public function addMedia($mediaRaw)
     {
-        //echo $this->guessStorageProvider($mediaRaw); die();
+        if($this->guessStorageProvider($mediaRaw)) {
+            // 1] Enregistrer le media via store manager (gaufrette)
+            /*$this->getStoreManager()->write(
+                $mediaRaw->getClientOriginalName(),
+                $mediaRaw
+            );*/
+            // 2] Ajouter les informations du media en base
+            $media = new Media();
+            $ref = $this->generateMediaReference($mediaRaw);
+            $media->setName($mediaRaw->getClientOriginalName());
+            $media->setSize($mediaRaw->getClientSize());
+            $media->setContentType($mediaRaw->getMimeType());
+            $media->setReference($ref);
+            //var_dump($media);die;
 
-        // 1] Enregistrer le media via store manager (gaufrette)
-        $this->getStoreManager()->write(
-            $mediaRaw->getClientOriginalName(),
-            $mediaRaw
-        );
-
-        // 2] Ajouter les informations du media en base
-        $media = new Media();
-        $media->setName($mediaRaw->getClientOriginalName());
-        $media->setSize($mediaRaw->getClientSize());
-        $media->setContentType($mediaRaw->getMimeType());
-        var_dump($media);die;
-
-        $this->getEntityManager()->persist($media);
-        $this->getEntityManager()->flush();
+            $this->getEntityManager()->persist($media);
+            $this->getEntityManager()->flush();
+            die('Sauvegarde effectué');
+        }
 
     }
 
@@ -110,18 +111,18 @@ class Manager
     }
 
     /**
-     * Generate media id
+     * Generate a unique rereference for a mediaRaw
      *
      * @param File $imediaRaw
      *
      * @return string
      */
-    public function generateMediaId(File $mediaRaw)
+    public function generateMediaReference(File $mediaRaw)
     {
-        $fileName = sprintf('%s/%s.%s', 
+        $fileName = sprintf('%s.%s.%s', 
             $mediaRaw->getClientOriginalExtension(), 
             $mediaRaw->getMimeType(),
-            $mediaRaw->getClientSize())
+            uniqid())
         ;
 
         return $fileName;
@@ -133,6 +134,8 @@ class Manager
      * @param File $mediaRaw
      *
      * @return StorageProviderInterface The storage provider.
+     *
+     * @throw NoMatchedStorageProviderException
      */
     public function guessStorageProvider(File $mediaRaw)
     {

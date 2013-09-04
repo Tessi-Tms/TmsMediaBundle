@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Media
  *
- * @ORM\Table(name="media")
+ * @ORM\Table(name="media", uniqueConstraints={@ORM\UniqueConstraint(name="Reference", columns={"reference"})})
  * @ORM\Entity(repositoryClass="Tms\Bundle\MediaBundle\Repository\MediaRepository")
  * @ORM\HasLifecycleCallbacks
  */
@@ -49,15 +49,15 @@ class Media
 
     /**
      * @var string
-     * @ORM\Column(name="providerServiceName", type="string", nullable=false)
+     * @ORM\Column(name="providerServiceName", type="string", nullable=true)
      */
     protected $providerServiceName;
 
     /**
-     * @var array
-     * @ORM\Column(name="providerData", type="json_array")
+     * @var string
+     * @ORM\Column(name="reference", type="string")
      */
-    protected $providerData;
+    protected $reference;
 
     /**
      * @var integer
@@ -91,19 +91,19 @@ class Media
 
     /**
      * @var datetime $updatedAt
-     * @ORM\Column(name="updated_at", type="datetime")
+     * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
     protected $updatedAt;
 
     /**
      * @var datetime $createdAt
-     * @ORM\Column(name="created_at", type="datetime")
+     * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
     protected $createdAt;
 
     /**
      * @var string $logoPath
-     * @ORM\Column(name="logo_path", type="string")
+     * @ORM\Column(name="logo_path", type="string", nullable=true)
      */
     protected $logoPath;
 
@@ -241,26 +241,26 @@ class Media
     }
 
     /**
-     * Set provider data
+     * Set reference
      *
-     * @param array $providerData
+     * @param array $reference
      * @return MediaEntity
      */
-    public function setProviderData($providerData)
+    public function setReference($reference)
     {
-        $this->providerData = $providerData;
+        $this->reference = $reference;
 
         return $this;
     }
 
     /**
-     * Get provider data
+     * Get reference data
      *
      * @return array 
      */
-    public function getProviderData()
+    public function getReference()
     {
-        return $this->providerData;
+        return $this->reference;
     }
 
     /**
