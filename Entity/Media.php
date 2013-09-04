@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Media
  *
  * @ORM\Table(name="media", uniqueConstraints={@ORM\UniqueConstraint(name="Reference", columns={"reference"})})
- * @ORM\Entity(repositoryClass="Tms\Bundle\MediaBundle\Repository\MediaRepository")
+ * @ORM\Entity(repositoryClass="Tms\Bundle\MediaBundle\Entity\Repository\MediaRepository")
  * @ORM\HasLifecycleCallbacks
  */
 class Media
@@ -90,22 +90,16 @@ class Media
     protected $owner;
 
     /**
-     * @var datetime $updatedAt
-     * @ORM\Column(name="updated_at", type="datetime", nullable=true)
-     */
-    protected $updatedAt;
-
-    /**
-     * @var datetime $createdAt
-     * @ORM\Column(name="created_at", type="datetime", nullable=true)
+     * @var datetime
+     * @ORM\Column(name="created_at", type="datetime")
      */
     protected $createdAt;
 
     /**
-     * @var string $logoPath
-     * @ORM\Column(name="logo_path", type="string", nullable=true)
+     * @var datetime
+     * @ORM\Column(name="updated_at", type="datetime")
      */
-    protected $logoPath;
+    protected $updatedAt;
 
     /**
      * Constructor
@@ -116,15 +110,17 @@ class Media
     }
 
     /**
-     * on creation
+     * on create
      *
      * @ORM\PrePersist()
      */
-    public function onCreation()
+    public function onCreate()
     {
-        $now = new \DateTime('now');
-        $this->setCreatedAt($now);
-        $this->setUpdatedAt($now);
+        $now = new \DateTime();
+        $this
+            ->setCreatedAt($now)
+            ->setUpdatedAt($now)
+        ;
     }
 
     /**
@@ -134,7 +130,7 @@ class Media
      */
     public function onUpdate()
     {
-        $now = new \DateTime('now');
+        $now = new \DateTime();
         $this->setUpdatedAt($now);
     }
 
@@ -379,29 +375,6 @@ class Media
     }
 
     /**
-     * Set updated at
-     *
-     * @param \DateTime $updatedAt
-     * @return Media
-     */
-    public function setUpdatedAt($updatedAt)
-    {
-        $this->updated_at = $updatedAt;
-
-        return $this;
-    }
-
-    /**
-     * Get updated at
-     *
-     * @return \DateTime 
-     */
-    public function getUpdatedAt()
-    {
-        return $this->updated_at;
-    }
-
-    /**
      * Set created at
      *
      * @param \DateTime $createdAt
@@ -425,25 +398,25 @@ class Media
     }
 
     /**
-     * Set logo path
+     * Set updated at
      *
-     * @param string $logoPath
+     * @param \DateTime $updatedAt
      * @return Media
      */
-    public function setLogoPath($logoPath)
+    public function setUpdatedAt($updatedAt)
     {
-        $this->logoPath = $logoPath;
+        $this->updated_at = $updatedAt;
 
         return $this;
     }
 
     /**
-     * Get logo path
+     * Get updated at
      *
-     * @return string
+     * @return \DateTime 
      */
-    public function getLogoPath()
+    public function getUpdatedAt()
     {
-        return $this->logoPath;
+        return $this->updated_at;
     }
 }

@@ -33,6 +33,6 @@ class TmsMediaExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
-        $container->setParameter('tms_media.config.providers', $config['providers']);
+        $container->setParameter('tms_media.config.storage_mappers', $config['storage_mappers']);
     }
 }

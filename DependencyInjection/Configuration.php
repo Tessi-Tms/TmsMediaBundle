@@ -30,12 +30,12 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->arrayNode('providers')
+                ->arrayNode('storage_mappers')
                     ->isRequired()
                     ->requiresAtLeastOneElement()
                     ->prototype('array')
                         ->children()
-                            ->scalarNode('service')->isRequired()->end()
+                            ->scalarNode('storage_provider')->isRequired()->end()
                             ->arrayNode('rules')
                                 ->isRequired()
                                 ->defaultValue(array())

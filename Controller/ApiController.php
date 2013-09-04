@@ -32,14 +32,14 @@ class ApiController extends Controller
      */
     public function postAction(Request $request)
     {
-        //try {
+        try {
             $mediaRaw = $request->files->get('media');
             $this->get('tms_media.manager')->addMedia($mediaRaw);
-        //} catch (\Exception $e) {
-            //die('TODO');
-        //}
+            $response = new Response();
+        } catch (\Exception $e) {
+            die($e->getMessage());
+        }
 
-        $response = new Response();
 
         return $response;
     }

@@ -22,33 +22,32 @@ class DefineMediaProvidersCompilerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition('tms_media.manager'))
+        if (!$container->hasDefinition('tms_media.manager')) {
             return;
+        }
 
         $definition = $container->getDefinition('tms_media.manager');
 
         $ruleServiceIds = array();
-        $ruleServices = $container->findTaggedServiceIds(
-            'tms_media.rule'
-        );
+        $ruleServices = $container->findTaggedServiceIds('tms_media.mapper.rule');
+
         foreach ($ruleServices as $id => $attributes) {
             $ruleServiceIds[$attributes[0]['alias']] = $id;
         }
 
-        $providersConfig = $container->getParameter('tms_media.config.providers');
-        foreach ($providersConfig as $providerId => $providerConfig)
-        {
-            $providerDefinition = new DefinitionDecorator('tms_media.storage_provider');
-            $providerDefinition->setAbstract(false);
-            $providerDefinition->replaceArgument(0, new Reference($providerConfig['service']));
-            $providerServiceId = sprintf(
-                'tms_media.storage_provider.%s',
-                $providerId
+        $storageMappersConfig = $container->getParameter('tms_media.config.storage_mappers');
+        foreach ($storageMappersConfig as $storageMapperId => $storageMapperConfig) {
+            $storageMappersDefinition = new DefinitionDecorator('tms_media.storage_mapper');
+            $storageMappersDefinition->setAbstract(false);
+            $storageMappersDefinition->replaceArgument(0, new Reference($storageMapperConfig['storage_provider']));
+            $storageMappersDefinition->replaceArgument(1, $storageMapperConfig['storage_provider']);
+            $storageMapperServiceId = sprintf(
+                'tms_media.storage_mapper.%s',
+                $storageMapperId
             );
 
             // Injection of the rules in the provider.
-            foreach ($providerConfig['rules'] as $ruleAlias => $ruleArguments)
-            {
+            foreach ($storageMapperConfig['rules'] as $ruleAlias => $ruleArguments) {
                 $ruleDefinition = new DefinitionDecorator($ruleServiceIds[$ruleAlias]);
                 $ruleDefinition->setAbstract(false);
                 $ruleDefinition->replaceArgument(0, $ruleArguments);
@@ -56,22 +55,22 @@ class DefineMediaProvidersCompilerPass implements CompilerPassInterface
                 $ruleServiceId = sprintf(
                     '%s.%s',
                     $ruleServiceIds[$ruleAlias],
-                    $providerId
+                    $storageMapperId
                 );
 
                 $container->setDefinition($ruleServiceId, $ruleDefinition);
 
-                $providerDefinition->addMethodCall(
+                $storageMappersDefinition->addMethodCall(
                     'addRule',
                     array(new Reference($ruleServiceId))
                 );
             }
 
-            $container->setDefinition($providerServiceId, $providerDefinition);
+            $container->setDefinition($storageMapperServiceId, $storageMappersDefinition);
 
             $definition->addMethodCall(
-                'addStorageProvider',
-                array(new Reference($providerServiceId))
+                'addStorageMapper',
+                array(new Reference($storageMapperServiceId))
             );
         }
     }
