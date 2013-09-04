@@ -12,13 +12,17 @@ namespace Tms\Bundle\MediaBundle\StorageMapper\Rule;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class MinSizeRule extends AbstractRule
+class MinSizeRule extends AbstractSizeRule
 {
     /**
      * {@inheritdoc}
      */
     function check(UploadedFile $file)
     {
-        return false;
+        if($file->getClientSize() < ($this->toByteSize($this->getRuleArguments()))) {
+            return false;
+        }
+
+        return true;
     }
 }

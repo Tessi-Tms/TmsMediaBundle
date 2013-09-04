@@ -19,6 +19,12 @@ class CreatedBeforeRule extends AbstractRule
      */
     function check(UploadedFile $file)
     {
-        return false;
+        $now = new \DateTime();
+        if($now > $this->getRuleArguments()) {
+            return false
+        }
+
+        return true;
+    }
     }
 }
