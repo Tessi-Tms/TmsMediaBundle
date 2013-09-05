@@ -103,20 +103,39 @@ class Manager
     /**
      * Retrieve mediaRaw
      *
-     * @param string $id
-     * @return array
+     * @param string $reference
+     * @return array The media
      */
-    public function retrieveMedia($id)
+    public function retrieveMedia($reference, $raw = false)
     {
+        $media  = $this
+                ->getEntityManager()
+                ->getRepository('TmsMediaBundle:Media')
+                ->findOneBy(array('reference' => $reference));
+        return $media;
+
+        if($raw) {
+            $storageMapper = $this->guessStorageMapper($media);
+            return $storageMapper->getProviderServiceName()->read($media->getReference());
+        }
+
+
     }
 
     /**
      * Delete mediaRaw
      *
-     * @param string $id
+     * @param string $reference
      */
-    public function deleteMedia($id)
+    public function deleteMedia($reference)
     {
+        $media = $this->retrieveMedia($reference);
+        //var_dump($media); die;
+        $this->entityManager->remove($media);
+        $this->entityManager->flush();
+
+        $storageMapper = $this->guessStorageMapper($media);
+        $storageMapper->getProviderServiceName()->delete($media->getReference());
     }
 
     /**

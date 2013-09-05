@@ -48,14 +48,14 @@ class ApiController extends Controller
      * Delete
      *
      * @param Request $request
-     * @param string $id
-     * @Route("/media/{id}")
+     * @param string $reference
+     * @Route("/media/{reference}")
      * @Method({"DELETE"})
      */
-    public function deleteAction(Request $request, $id)
+    public function deleteAction(Request $request, $reference)
     {
         try {
-            $this->get('tms_media.manager')->deleteMedia($id);
+            $this->get('tms_media.manager')->deleteMedia($reference);
             $response = new Response();
         } catch (\Exception $e) {
             die($e->getMessage());
@@ -68,14 +68,14 @@ class ApiController extends Controller
      * Get
      *
      * @param Request $request
-     * @param string $id
-     * @Route("/media/{id}")
+     * @param string $reference
+     * @Route("/media/{reference}")
      * @Method({"GET"})
      */
-    public function getAction(Request $request, $id)
+    public function getAction(Request $request, $reference)
     {
         try {
-            $this->get('tms_media.manager')->retrieveMedia($id);
+            $this->get('tms_media.manager')->retrieveMedia($reference);
             $response = new Response();
         } catch (\Exception $e) {
             die($e->getMessage());
