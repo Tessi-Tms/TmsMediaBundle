@@ -10,32 +10,26 @@
 namespace Tms\Bundle\MediaBundle\StorageMapper\Rule;
 
 use Tms\Bundle\MediaBundle\StorageMapper\Rule\AbstractRule;
+use Tms\Bundle\MediaBundle\Exception\InvalidSizeRuleException;
 
 abstract class AbstractSizeRule extends AbstractRule
 {
     /**
-     * To byte size
+     * Convert a string into Bytes
      *
-     * @param  int $p_sFormatted
+     * @param string $from
+     * @return integer The from converted
      */
-    function toByteSize($p_sFormatted)
+    public static function convertToBytes($from)
     {
-        $aUnits = array('B'=>0, 'KB'=>1, 'MB'=>2, 'GB'=>3, 'TB'=>4, 'PB'=>5, 'EB'=>6, 'ZB'=>7, 'YB'=>8);
-        $sUnit = strtoupper(trim(substr($p_sFormatted, -2)));
+        $number = substr($from, 0, -2);
+        $bytesMap =  array("KB" => 1, "MB" => 2, "GB" => 3, "TB" => 4, "PB" => 5);
+        $unit = strtoupper(substr($from, -2));
 
-        if (intval($sUnit) !== 0) {
-            $sUnit = 'B';
-        }
-        if (!in_array($sUnit, array_keys($aUnits))) {
-            return false;
+        if(!isset($bytesMap[$unit])) {
+            throw new InvalidSizeRuleException($from);
         }
 
-        $iUnits = trim(substr($p_sFormatted, 0, strlen($p_sFormatted) - 2));
-
-        if (!intval($iUnits) == $iUnits) {
-            return false;
-        }
-
-        return $iUnits * pow(1024, $aUnits[$sUnit]);
+        return $number * pow(1024, $bytesMap[$unit]);
     }
 }

@@ -58,7 +58,7 @@ class ApiController extends Controller
             $this->get('tms_media.manager')->deleteMedia($id);
             $response = new Response();
         } catch (\Exception $e) {
-            die('TODO');
+            die($e->getMessage());
         }
 
         return $response;
@@ -78,7 +78,7 @@ class ApiController extends Controller
             $this->get('tms_media.manager')->retrieveMedia($id);
             $response = new Response();
         } catch (\Exception $e) {
-            die('TODO');
+            die($e->getMessage());
         }
 
         return $response;

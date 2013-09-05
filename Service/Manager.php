@@ -101,7 +101,7 @@ class Manager
     }
 
     /**
-     * Retrieve Media
+     * Retrieve mediaRaw
      *
      * @param string $id
      * @return array
@@ -111,7 +111,7 @@ class Manager
     }
 
     /**
-     * Delete Media
+     * Delete mediaRaw
      *
      * @param string $id
      */

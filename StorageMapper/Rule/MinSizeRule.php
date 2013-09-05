@@ -19,7 +19,7 @@ class MinSizeRule extends AbstractSizeRule
      */
     function check(UploadedFile $file)
     {
-        if($file->getClientSize() < ($this->toByteSize($this->getRuleArguments()))) {
+        if($file->getClientSize() < self::convertToBytes($this->getRuleArguments())) {
             return false;
         }
 

@@ -12,7 +12,7 @@ namespace Tms\Bundle\MediaBundle\StorageMapper\Rule;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class CreatedAfterRule extends AbstractRule
+class CreatedAfterRule extends AbstractCreatedRule
 {
     /**
      * {@inheritdoc}
@@ -20,11 +20,12 @@ class CreatedAfterRule extends AbstractRule
     function check(UploadedFile $file)
     {
         $now = new \DateTime();
-        if($this->getRuleArguments() > $now) {
-            return true;
+        $after = self::convertToDateTime($this->getRuleArguments());
+        if($after->format('U') > $now->format('U')) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
 }
