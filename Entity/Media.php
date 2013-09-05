@@ -90,14 +90,14 @@ class Media
     protected $owner;
 
     /**
-     * @var datetime
-     * @ORM\Column(name="created_at", type="datetime", nullable=true)
+     * @var \DateTime
+     * @ORM\Column(name="created_at", type="datetime")
      */
     protected $createdAt;
 
     /**
-     * @var datetime
-     * @ORM\Column(name="updated_at", type="datetime", nullable=true)
+     * @var \DateTime
+     * @ORM\Column(name="updated_at", type="datetime")
      */
     protected $updatedAt;
 
@@ -116,10 +116,9 @@ class Media
      */
     public function onCreate()
     {
-        $now = new \DateTime();
         $this
-            ->setCreatedAt($now)
-            ->setUpdatedAt($now)
+            ->setCreatedAt('now')
+            ->setUpdatedAt('now')
         ;
     }
 
@@ -130,8 +129,7 @@ class Media
      */
     public function onUpdate()
     {
-        $now = new \DateTime();
-        $this->setUpdatedAt($now);
+        $this->setUpdatedAt('now');
     }
 
     /**
