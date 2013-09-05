@@ -7,7 +7,7 @@
  * @license: GPL
  *
  */
-namespace Tms\Bundle\MediaBundle\StorageMapper\Rule
+namespace Tms\Bundle\MediaBundle\StorageMapper\Rule;
 
 use Tms\Bundle\MediaBundle\StorageMapper\Rule\AbstractRule;
 

@@ -49,7 +49,7 @@ class Media
 
     /**
      * @var string
-     * @ORM\Column(name="providerServiceName", type="string", nullable=true)
+     * @ORM\Column(name="providerServiceName", type="string", nullable=false)
      */
     protected $providerServiceName;
 
@@ -91,13 +91,13 @@ class Media
 
     /**
      * @var datetime
-     * @ORM\Column(name="created_at", type="datetime")
+     * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
     protected $createdAt;
 
     /**
      * @var datetime
-     * @ORM\Column(name="updated_at", type="datetime")
+     * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
     protected $updatedAt;
 
