@@ -4,7 +4,7 @@ parameters:
 services:
     tms_media.manager:
         class: Tms\Bundle\MediaBundle\Service\Manager
-        arguments: [@doctrine.orm.entity_manager]
+        arguments: [@doctrine.orm.entity_manager, %tms_media.default_store_path%]
 
     tms_media.storage_mapper:
         class: %tms_media.storage_mapper.class%

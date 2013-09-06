@@ -17,9 +17,9 @@ class MaxSizeRule extends AbstractSizeRule
     /**
      * {@inheritdoc}
      */
-    function check(UploadedFile $file)
+    function check($file)
     {
-        if($file->getClientSize() > self::convertToBytes($this->getRuleArguments())) {
+        if(filesize($file) > self::convertToBytes($this->getRuleArguments())) {
             return false;
         }
 

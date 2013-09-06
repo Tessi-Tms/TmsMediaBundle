@@ -17,7 +17,7 @@ class CreatedAfterRule extends AbstractCreatedRule
     /**
      * {@inheritdoc}
      */
-    function check(UploadedFile $file)
+    function check($file)
     {
         $now = new \DateTime();
         $after = self::convertToDateTime($this->getRuleArguments());

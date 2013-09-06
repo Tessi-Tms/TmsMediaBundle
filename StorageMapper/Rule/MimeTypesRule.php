@@ -17,8 +17,12 @@ class MimeTypesRule extends AbstractRule
     /**
      * {@inheritdoc}
      */
-    function check(UploadedFile $file)
+    function check($file)
     {
-        return in_array($file->getMimeType(), $this->getRuleArguments());
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file);
+        finfo_close($finfo);
+
+        return in_array($mimeType, $this->getRuleArguments());
     }
 }

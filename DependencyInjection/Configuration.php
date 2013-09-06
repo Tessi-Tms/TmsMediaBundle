@@ -30,6 +30,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->scalarNode('default_store_path')->defaultValue('/tmp')->end()
                 ->arrayNode('storage_mappers')
                     ->isRequired()
                     ->requiresAtLeastOneElement()

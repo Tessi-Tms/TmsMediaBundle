@@ -17,7 +17,7 @@ interface RuleInterface
     /**
      * Check the rule for a file.
      *
-     * @param UploadedFile $file
+     * @param string $file
      */
-    function check(UploadedFile $file);
+    function check($file);
 }

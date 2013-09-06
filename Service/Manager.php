@@ -23,15 +23,17 @@ class Manager
 {
     protected $entityManager;
     protected $storageMappers = array();
+    protected $defaultStorePath;
 
     /**
      * Constructor
      *
      * @param Doctrine\ORM\EntityManager $entityManager
      */
-    public function __construct(EntityManager $entityManager)
+    public function __construct(EntityManager $entityManager, $defaultStorePath)
     {
         $this->entityManager = $entityManager;
+        $this->defaultStorePath = $defaultStorePath;
     }
 
     /**
@@ -68,6 +70,16 @@ class Manager
     }
 
     /**
+     * Get default store path
+     *
+     * @return string
+     */
+    public function getDefaultStorePath()
+    {
+        return $this->defaultStorePath;
+    }
+
+    /**
      * Add Media
      *
      * @param UploadedFile $mediaRaw
@@ -86,17 +98,34 @@ class Manager
             throw new MediaAlreadyExistException();
         }
 
-        $storageMapper = $this->guessStorageMapper($mediaRaw);
-        $storageMapper->getStorageProvider()->write($reference, $mediaRaw);
+        // Store the media at the default path
+        $mediaRaw->move($this->getDefaultStorePath(), $reference);
+        $defaultMediaPath = sprintf('%s/%s', $this->getDefaultStorePath(), $reference);
+
+        $providerServiceName = null;
+        try {
+            $storageMapper = $this->guessStorageMapper($defaultMediaPath);
+            $storageMapper->getStorageProvider()->write(
+                $reference,
+                file_get_contents($defaultMediaPath)
+            );
+            $providerServiceName = $storageMapper->getStorageProviderServiceName();
+            // Remove the media if a provider was well guess and used.
+            unlink($defaultMediaPath);
+        } catch(NoMatchedStorageProviderException $e) {
+            $providerServiceName = 'default';
+        }
 
         $media = new Media();
-        $media->setProviderServiceName($storageMapper->getStorageProviderServiceName());
+        $media->setProviderServiceName($providerServiceName);
         $media->setName($mediaRaw->getClientOriginalName());
         $media->setSize($mediaRaw->getClientSize());
         $media->setContentType($mediaRaw->getClientMimeType());
         $media->setReference($reference);
         $this->getEntityManager()->persist($media);
         $this->getEntityManager()->flush();
+
+        return $reference;
     }
 
     /**
@@ -105,7 +134,7 @@ class Manager
      * @param string $reference
      * @return array The media
      */
-    public function retrieveMedia($reference, $raw = false)
+    public function retrieveMedia($reference)
     {
         $media = $this
             ->getEntityManager()
@@ -115,12 +144,6 @@ class Manager
 
         if(!$media) {
             throw new MediaNotFoundException($reference);
-        }
-
-        if($raw) {
-            $storageProvider = $this->getStorageProvider($media->getProviderServiceName());
-
-            return $storageProvider->read($media->getReference());
         }
 
         return $media;
@@ -176,16 +199,14 @@ class Manager
     /**
      * Guess and retrieve the good storage mapper for a mediaRaw.
      *
-     * @param UploadedFile $mediaRaw
-     *
+     * @param string $mediaPath
      * @return StorageMapperInterface The storage mapper.
-     *
      * @throw NoMatchedStorageProviderException
      */
-    public function guessStorageMapper(UploadedFile $mediaRaw)
+    public function guessStorageMapper($mediaPath)
     {
         foreach ($this->storageMappers as $storageMapper) {
-            if ($storageMapper->checkRules($mediaRaw)) {
+            if ($storageMapper->checkRules($mediaPath)) {
                 return $storageMapper;
             }
         }

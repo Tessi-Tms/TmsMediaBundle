@@ -18,9 +18,9 @@ interface StorageMapperInterface
     /**
      * Check the rules.
      *
-     * @param UploadedFile $media
+     * @param string $mediaPath
      */
-    public function checkRules(UploadedFile $media);
+    public function checkRules($mediaPath);
 
     /**
      * Add a rule to the provider.

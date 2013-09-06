@@ -53,10 +53,10 @@ class StorageMapper implements StorageMapperInterface
     /**
      * {@inheritdoc}
      */
-    public function checkRules(UploadedFile $media)
+    public function checkRules($mediaPath)
     {
         foreach($this->rules as $rule) {
-            if (!$rule->check($media)) {
+            if (!$rule->check($mediaPath)) {
                 return false;
             }
         }
