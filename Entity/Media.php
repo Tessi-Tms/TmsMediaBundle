@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="media", uniqueConstraints={@ORM\UniqueConstraint(name="Reference", columns={"reference"})})
  * @ORM\Entity(repositoryClass="Tms\Bundle\MediaBundle\Entity\Repository\MediaRepository")
- * @ORM\HasLifecycleCallbacks
+ * @ORM\HasLifecycleCallbacks()
  */
 class Media
 {
@@ -91,15 +91,36 @@ class Media
 
     /**
      * @var \DateTime
-     * @ORM\Column(name="created_at", type="datetime", nullable=true)
+     * @ORM\Column(name="created_at", type="datetime")
      */
     protected $createdAt;
 
     /**
      * @var \DateTime
-     * @ORM\Column(name="updated_at", type="datetime", nullable=true)
+     * @ORM\Column(name="updated_at", type="datetime")
      */
     protected $updatedAt;
+
+    /**
+     * On create
+     *
+     * @ORM\PrePersist
+     */
+    public function onCreate()
+    {
+        $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
+    }
+
+    /**
+     * On update
+     *
+     * @ORM\PreUpdate
+     */
+    public function onUpdate()
+    {
+        $this->updatedAt = new \DateTime();
+    }
 
     /**
      * Constructor
@@ -107,29 +128,6 @@ class Media
     public function __construct()
     {
         $this->setEnabled(true);
-    }
-
-    /**
-     * on create
-     *
-     * @ORM\PrePersist()
-     */
-    public function onCreate()
-    {
-        $this
-            ->setCreatedAt('now')
-            ->setUpdatedAt('now')
-        ;
-    }
-
-    /**
-     * on update
-     *
-     * @ORM\PreUpdate()
-     */
-    public function onUpdate()
-    {
-        $this->setUpdatedAt('now');
     }
 
     /**

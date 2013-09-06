@@ -130,12 +130,11 @@ class Manager
     public function deleteMedia($reference)
     {
         $media = $this->retrieveMedia($reference);
-        //var_dump($media); die;
         $this->entityManager->remove($media);
         $this->entityManager->flush();
 
-        $storageMapper = $this->guessStorageMapper($media);
-        $storageMapper->getProviderServiceName()->delete($media->getReference());
+        /*$storageMapper = $this->guessStorageMapper($media);
+        $storageMapper->getProviderServiceName()->delete($media->getReference());*/
     }
 
     /**
