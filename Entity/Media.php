@@ -104,22 +104,26 @@ class Media
     /**
      * On create
      *
-     * @ORM\PrePersist
+     * @ORM\PrePersist()
      */
     public function onCreate()
     {
-        $this->createdAt = new \DateTime();
-        $this->updatedAt = new \DateTime();
+        $now = new \DateTime();
+        $this
+            ->setCreatedAt($now)
+            ->setUpdatedAt($now)
+        ;
     }
 
     /**
      * On update
      *
-     * @ORM\PreUpdate
+     * @ORM\PreUpdate()
      */
     public function onUpdate()
     {
-        $this->updatedAt = new \DateTime();
+        $now = new \DateTime();
+        $this->setUpdatedAt($now);
     }
 
     /**
@@ -378,7 +382,7 @@ class Media
      */
     public function setCreatedAt($createdAt)
     {
-        $this->created_at = $createdAt;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
@@ -390,7 +394,7 @@ class Media
      */
     public function getCreatedAt()
     {
-        return $this->created_at;
+        return $this->createdAt;
     }
 
     /**
@@ -401,7 +405,7 @@ class Media
      */
     public function setUpdatedAt($updatedAt)
     {
-        $this->updated_at = $updatedAt;
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
@@ -413,6 +417,6 @@ class Media
      */
     public function getUpdatedAt()
     {
-        return $this->updated_at;
+        return $this->updatedAt;
     }
 }
