@@ -15,6 +15,7 @@ use Tms\Bundle\MediaBundle\Entity\Media;
 use Tms\Bundle\MediaBundle\StorageMapper\StorageMapperInterface;
 use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
 use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageProviderException;
+use Tms\Bundle\MediaBundle\Exception\MediaNotFoundException;
 use Doctrine\ORM\EntityManager;
 use Gaufrette\Filesystem;
 
@@ -86,10 +87,8 @@ class Manager
         }
 
         $storageMapper = $this->guessStorageMapper($mediaRaw);
-        $storageMapper->getStorageProvider()->write(
-            $mediaRaw->getClientOriginalName(),
-            $mediaRaw
-        );
+        $storageMapper->getStorageProvider()->write($reference, $mediaRaw);
+
         $media = new Media();
         $media->setProviderServiceName($storageMapper->getStorageProviderServiceName());
         $media->setName($mediaRaw->getClientOriginalName());
@@ -108,18 +107,23 @@ class Manager
      */
     public function retrieveMedia($reference, $raw = false)
     {
-        $media  = $this
-                ->getEntityManager()
-                ->getRepository('TmsMediaBundle:Media')
-                ->findOneBy(array('reference' => $reference));
-        return $media;
+        $media = $this
+            ->getEntityManager()
+            ->getRepository('TmsMediaBundle:Media')
+            ->findOneBy(array('reference' => $reference))
+        ;
 
-        if($raw) {
-            $storageMapper = $this->guessStorageMapper($media);
-            return $storageMapper->getProviderServiceName()->read($media->getReference());
+        if(!$media) {
+            throw new MediaNotFoundException($reference);
         }
 
+        if($raw) {
+            $storageProvider = $this->getStorageProvider($media->getProviderServiceName());
 
+            return $storageProvider->read($media->getReference());
+        }
+
+        return $media;
     }
 
     /**
@@ -130,11 +134,10 @@ class Manager
     public function deleteMedia($reference)
     {
         $media = $this->retrieveMedia($reference);
+        $storageProvider = $this->getStorageProvider($media->getProviderServiceName());
+        $storageProvider->delete($media->getReference());
         $this->entityManager->remove($media);
         $this->entityManager->flush();
-
-        /*$storageMapper = $this->guessStorageMapper($media);
-        $storageMapper->getProviderServiceName()->delete($media->getReference());*/
     }
 
     /**
