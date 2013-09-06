@@ -14,7 +14,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Tms\Bundle\MediaBundle\StorageMapper\StorageMapperInterface;
 use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
-use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageProviderException;
+use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageMapperException;
+use Tms\Bundle\MediaBundle\Exception\UndefinedStorageMapperException;
 use Tms\Bundle\MediaBundle\Exception\MediaNotFoundException;
 use Doctrine\ORM\EntityManager;
 use Gaufrette\Filesystem;
@@ -43,18 +44,22 @@ class Manager
      */
     public function addStorageMapper(StorageMapperInterface $storageMapper)
     {
-        $this->storageMappers[$storageMapper->getStorageProviderServiceName()] = $storageMapper;
+        $this->storageMappers[$storageMapper->getId()] = $storageMapper;
     }
 
     /**
      * Get storage provider
      *
-     * @param string providerServiceName
+     * @param string $storageMapperId
      * @return Gaufrette\Filesystem The storage provider.
      */
-    public function getStorageProvider($providerServiceName)
+    public function getStorageProvider($storageMapperId)
     {
-        $mapper = $this->storageMappers[$providerServiceName];
+        if(!isset($this->storageMappers[$storageMapperId])) {
+            throw new UndefinedStorageMapperException($storageMapperId);
+        }
+
+        $mapper = $this->storageMappers[$storageMapperId];
 
         return $mapper->getStorageProvider();
     }
@@ -102,22 +107,17 @@ class Manager
         $mediaRaw->move($this->getDefaultStorePath(), $reference);
         $defaultMediaPath = sprintf('%s/%s', $this->getDefaultStorePath(), $reference);
 
-        $providerServiceName = null;
-        try {
-            $storageMapper = $this->guessStorageMapper($defaultMediaPath);
-            $storageMapper->getStorageProvider()->write(
-                $reference,
-                file_get_contents($defaultMediaPath)
-            );
-            $providerServiceName = $storageMapper->getStorageProviderServiceName();
-            // Remove the media if a provider was well guess and used.
-            unlink($defaultMediaPath);
-        } catch(NoMatchedStorageProviderException $e) {
-            $providerServiceName = 'default';
-        }
+        $storageMapper = $this->guessStorageMapper($defaultMediaPath);
+        $storageMapper->getStorageProvider()->write(
+            $reference,
+            file_get_contents($defaultMediaPath)
+        );
+
+        // Remove the media once the provider is well guess and used.
+        unlink($defaultMediaPath);
 
         $media = new Media();
-        $media->setProviderServiceName($providerServiceName);
+        $media->setStorageMapperId($storageMapper->getId());
         $media->setName($mediaRaw->getClientOriginalName());
         $media->setSize($mediaRaw->getClientSize());
         $media->setContentType($mediaRaw->getClientMimeType());
@@ -157,7 +157,7 @@ class Manager
     public function deleteMedia($reference)
     {
         $media = $this->retrieveMedia($reference);
-        $storageProvider = $this->getStorageProvider($media->getProviderServiceName());
+        $storageProvider = $this->getStorageProvider($media->getStorageMapperId());
         $storageProvider->delete($media->getReference());
         $this->entityManager->remove($media);
         $this->entityManager->flush();
@@ -201,7 +201,7 @@ class Manager
      *
      * @param string $mediaPath
      * @return StorageMapperInterface The storage mapper.
-     * @throw NoMatchedStorageProviderException
+     * @throw NoMatchedStorageMapperException
      */
     public function guessStorageMapper($mediaPath)
     {
@@ -211,6 +211,6 @@ class Manager
             }
         }
 
-        throw new NoMatchedStorageProviderException();
+        throw new NoMatchedStorageMapperException();
     }
 }
