@@ -45,7 +45,7 @@ class DefineMediaProvidersCompilerPass implements CompilerPassInterface
             $storageMapperDefinition = new DefinitionDecorator('tms_media.storage_mapper');
             $storageMapperDefinition->setAbstract(false);
             $storageMapperDefinition->replaceArgument(0, new Reference($storageMapperConfig['storage_provider']));
-            $storageMapperDefinition->replaceArgument(1, $storageMapperServiceId);
+            $storageMapperDefinition->replaceArgument(1, $storageMapperConfig['storage_provider']);
 
             // Injection of the rules in the provider.
             foreach ($storageMapperConfig['rules'] as $ruleAlias => $ruleArguments) {

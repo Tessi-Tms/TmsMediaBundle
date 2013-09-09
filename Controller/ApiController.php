@@ -82,7 +82,7 @@ class ApiController extends Controller
         $response = new Response();
         try {
             $media = $this->get('tms_media.manager')->retrieveMedia($reference);
-            $storageProvider = $this->get('tms_media.manager')->getStorageProvider($media->getStorageMapperId());
+            $storageProvider = $this->get('tms_media.manager')->getStorageProvider($media->getProviderServiceName());
             $response->setStatusCode(200);
             $response->headers->set('Content-Type', $media->getContentType());
             $response->headers->set('Content-Length', $media->getSize());

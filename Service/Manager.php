@@ -18,23 +18,27 @@ use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageProviderException;
 use Tms\Bundle\MediaBundle\Exception\UndefinedStorageMapperException;
 use Tms\Bundle\MediaBundle\Exception\MediaNotFoundException;
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Gaufrette\Filesystem;
 
 class Manager
 {
     protected $entityManager;
+    protected $container;
     protected $storageMappers = array();
     protected $defaultStorePath;
 
     /**
      * Constructor
      *
-     * @param Doctrine\ORM\EntityManager $entityManager
-     * @param string defaultStorePath
+     * @param EntityManager $entityManager
+     * @param ContainerInterface $container
+     * @param string $defaultStorePath
      */
-    public function __construct(EntityManager $entityManager, $defaultStorePath)
+    public function __construct(EntityManager $entityManager, ContainerInterface $container, $defaultStorePath)
     {
         $this->entityManager = $entityManager;
+        $this->container = $container;
         $this->defaultStorePath = $defaultStorePath;
     }
 
@@ -45,7 +49,27 @@ class Manager
      */
     public function addStorageMapper(StorageMapperInterface $storageMapper)
     {
-        $this->storageMappers[$storageMapper->getStorageProviderServiceName()] = $storageMapper;
+        $this->storageMappers[] = $storageMapper;
+    }
+
+    /**
+     * Get Entity Manager
+     *
+     * @return EntityManager
+     */
+    public function getEntityManager()
+    {
+        return $this->entityManager;
+    }
+
+    /**
+     * Get Container
+     *
+     * @return ContainerInterface
+     */
+    public function getContainer()
+    {
+        return $this->container;
     }
 
     /**
@@ -56,19 +80,7 @@ class Manager
      */
     public function getStorageProvider($providerServiceName)
     {
-        $mapper = $this->storageMappers[$providerServiceName];
-
-        return $mapper->getStorageProvider();
-    }
-
-    /**
-     * Get Entity Manager
-     *
-     * @return Doctrine\ORM\EntityManager
-     */
-    public function getEntityManager()
-    {
-        return $this->entityManager;
+        return $this->getContainer()->get($providerServiceName);
     }
 
     /**
@@ -100,8 +112,6 @@ class Manager
         if($media) {
             throw new MediaAlreadyExistException();
         }
-        
-        die('toto');
 
         // Store the media at the default path
         $mediaRaw->move($this->getDefaultStorePath(), $reference);
