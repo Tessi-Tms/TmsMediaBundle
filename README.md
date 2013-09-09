@@ -85,7 +85,7 @@ How to use it
 
 | Route                 | Method | Parameters         | Header
 |-----------------------|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
-| /media/{reference}    | GET    |                    |
+| /media/{reference}    | GET    |                    | Content-Type=the content type of the media, Content-Length=the size of the media
 
 **Parameters description:**
 
@@ -147,12 +147,12 @@ For a complete list of features refer to the [official documentation](https://gi
 
 #### Configure your mappings
 
-Pass the Gaufrette service `gaufrette.gallery_filesystem` configured in the previous step to the `storage_provider` property. At least one `rule` is mandatory in your configuration.
+Pass the Gaufrette service `gaufrette.gallery_filesystem` configured in the previous step to the `storage_provider` property. One `rule` property is at least mandatory.
 
-**Possible rules:**
+**Possible rules :**
 
 - *mime_types* : defines an array of valid mime types.
-- *max_size:* : defines the maximum allowed size of a media.
+- *max_size* : defines the maximum allowed size of a media.
 - *min_size* : defines the minimum allowed size of a media.
 - *created_before* : defines if the media was created before this date.
 - *created_after* : defines if the media was created after this date.
