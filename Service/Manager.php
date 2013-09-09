@@ -29,6 +29,7 @@ class Manager
      * Constructor
      *
      * @param Doctrine\ORM\EntityManager $entityManager
+     * @param string defaultStorePath
      */
     public function __construct(EntityManager $entityManager, $defaultStorePath)
     {
@@ -83,6 +84,7 @@ class Manager
      * Add Media
      *
      * @param UploadedFile $mediaRaw
+     * @return string
      */
     public function addMedia(UploadedFile $mediaRaw)
     {
