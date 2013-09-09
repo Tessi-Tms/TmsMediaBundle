@@ -75,21 +75,21 @@ How to use it
 
 | Route                 | Method | Parameters         | Header
 |-----------------------|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
-| /media/{id}           | DELETE |                    |
+| /media/{reference}    | DELETE |                    |
 
 **Parameters description:**
 
-- *id*: The id of the media.
+- *reference*: The unique reference of the media.
 
 #### Get a media
 
 | Route                 | Method | Parameters         | Header
 |-----------------------|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
-| /media/{id}           | GET    |                    |
+| /media/{reference}    | GET    |                    |
 
 **Parameters description:**
 
-- *id*: The id of the media.
+- *reference*: The unique reference of the media.
 
 ### Configure your filesystems
 
