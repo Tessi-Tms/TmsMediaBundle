@@ -93,31 +93,28 @@ How to use it
 
 ### Examples of Resquest and corresponding Response
 
-In this example, we are using Curl command line to request our API
+In this example, we are using `Curl` command line to request our API
 
 - *POST requests* :
-
-will result to a `200 OK HTTP Status Code ` if a valid media is passed; but passing invalid media will result to a `400 Bad Request HTTP Status Code`
 
 ```curl 
 curl -F name=@pathToTheFile http://your_domain/media
 ```
+This will result to a `200 OK HTTP Status Code ` if a valid media is passed; but passing invalid media will result to a `400 Bad Request HTTP Status Code`
 
 - *DELETE requests* :
-
-will result to a `204 No Content HTTP Status Code ` if the correct reference is passed; but passing invalid reference will result to a `400 Bad Request HTTP Status Code`
 
 ```curl
 curl -X DELETE http://your_domain/media/reference
 ```
+This will result to a `204 No Content HTTP Status Code ` if the correct reference is passed; but passing invalid reference will result to a `400 Bad Request HTTP Status Code`
 
 - *GET requests* :
-
-will result to a `200 OK HTTP Status Code ` if the correct reference is passed; but passing invalid reference will result to a `400 Bad Request HTTP Status Code`
 
 ```curl
 curl http://your_domain/media/reference`
 ```
+This will result to a `200 OK HTTP Status Code ` if the correct reference is passed; but passing invalid reference will result to a `400 Bad Request HTTP Status Code`
 
 ### Configure your filesystems
 
