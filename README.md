@@ -33,13 +33,13 @@ First add the dependency in your `composer.json` file:
     },
 ```
 
-Then install the bundle with the command:
+Then install the bundle with the command :
 
 ```sh
 php composer update
 ```
 
-Enable the bundle in your application kernel:
+Enable the bundle in your application kernel :
 
 ```php
 <?php
@@ -79,7 +79,7 @@ How to use it
 
 **Parameters description:**
 
-- *reference*: The unique reference of the media.
+- *reference* : The unique reference of the media.
 
 #### Get a media
 
@@ -89,35 +89,37 @@ How to use it
 
 **Parameters description:**
 
-- *reference*: The unique reference of the media.
+- *reference* : The unique reference of the media.
 
-### Examples of Resquest and corresponding response
+### Examples of Resquest and corresponding Response
 
-In this example, we are using Curl command line to to request our API
+In this example, we are using Curl command line to request our API
 
-- *POST requests*:
+- *POST requests* :
 
-will result to a `200 OK HTTP Status Code ` if the correct media is sent; but sending invalid media will result to a `400 Bad Request HTTP Status Code`
+will result to a `200 OK HTTP Status Code ` if a valid media is passed; but passing invalid media will result to a `400 Bad Request HTTP Status Code`
 
-`curl -F name=@pathToTheFile http://your_domain/media`
+```curl 
+curl -F name=@pathToTheFile http://your_domain/media
+```
 
-
-- *DELETE requests*:
+- *DELETE requests* :
 
 will result to a `204 No Content HTTP Status Code ` if the correct reference is passed; but passing invalid reference will result to a `400 Bad Request HTTP Status Code`
 
-`curl -X DELETE http://your_domain/media/reference`
+```curl
+curl -X DELETE http://your_domain/media/reference
+```
 
-
-- *GET requests*:
+- *GET requests* :
 
 will result to a `200 OK HTTP Status Code ` if the correct reference is passed; but passing invalid reference will result to a `400 Bad Request HTTP Status Code`
 
-`curl http://your_domain/media/reference`
-
+```curl
+curl http://your_domain/media/reference`
+```
 
 ### Configure your filesystems
-
 
 The filesystem abstract layer permits you to develop your application without the need to know where your media will be stored and how. Another advantage of this is the possibility to update your files location without any impact on the code apart from the definition of your filesystem.
 
@@ -149,11 +151,11 @@ Pass the Gaufrette service `gaufrette.gallery_filesystem` configured in the prev
 
 **Possible rules:**
 
-- *mime_types*: defines an array of valid mime types.
-- *max_size:*: defines the maximum allowed size of a media.
-- *min_size*: defines the minimum allowed size of a media.
-- *created_before*: defines if the media was created before this date.
-- *created_after*: defines if the media was created after this date.
+- *mime_types* : defines an array of valid mime types.
+- *max_size:* : defines the maximum allowed size of a media.
+- *min_size* : defines the minimum allowed size of a media.
+- *created_before* : defines if the media was created before this date.
+- *created_after* : defines if the media was created after this date.
 
 
 ```php
