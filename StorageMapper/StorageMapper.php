@@ -16,22 +16,14 @@ use Tms\Bundle\MediaBundle\StorageMapper\Rule\RuleInterface;
 
 class StorageMapper implements StorageMapperInterface
 {
-    protected $rules = array();
     protected $storageProvider;
-    protected $storageProviderServiceName;
+    protected $id;
+    protected $rules = array();
 
-    public function __construct(Filesystem $storageProvider, $storageProviderServiceName)
+    public function __construct(Filesystem $storageProvider, $id)
     {
         $this->storageProvider = $storageProvider;
-        $this->storageProviderServiceName = $storageProviderServiceName;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getStorageProviderServiceName()
-    {
-        return $this->storageProviderServiceName;
+        $this->id = $id;
     }
 
     /**
@@ -40,6 +32,14 @@ class StorageMapper implements StorageMapperInterface
     public function getStorageProvider()
     {
         return $this->storageProvider;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return $this->id;
     }
 
     /**

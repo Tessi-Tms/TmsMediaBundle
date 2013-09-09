@@ -16,11 +16,18 @@ use Tms\Bundle\MediaBundle\StorageMapper\Rule\RuleInterface;
 interface StorageMapperInterface
 {
     /**
-     * Check the rules.
+     * Get Storage provider
      *
-     * @param string $mediaPath
+     * @return Gaufrette\Filesystem
      */
-    public function checkRules($mediaPath);
+    public function getStorageProvider();
+
+    /**
+     * Get Storage mapper identifier
+     *
+     * @return string
+     */
+    public function getId();
 
     /**
      * Add a rule to the provider.
@@ -30,16 +37,9 @@ interface StorageMapperInterface
     public function addRule(RuleInterface $rule);
 
     /**
-     * Get Storage provider service name
+     * Check the rules.
      *
-     * @return Gaufrette\Filesystem
+     * @param string $mediaPath
      */
-    public function getStorageProviderServiceName();
-
-    /**
-     * Get Storage provider
-     *
-     * @return Gaufrette\Filesystem
-     */
-    public function getStorageProvider();
+    public function checkRules($mediaPath);
 }

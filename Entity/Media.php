@@ -49,9 +49,9 @@ class Media
 
     /**
      * @var string
-     * @ORM\Column(name="providerServiceName", type="string", nullable=false)
+     * @ORM\Column(name="storageMapperId", type="string", nullable=false)
      */
-    protected $providerServiceName;
+    protected $storageMapperId;
 
     /**
      * @var string
@@ -214,26 +214,26 @@ class Media
     }
 
     /**
-     * Set provider service name
+     * Set storage mapper Id
      *
-     * @param string $providerServiceName
+     * @param string $storageMapperId
      * @return Media
      */
-    public function setProviderServiceName($providerServiceName)
+    public function setStorageMapperId($storageMapperId)
     {
-        $this->providerServiceName = $providerServiceName;
+        $this->storageMapperId = $storageMapperId;
 
         return $this;
     }
 
     /**
-     * Get provider service name
+     * Get storage mapper Id
      *
      * @return string 
      */
-    public function getProviderServiceName()
+    public function getStorageMapperId()
     {
-        return $this->providerServiceName;
+        return $this->storageMapperId;
     }
 
     /**
