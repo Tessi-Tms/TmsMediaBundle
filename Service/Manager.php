@@ -100,24 +100,26 @@ class Manager
         if($media) {
             throw new MediaAlreadyExistException();
         }
+        
+        die('toto');
 
         // Store the media at the default path
         $mediaRaw->move($this->getDefaultStorePath(), $reference);
         $defaultMediaPath = sprintf('%s/%s', $this->getDefaultStorePath(), $reference);
 
         $providerServiceName = null;
--        try {
--            $storageMapper = $this->guessStorageMapper($defaultMediaPath);
--            $storageMapper->getStorageProvider()->write(
--                $reference,
--                file_get_contents($defaultMediaPath)
--            );
--            $providerServiceName = $storageMapper->getStorageProviderServiceName();
--            // Remove the media if a provider was well guess and used.
--            unlink($defaultMediaPath);
--        } catch(NoMatchedStorageProviderException $e) {
--            $providerServiceName = 'default';
--        }
+        try {
+            $storageMapper = $this->guessStorageMapper($defaultMediaPath);
+            $storageMapper->getStorageProvider()->write(
+                $reference,
+                file_get_contents($defaultMediaPath)
+            );
+            $providerServiceName = $storageMapper->getStorageProviderServiceName();
+            // Remove the media if a provider was well guess and used.
+            unlink($defaultMediaPath);
+        } catch(NoMatchedStorageProviderException $e) {
+            $providerServiceName = 'default';
+        }
 
         $media = new Media();
         $media->setProviderServiceName($providerServiceName);
