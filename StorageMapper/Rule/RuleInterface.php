@@ -19,5 +19,5 @@ interface RuleInterface
      *
      * @param string $file
      */
-    function check($file);
+    public function check($file);
 }

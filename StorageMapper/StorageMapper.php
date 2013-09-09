@@ -21,6 +21,9 @@ class StorageMapper implements StorageMapperInterface
     protected $storageProviderServiceName;
     protected $rules = array();
 
+    /**
+     * Constructor
+     */
     public function __construct(Filesystem $storageProvider, $storageProviderServiceName)
     {
         $this->storageProvider = $storageProvider;
