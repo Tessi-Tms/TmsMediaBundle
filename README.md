@@ -2,12 +2,8 @@ TmsMediaBundle
 ==============
 
 The MediaBundle for Symfony2 provides an API to retrieve and upload a media in a specific filesystem.
-
-Features included
------------------
-
-- Supports [Gaufrette](https://github.com/KnpLabs/Gaufrette.git) to handle filesystem abstraction layer
-- Uses [KnpGaufretteBundle](https://github.com/KnpLabs/KnpGaufretteBundle.git) to provide a Gaufrette integration for your Symfony projects
+It supports [Gaufrette](https://github.com/KnpLabs/Gaufrette.git) to handlefilesystem abstraction layer and uses [KnpGaufretteBundle]
+to provide a Gaufrette integration for the project.
 
 
 Installation
@@ -15,7 +11,7 @@ Installation
 
 To install this bundle please follow the next steps:
 
-First add the dependency in your `composer.json` file:
+First add the dependencies in your `composer.json` file:
 
 ```json
 "repositories": [
@@ -36,10 +32,10 @@ First add the dependency in your `composer.json` file:
 Then install the bundle with the command :
 
 ```sh
-php composer update
+composer update
 ```
 
-Enable the bundle in your application kernel :
+Enable the bundles in your application kernel :
 
 ```php
 <?php
@@ -63,64 +59,75 @@ How to use it
 
 #### Create a media
 
+**Request**
+
 | Route           | Method | Parameters             | Header
 |-----------------|--------|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
 | /media          | POST   | file={fileContent}     | Content-Type=multipart/form-data
+
+**Response**
+
+This will result to a `200 OK HTTP Status Code ` if a valid media is passed; but passing invalid media will result to a `400 Bad Request HTTP Status Code`
 
 **Parameters description:**
 
 - *file* : Contains the file content.
 
+**Example of usage**
+
+```curl 
+curl -F name=@pathToTheFile http://your_domain/media
+```
+
 #### Delete a media
+
+**Request**
 
 | Route                 | Method | Parameters         | Header
 |-----------------------|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
 | /media/{reference}    | DELETE |                    |
 
-**Parameters description:**
+**Response**
 
-- *reference* : The unique reference of the media.
-
-#### Get a media
-
-| Route                 | Method | Parameters         | Header
-|-----------------------|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
-| /media/{reference}    | GET    |                    | Content-Type=the content type of the media, Content-Length=the size of the media
+This will result to a `204 No Content HTTP Status Code ` if a correct reference is passed; but passing invalid reference will result to a `400 Bad Request HTTP Status Code`
 
 **Parameters description:**
 
 - *reference* : The unique reference of the media.
 
-### Examples of Resquest and corresponding Response
-
-In this example, we are using `Curl` command line to request our API
-
-- *POST requests* :
-
-```curl 
-curl -F name=@pathToTheFile http://your_domain/media
-```
-This will result to a `200 OK HTTP Status Code ` if a valid media is passed; but passing invalid media will result to a `400 Bad Request HTTP Status Code`
-
-- *DELETE requests* :
+**Example of usage**
 
 ```curl
 curl -X DELETE http://your_domain/media/reference
 ```
-This will result to a `204 No Content HTTP Status Code ` if the correct reference is passed; but passing invalid reference will result to a `400 Bad Request HTTP Status Code`
 
-- *GET requests* :
+#### Get a media
+
+**Request**
+
+| Route                 | Method | Parameters         | Header
+|-----------------------|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
+| /media/{reference}    | GET    |                    |
+
+**Response**
+
+This will result to a `200 OK HTTP Status Code ` if a correct reference is passed; but passing invalid reference will result to a `400 Bad Request HTTP Status Code`
+
+**Parameters description:**
+
+- *reference* : The unique reference of the media.
+
+**Example of usage**
 
 ```curl
 curl http://your_domain/media/reference`
 ```
-This will result to a `200 OK HTTP Status Code ` if the correct reference is passed; but passing invalid reference will result to a `400 Bad Request HTTP Status Code`
 
 ### Configure your filesystems
 
 The filesystem abstract layer permits you to develop your application without the need to know where your media will be stored and how. Another advantage of this is the possibility to update your files location without any impact on the code apart from the definition of your filesystem.
 
-#### Example of configuration
+#### Example of Gaufrette Filesystem configuration
 
 The following configuration is a local sample configuration for the KnpGaufretteBundle. It will create a filesystem service called `gaufrette.gallery_filesystem` which can be used in the MediaBundle. All the uploaded files will be stored in `/web/uploads` directory.
 
@@ -140,13 +147,13 @@ knp_gaufrette:
         gallery:
             adapter: gallery
 ```
-For a complete list of features refer to the [official documentation](https://github.com/KnpLabs/Gaufrette.git).
+For a complete list of features refer to the [official documentation of GaufretteBundle](https://github.com/KnpLabs/KnpGaufretteBundle.git).
 
 #### Configure your mappings
 
 Pass the Gaufrette service `gaufrette.gallery_filesystem` configured in the previous step to the `storage_provider` property. One `rule` property is at least mandatory.
 
-**Possible rules :**
+**Available rules :**
 
 - *mime_types* : defines an array of valid mime types.
 - *max_size* : defines the maximum allowed size of a media.
