@@ -2,8 +2,8 @@ TmsMediaBundle
 ==============
 
 The MediaBundle for Symfony2 provides an API to retrieve and upload a media in a specific filesystem.
-It supports [Gaufrette](https://github.com/KnpLabs/Gaufrette.git) to handlefilesystem abstraction layer and uses [KnpGaufretteBundle]
-to provide a Gaufrette integration for the project.
+It supports [Gaufrette](https://github.com/KnpLabs/Gaufrette.git) to handle filesystem abstraction layer and uses [KnpGaufretteBundle]
+(https://github.com/KnpLabs/KnpGaufretteBundle.git) to provide a Gaufrette integration for the project.
 
 
 Installation
