@@ -3,15 +3,15 @@ TmsMediaBundle
 
 The MediaBundle for Symfony2 provides an API to retrieve and upload a media in a specific filesystem.
 It supports [Gaufrette](https://github.com/KnpLabs/Gaufrette.git) to handle filesystem abstraction layer and uses [KnpGaufretteBundle]
-(https://github.com/KnpLabs/KnpGaufretteBundle.git) to provide a Gaufrette integration for the project.
+(https://github.com/KnpLabs/KnpGaufretteBundle.git) to provide a Gaufrette integration in the project.
 
 
 Installation
 ------------
 
-To install this bundle please follow the next steps:
+To install this bundle please follow the next steps :
 
-First add the dependencies in your `composer.json` file:
+First add the dependencies in your `composer.json` file :
 
 ```json
 "repositories": [
@@ -29,7 +29,7 @@ First add the dependencies in your `composer.json` file:
     },
 ```
 
-Then install the bundle with the command :
+Then install the bundles with the command :
 
 ```sh
 composer update
@@ -50,7 +50,7 @@ public function registerBundles()
     );
 }
 ```
-Now the Bundle is installed.
+Now the Bundles are installed
 
 How to use it
 -------------
@@ -69,9 +69,9 @@ How to use it
 
 This will result to a `200 OK HTTP Status Code ` if a valid media is passed; but passing invalid media will result to a `400 Bad Request HTTP Status Code`
 
-**Parameters description:**
+**Parameters description**
 
-- *file* : Contains the file content.
+- *file* : Contains the file content
 
 **Example of usage**
 
@@ -91,9 +91,9 @@ curl -F name=@pathToTheFile http://your_domain/media
 
 This will result to a `204 No Content HTTP Status Code ` if a correct reference is passed; but passing invalid reference will result to a `400 Bad Request HTTP Status Code`
 
-**Parameters description:**
+**Parameters description**
 
-- *reference* : The unique reference of the media.
+- *reference* : The unique reference of the media
 
 **Example of usage**
 
@@ -113,9 +113,9 @@ curl -X DELETE http://your_domain/media/reference
 
 This will result to a `200 OK HTTP Status Code ` if a correct reference is passed; but passing invalid reference will result to a `400 Bad Request HTTP Status Code`
 
-**Parameters description:**
+**Parameters description**
 
-- *reference* : The unique reference of the media.
+- *reference* : The unique reference of the media
 
 **Example of usage**
 
@@ -151,7 +151,7 @@ For a complete list of features refer to the [official documentation of Gaufrett
 
 #### Configure your mappings
 
-Pass the Gaufrette service `gaufrette.gallery_filesystem` configured in the previous step to the `storage_provider` property. One `rule` property is at least mandatory.
+Pass the Gaufrette service `gaufrette.gallery_filesystem` configured in the previous step to the `storage_provider` property.
 
 **Available rules :**
 
