@@ -67,7 +67,7 @@ How to use it
 
 **Response**
 
-This will result to a `200 OK HTTP Status Code ` if a valid media is passed; but passing invalid media (i.e media which does not meet the rules defined in your mapping configuration) will result to a `400 Bad Request HTTP Status Code`
+This will result to a `201 Created HTTP Status Code ` if a valid media is passed; but passing invalid media (i.e media which does not meet the rules defined in your mapping configuration) will result to a `415 Unsupported Media Type HTTP Status Code`
 
 **Parameters description**
 
@@ -89,7 +89,7 @@ curl -F name=@pathToTheFile http://your_domain/media
 
 **Response**
 
-This will result to a `204 No Content HTTP Status Code ` if a correct reference is passed; but passing invalid reference (i.e a reference which does not exist neither in the database or in the filesystem) will result to a `400 Bad Request HTTP Status Code`
+This will result to a `204 No Content HTTP Status Code ` if a correct reference is passed; but passing invalid reference (i.e a reference which does not exist neither in the database or in the filesystem) will result to a `404 Not Found HTTP Status Code`
 
 **Parameters description**
 
@@ -111,7 +111,7 @@ curl -X DELETE http://your_domain/media/reference
 
 **Response**
 
-This will result to a `200 OK HTTP Status Code ` if a correct reference is passed; but passing invalid reference will result to a `400 Bad Request HTTP Status Code`
+This will result to a `200 OK HTTP Status Code ` if a correct reference is passed; but passing invalid reference will result to a `404 Not Found HTTP Status Code`
 
 **Parameters description**
 

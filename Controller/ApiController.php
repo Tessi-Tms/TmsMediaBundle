@@ -36,10 +36,10 @@ class ApiController extends Controller
         try {
             $mediaRaw = $request->files->get('media');
             $reference = $this->get('tms_media.manager')->addMedia($mediaRaw);
-            $response->setStatusCode(200);
+            $response->setStatusCode(201);
             $response->setContent($reference);
         } catch (\Exception $e) {
-            $response->setStatusCode(400);
+            $response->setStatusCode(415);
             $response->setContent($e->getMessage());
         }
 
@@ -62,7 +62,7 @@ class ApiController extends Controller
             $this->get('tms_media.manager')->deleteMedia($reference);
             $response->setStatusCode(204);
         } catch (\Exception $e) {
-            $response->setStatusCode(400);
+            $response->setStatusCode(404);
             $response->setContent($e->getMessage());
         }
 
@@ -98,7 +98,7 @@ class ApiController extends Controller
             $response->setMaxAge(3600);
             $response->setSharedMaxAge(3600);
         } catch (\Exception $e) {
-            $response->setStatusCode(400);
+            $response->setStatusCode(404);
             $response->setContent($e->getMessage());
         }
 
