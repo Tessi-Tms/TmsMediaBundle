@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Tms\Bundle\MediaBundle\StorageMapper\StorageMapperInterface;
 use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
-use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageProviderException;
+use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageMapperException;
 use Tms\Bundle\MediaBundle\Exception\UndefinedStorageMapperException;
 use Tms\Bundle\MediaBundle\Exception\MediaNotFoundException;
 use Doctrine\ORM\EntityManager;
@@ -226,6 +226,6 @@ class Manager
             }
         }
 
-        throw new NoMatchedStorageProviderException();
+        throw new NoMatchedStorageMapperException();
     }
 }

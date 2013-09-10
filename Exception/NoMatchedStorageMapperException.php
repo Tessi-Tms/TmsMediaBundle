@@ -9,13 +9,13 @@
  */
 namespace Tms\Bundle\MediaBundle\Exception;
 
-class NoMatchedStorageProviderException extends \Exception
+class NoMatchedStorageMapperException extends \Exception
 {
     /**
      * The constructor.
      */
     public function __construct()
     {
-        parent::__construct('No matched storage provider for the media.');
+        parent::__construct('No matched storage mapper for the media.');
     }
 }
