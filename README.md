@@ -67,7 +67,7 @@ How to use it
 
 **Response**
 
-This will result to a `200 OK HTTP Status Code ` if a valid media is passed; but passing invalid media (i.e media which does not meet the defined rules) will result to a `400 Bad Request HTTP Status Code`
+This will result to a `200 OK HTTP Status Code ` if a valid media is passed; but passing invalid media (i.e media which does not meet the rules that defined in your mapping configuration) will result to a `400 Bad Request HTTP Status Code`
 
 **Parameters description**
 
