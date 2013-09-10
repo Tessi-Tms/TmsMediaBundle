@@ -1,3 +1,0 @@
-[submodule "Fixtures/symfony"]
-	path = Fixtures/symfony
-	url = git://github.com/symfony/symfony.git
