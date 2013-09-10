@@ -23,7 +23,7 @@ abstract class AbstractSizeRule extends AbstractRule
     public static function convertToBytes($from)
     {
         $number = substr($from, 0, -2);
-        $bytesMap =  array("KB" => 1, "MB" => 2, "GB" => 3, "TB" => 4, "PB" => 5);
+        $bytesMap = array("KB" => 1, "MB" => 2, "GB" => 3, "TB" => 4, "PB" => 5);
         $unit = strtoupper(substr($from, -2));
 
         if(!isset($bytesMap[$unit])) {

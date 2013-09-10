@@ -120,7 +120,7 @@ This will result to a `200 OK HTTP Status Code ` if a correct reference is passe
 **Example of usage**
 
 ```curl
-curl http://your_domain/media/reference`
+curl http://your_domain/media/reference
 ```
 
 ### Configure your filesystems
@@ -155,12 +155,13 @@ Pass the Gaufrette service `gaufrette.gallery_filesystem` configured in the prev
 
 **Available rules :**
 
-- *mime_types* : defines an array of valid mime types.
-- *max_size* : defines the maximum allowed size of a media.
-- *min_size* : defines the minimum allowed size of a media.
-- *created_before* : defines if the media was created before this date.
-- *created_after* : defines if the media was created after this date.
+- **mime_types** : defines an array of valid mime types.
+- **max_size** : defines the maximum allowed size of a media.
+- **min_size** : defines the minimum allowed size of a media.
+- **created_before** : defines if the media was created before this date.
+- **created_after** : defines if the media was created after this date.
 
+Notice that the value of *max_size* and *min_size* properties can only be expressed in **KB**, **MB**, **GB**, **TB** and **PB**.
 
 ```php
 
