@@ -10,7 +10,25 @@
 
 namespace Tms\Bundle\MediaBundle\Tests\Service;
 
+use Tms\Bundle\MediaBundle\Service\Manager;
+
 class ManagerTest extends \PHPUnit_Framework_TestCase
 {
+    public function addMedia()
+    {
+    }
+
+    public function retrieveMedia()
+    {
+    }
+
+    public function deleteMedia()
+    {
+    }
+
+    public function guessStorageMapper()
+    {
+    }
+
 }
 

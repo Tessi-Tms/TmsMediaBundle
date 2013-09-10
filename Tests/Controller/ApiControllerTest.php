@@ -10,7 +10,22 @@
 
 namespace Tms\Bundle\MediaBundle\Tests\Controller;
 
+use Tms\Bundle\MediaBundle\Controller\ApiController;
+use Tms\Bundle\MediaBundle\Entity\Media;
+
 class ApiControllerTest extends \PHPUnit_Framework_TestCase
 {
+    public function testPost()
+    {
+    }
+
+    public function deleteActionAction()
+    {
+    }
+
+    public function getAction()
+    {
+    }
+
 }
 
