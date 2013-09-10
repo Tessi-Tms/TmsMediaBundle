@@ -63,7 +63,7 @@ How to use it
 
 | Route           | Method | Parameters             | Header
 |-----------------|--------|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------
-| /media          | POST   | file={fileContent}     | Content-Type=multipart/form-data
+| /media          | POST   | media={fileContent}     | Content-Type=multipart/form-data
 
 **Response**
 
