@@ -10,8 +10,7 @@
 
 namespace Tms\Bundle\MediaBundle\Tests\Controller;
 
-use Tms\Bundle\MediaBundle\Controller\ApiController;
-use Tms\Bundle\MediaBundle\Entity\Media;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ApiControllerTest extends \PHPUnit_Framework_TestCase
 {
@@ -31,15 +30,6 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
             44772)
         ;
 
-        // or
-/*        $photo = array(
-            '/home/sekou/Images/photo.jpg',
-            'name' => 'photo.jpg',
-            'type' => 'image/jpeg',
-            'size' => 123,
-            'error' => UPLOAD_ERR_OK)
-        ;
-*/
         $crawler = $client->request(
             'POST',
             '/media',
