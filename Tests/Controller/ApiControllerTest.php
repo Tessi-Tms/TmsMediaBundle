@@ -11,30 +11,45 @@
 namespace Tms\Bundle\MediaBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class ApiControllerTest extends \PHPUnit_Framework_TestCase
+
+class ApiControllerTest extends WebTestCase
 {
     /**
      * Test Post
      */
     public function testPost()
     {
-        // Create a client like the browser
-        $client = static::createClient;
+        // Create a browser client
+        $client = static::createClient();
+        $reference = '';
 
-        // Soumission de formulaire avec upload de fichier
-        $photo = new UploadedFile(
-            '/home/sekou/Images/photo.jpg',
-            'photo.jpg',
-            'image/jpeg',
-            44772)
+        $dossier = opendir('.');
+
+        while(false !== ($fichier = readdir($dossier))) {
+            if($fichier != '.' && $fichier != '..' && $fichier != 'index.php') {
+                echo $fichier; die;
+                //TODO lister les fichiers
+            }
+        }
+
+        // Submit a form with an uploaded file
+        $image = new UploadedFile(
+            $filePath,
+            $fileName,
+            $mimeType,
+            $size)
         ;
 
+        // POST Request 
         $crawler = $client->request(
             'POST',
             '/media',
             array(),
-            array('photo' => $photo))
+            array('image' => $image))
         ;
     }
 
@@ -44,11 +59,12 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
     public function testDelete()
     {
         $client = static::createClient();
+        $reference = '';
 
-        // Exécute une requête DELETE et passe des entête HTTP
+        // DELETE Request 
         $client->request(
             'DELETE',
-            '/media/reference',
+            '/media/'.$reference,
             array(),
             array(),
             array())
@@ -61,10 +77,12 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
     public function testGet()
     {
         $client = static::createClient();
+        $reference = '';
 
+        // GET Request 
         $client->request(
             'GET',
-            '/media/reference',
+            '/media/'.$reference,
             array(),
             array(),
             array(
