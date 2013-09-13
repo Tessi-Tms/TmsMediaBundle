@@ -19,7 +19,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Tms\Bundle\MediaBundle\Entity\Media;
-
+use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
+use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageMapperException;
 
 class ApiController extends Controller
 {
@@ -38,8 +39,14 @@ class ApiController extends Controller
             $reference = $this->get('tms_media.manager')->addMedia($mediaRaw);
             $response->setStatusCode(201);
             $response->setContent($reference);
-        } catch (\Exception $e) {
+        } catch (MediaAlreadyExistException $e) {
+            $response->setStatusCode(400);
+            $response->setContent($e->getMessage());
+        } catch (NoMatchedStorageMapperException $e) {
             $response->setStatusCode(415);
+            $response->setContent($e->getMessage());
+        } catch (\Exception $e) {
+            $response->setStatusCode(418);
             $response->setContent($e->getMessage());
         }
 

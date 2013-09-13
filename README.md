@@ -67,11 +67,16 @@ How to use it
 
 **Response**
 
-This will result to a `201 Created HTTP Status Code ` if a valid media is passed; but passing invalid media (i.e media which does not meet the rules defined in your mapping configuration) will result to a `415 Unsupported Media Type HTTP Status Code`
+This will result to a :
+
+`201 Created HTTP Status Code ` : if a valid media is passed
+`400 Bad Request HTTP Status Code` : if the media is passed twice (i.e media which already exists in the database and in the filesystem)
+`415 Unsupported Media Type HTTP Status Code ` : if there is no matched storage provider for the media
+`418 I'am a teapot' HTTP Status Code ` : for other media exception types
 
 **Parameters description**
 
-- *file* : Contains the file content
+- *media* : Contains the file content
 
 **Example of usage**
 
