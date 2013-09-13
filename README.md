@@ -94,7 +94,10 @@ curl -F name=@pathToTheFile http://your_domain/media
 
 **Response**
 
-This will result to a `204 No Content HTTP Status Code ` if a correct reference is passed; but passing invalid reference (i.e a reference which does not exist neither in the database or in the filesystem) will result to a `404 Not Found HTTP Status Code`
+This will result to a :
+
+- *204 No Content HTTP Status Code* : if a correct reference is passed
+- *404 Not Found HTTP Status Code* : if an invalid reference (i.e a reference which does not exist neither in the database or in the filesystem)
 
 **Parameters description**
 
@@ -116,7 +119,10 @@ curl -X DELETE http://your_domain/media/reference
 
 **Response**
 
-This will result to a `200 OK HTTP Status Code ` if a correct reference is passed; but passing invalid reference will result to a `404 Not Found HTTP Status Code`
+This will result to a :
+
+- *200 OK HTTP Status Code* : if a correct reference is passed
+- *404 Not Found HTTP Status Code* : if an invalid reference is passed
 
 **Parameters description**
 
