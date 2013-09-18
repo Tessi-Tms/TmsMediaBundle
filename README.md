@@ -74,6 +74,8 @@ This will result to a :
 - *415 Unsupported Media Type HTTP Status Code* : if there is no matched storage provider for the media
 - *418 I'am a teapot' HTTP Status Code* : for other media exception types
 
+For a 201 HTTP Response code, you will also get all media informations (in json format) in the response content.
+
 **Parameters description**
 
 - *media* : Contains the file content

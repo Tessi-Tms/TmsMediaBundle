@@ -79,9 +79,9 @@ class Media
 
     /**
      * @var string
-     * @ORM\Column(name="contentType", type="string", length=255)
+     * @ORM\Column(name="mimeType", type="string", length=255)
      */
-    protected $contentType;
+    protected $mimeType;
 
     /**
      * @var string
@@ -132,6 +132,30 @@ class Media
     public function __construct()
     {
         $this->setEnabled(true);
+    }
+
+    /**
+     * toArray
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return array(
+            'id'                    => $this->getId(),
+            'name'                  => $this->getName(),
+            'description'           => $this->getDescription(),
+            'enabled'               => $this->getEnabled(),
+            'providerServiceName'   => $this->getProviderServiceName(),
+            'reference'             => $this->getReference(),
+            'width'                 => $this->getWidth(),
+            'height'                => $this->getHeight(),
+            'size'                  => $this->getSize(),
+            'mimeType'              => $this->getMimeType(),
+            'owner'                 => $this->getOwner(),
+            'createdAt'             => $this->getCreatedAt()->format('c'),
+            'updatedAt'             => $this->getUpdatedAt()->format('c'),
+        );
     }
 
     /**
@@ -331,12 +355,12 @@ class Media
     /**
      * Set content type
      *
-     * @param string $contentType
+     * @param string $mimeType
      * @return Media
      */
-    public function setContentType($contentType)
+    public function setMimeType($mimeType)
     {
-        $this->contentType = $contentType;
+        $this->mimeType = $mimeType;
 
         return $this;
     }
@@ -346,9 +370,9 @@ class Media
      *
      * @return string 
      */
-    public function getContentType()
+    public function getMimeType()
     {
-        return $this->contentType;
+        return $this->mimeType;
     }
 
     /**

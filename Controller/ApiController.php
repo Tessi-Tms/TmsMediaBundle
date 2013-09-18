@@ -36,9 +36,9 @@ class ApiController extends Controller
         $response = new Response();
         try {
             $mediaRaw = $request->files->get('media');
-            $reference = $this->get('tms_media.manager')->addMedia($mediaRaw);
+            $media = $this->get('tms_media.manager')->addMedia($mediaRaw);
             $response->setStatusCode(201);
-            $response->setContent($reference);
+            $response->setContent(json_encode($media->toArray()));
         } catch (MediaAlreadyExistException $e) {
             $response->setStatusCode(400);
             $response->setContent($e->getMessage());
@@ -91,7 +91,7 @@ class ApiController extends Controller
             $media = $this->get('tms_media.manager')->retrieveMedia($reference);
             $storageProvider = $this->get('tms_media.manager')->getStorageProvider($media->getProviderServiceName());
             $response->setStatusCode(200);
-            $response->headers->set('Content-Type', $media->getContentType());
+            $response->headers->set('Content-Type', $media->getMimeType());
             $response->headers->set('Content-Length', $media->getSize());
             $response->setETag($media->getReference());
             $response->setLastModified($media->getCreatedAt());

@@ -94,12 +94,32 @@ class Manager
     }
 
     /**
+     * Is Image
+     *
+     * @param string $mimeType
+     * @return boolean
+     */
+    public function isImage($mimeType)
+    {
+        return in_array($mimeType, array(
+            'image/gif',
+            'image/jpeg',
+            'image/png',
+            'image/tiff',
+            'image/vnd.microsoft.icon',
+            'image/svg+xml',
+        ));
+    }
+
+    /**
      * Add Media
      *
      * @param UploadedFile $mediaRaw
-     * @return string
+     * @param string $name
+     * @param string $description
+     * @return Media
      */
-    public function addMedia(UploadedFile $mediaRaw)
+    public function addMedia(UploadedFile $mediaRaw, $name = null, $description = null)
     {
         $reference = $this->generateMediaReference($mediaRaw);
 
@@ -113,6 +133,11 @@ class Manager
             throw new MediaAlreadyExistException();
         }
 
+        // Keep media information before handle the file
+        $mimeType = $mediaRaw->getMimeType();
+        $name = is_null($name) ? $mediaRaw->getClientOriginalName() : $name;
+        $description = is_null($description) ? $mediaRaw->getClientOriginalName() : $description;
+
         // Store the media at the default path
         $mediaRaw->move($this->getDefaultStorePath(), $reference);
         $defaultMediaPath = sprintf('%s/%s', $this->getDefaultStorePath(), $reference);
@@ -125,22 +150,31 @@ class Manager
                 file_get_contents($defaultMediaPath)
             );
             $providerServiceName = $storageMapper->getStorageProviderServiceName();
-            // Remove the media if a provider was well guess and used.
-            unlink($defaultMediaPath);
         } catch(NoMatchedStorageProviderException $e) {
             $providerServiceName = 'default';
         }
 
         $media = new Media();
         $media->setProviderServiceName($providerServiceName);
-        $media->setName($mediaRaw->getClientOriginalName());
-        $media->setSize($mediaRaw->getClientSize());
-        $media->setContentType($mediaRaw->getClientMimeType());
         $media->setReference($reference);
+        $media->setName($name);
+        $media->setDescription($description);
+        $media->setSize(filesize($defaultMediaPath));
+        $media->setMimeType($mimeType);
+
+        if($this->isImage($mimeType)) {
+            list($width, $height) = getimagesize($defaultMediaPath);
+            $media->setWidth($width);
+            $media->setHeight($height);
+        }
+
         $this->getEntityManager()->persist($media);
         $this->getEntityManager()->flush();
 
-        return $reference;
+        // Remove the media if a provider was well guess and used, and the media entity stored.
+        unlink($defaultMediaPath);
+
+        return $media;
     }
 
     /**
