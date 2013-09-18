@@ -204,11 +204,16 @@ class Manager
      */
     public function hashFile(UploadedFile $mediaRaw)
     {
-        return md5(sprintf("%s%s%s",
-            $mediaRaw->getClientMimeType(),
-            $mediaRaw->getClientOriginalName(),
-            $mediaRaw->getClientSize()
-        ));
+        $now = new \DateTime();
+
+        return sprintf('%s-%s',
+            md5($now->format('Ymdhis')),
+            md5(sprintf("%s%s%s",
+              $mediaRaw->getClientMimeType(),
+              $mediaRaw->getClientOriginalName(),
+              $mediaRaw->getClientSize()
+            ))
+        );
     }
 
     /**
