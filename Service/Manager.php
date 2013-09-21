@@ -13,6 +13,7 @@ namespace Tms\Bundle\MediaBundle\Service;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Tms\Bundle\MediaBundle\StorageMapper\StorageMapperInterface;
+use Tms\Bundle\MediaBundle\MetadataExtractor\MetadataExtractorInterface;
 use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
 use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageMapperException;
 use Tms\Bundle\MediaBundle\Exception\UndefinedStorageMapperException;
@@ -24,21 +25,19 @@ use Gaufrette\Filesystem;
 class Manager
 {
     protected $entityManager;
-    protected $container;
-    protected $storageMappers = array();
     protected $defaultStorePath;
+    protected $storageMappers = array();
+    protected $metadataExtractors = array();
 
     /**
      * Constructor
      *
      * @param EntityManager $entityManager
-     * @param ContainerInterface $container
      * @param string $defaultStorePath
      */
-    public function __construct(EntityManager $entityManager, ContainerInterface $container, $defaultStorePath)
+    public function __construct(EntityManager $entityManager, $defaultStorePath)
     {
         $this->entityManager = $entityManager;
-        $this->container = $container;
         $this->defaultStorePath = $defaultStorePath;
     }
 
@@ -53,6 +52,16 @@ class Manager
     }
 
     /**
+     * Add metadata extractor
+     *
+     * @param MetadataExtractorInterface $metadataExtractor
+     */
+    public function addMetadataExtractor(MetadataExtractorInterface $metadataExtractor)
+    {
+        $this->metadataExtractors[] = $metadataExtractor;
+    }
+
+    /**
      * Get Entity Manager
      *
      * @return EntityManager
@@ -63,24 +72,21 @@ class Manager
     }
 
     /**
-     * Get Container
-     *
-     * @return ContainerInterface
-     */
-    public function getContainer()
-    {
-        return $this->container;
-    }
-
-    /**
      * Get storage provider
      *
      * @param string providerServiceName
      * @return Gaufrette\Filesystem The storage provider.
+     * @throw UndefinedStorageMapperException
      */
     public function getStorageProvider($providerServiceName)
     {
-        return $this->getContainer()->get($providerServiceName);
+        foreach($this->storageMappers as $storageMapper) {
+            if($providerServiceName == $storageMapper->getStorageProviderServiceName()) {
+                return $storageMapper->getStorageProvider();
+            }
+        }
+
+        throw new UndefinedStorageMapperException();
     }
 
     /**
@@ -94,34 +100,17 @@ class Manager
     }
 
     /**
-     * Is Image
-     *
-     * @param string $mimeType
-     * @return boolean
-     */
-    public function isImage($mimeType)
-    {
-        return in_array($mimeType, array(
-            'image/gif',
-            'image/jpeg',
-            'image/png',
-            'image/tiff',
-            'image/vnd.microsoft.icon',
-            'image/svg+xml',
-        ));
-    }
-
-    /**
      * Add Media
      *
      * @param UploadedFile $mediaRaw
+     * @param string $source
      * @param string $name
      * @param string $description
      * @return Media
      */
-    public function addMedia(UploadedFile $mediaRaw, $name = null, $description = null)
+    public function addMedia(UploadedFile $mediaRaw, $source = null, $name = null, $description = null)
     {
-        $reference = $this->generateMediaReference($mediaRaw);
+        $reference = $this->generateMediaReference($source, $mediaRaw);
 
         $media = $this
             ->getEntityManager()
@@ -135,6 +124,7 @@ class Manager
 
         // Keep media information before handle the file
         $mimeType = $mediaRaw->getMimeType();
+        $extension = $mediaRaw->getExtension();
         $name = is_null($name) ? $mediaRaw->getClientOriginalName() : $name;
         $description = is_null($description) ? $mediaRaw->getClientOriginalName() : $description;
 
@@ -142,31 +132,30 @@ class Manager
         $mediaRaw->move($this->getDefaultStorePath(), $reference);
         $defaultMediaPath = sprintf('%s/%s', $this->getDefaultStorePath(), $reference);
 
-        $providerServiceName = null;
-        try {
-            $storageMapper = $this->guessStorageMapper($defaultMediaPath);
-            $storageMapper->getStorageProvider()->write(
-                $reference,
-                file_get_contents($defaultMediaPath)
-            );
-            $providerServiceName = $storageMapper->getStorageProviderServiceName();
-        } catch(NoMatchedStorageProviderException $e) {
-            $providerServiceName = 'default';
-        }
+        // Guess a storage provider and use it to store the media
+        $storageMapper = $this->guessStorageMapper($defaultMediaPath);
+        $storageMapper->getStorageProvider()->write(
+            $reference,
+            file_get_contents($defaultMediaPath)
+        );
+        $providerServiceName = $storageMapper->getStorageProviderServiceName();
 
+        // Keep media informations in database
         $media = new Media();
-        $media->setProviderServiceName($providerServiceName);
+
+        $media->setSource($source);
         $media->setReference($reference);
+        $media->setExtension($extension);
+        $media->setProviderServiceName($providerServiceName);
         $media->setName($name);
         $media->setDescription($description);
         $media->setSize(filesize($defaultMediaPath));
         $media->setMimeType($mimeType);
 
-        if($this->isImage($mimeType)) {
-            list($width, $height) = getimagesize($defaultMediaPath);
-            $media->setWidth($width);
-            $media->setHeight($height);
-        }
+        $media->setMetadata($this
+            ->guessMetadataExtractor($mimeType)
+            ->extract($defaultMediaPath)
+        );
 
         $this->getEntityManager()->persist($media);
         $this->getEntityManager()->flush();
@@ -215,33 +204,18 @@ class Manager
     /**
      * Generate a unique rereference for a mediaRaw
      *
+     * @param string $source
      * @param UploadedFile $mediaRaw
      *
      * @return string
      */
-    public function generateMediaReference(UploadedFile $mediaRaw)
-    {
-        $fileName = sprintf('%s.%s',
-            $this->hashFile($mediaRaw),
-            $mediaRaw->getClientOriginalExtension()
-        );
-
-        return $fileName;
-    }
-
-    /**
-     * Generate a unique hash based on file content
-     *
-     * @param UploadedFile $mediaRaw
-     *
-     * @return string
-     */
-    public function hashFile(UploadedFile $mediaRaw)
+    public function generateMediaReference($source, UploadedFile $mediaRaw)
     {
         $now = new \DateTime();
 
-        return sprintf('%s-%s',
-            md5($now->format('Ymdhis')),
+        return sprintf('%s-%s-%s',
+            sprintf("%u", crc32($source)),
+            $now->format('U'),
             md5(sprintf("%s%s%s",
               $mediaRaw->getClientMimeType(),
               $mediaRaw->getClientOriginalName(),
@@ -251,10 +225,10 @@ class Manager
     }
 
     /**
-     * Guess and retrieve the good storage mapper for a mediaRaw.
+     * Guess a storage mapper based on the given mediaRaw.
      *
      * @param string $mediaPath
-     * @return StorageMapperInterface The storage mapper.
+     * @return StorageMapperInterface
      * @throw NoMatchedStorageProviderException
      */
     public function guessStorageMapper($mediaPath)
@@ -266,5 +240,20 @@ class Manager
         }
 
         throw new NoMatchedStorageMapperException();
+    }
+
+    /**
+     * Guess a metadata extractor based on the given mime type
+     *
+     * @param string $mimeType
+     * @return MetadataExtractorInterface
+     */
+    public function guessMetadataExtractor($mimeType)
+    {
+        foreach ($this->metadataExtractors as $metadataExtractor) {
+            if ($metadataExtractor->checkMimeType($mimeType)) {
+                return $metadataExtractor;
+            }
+        }
     }
 }

@@ -4,7 +4,7 @@ parameters:
 services:
     tms_media.manager:
         class: Tms\Bundle\MediaBundle\Service\Manager
-        arguments: [@doctrine.orm.entity_manager, @service_container, %tms_media.default_store_path%]
+        arguments: [@doctrine.orm.entity_manager, %tms_media.default_store_path%]
 
     tms_media.storage_mapper:
         class: %tms_media.storage_mapper.class%
@@ -18,7 +18,6 @@ services:
         abstract: true
         tags:
             - { name: tms_media.mapper.rule, alias: min_size }
-
     tms_media.rule.max_size:
         class: Tms\Bundle\MediaBundle\StorageMapper\Rule\MaxSizeRule
         arguments: [null]
@@ -26,7 +25,6 @@ services:
         abstract: true
         tags:
             - { name: tms_media.mapper.rule, alias: max_size }
-
     tms_media.rule.mime_types:
         class: Tms\Bundle\MediaBundle\StorageMapper\Rule\MimeTypesRule
         arguments: [null]
@@ -34,7 +32,6 @@ services:
         abstract: true
         tags:
             - { name: tms_media.mapper.rule, alias: mime_types }
-
     tms_media.rule.created_before:
         class: Tms\Bundle\MediaBundle\StorageMapper\Rule\CreatedBeforeRule
         arguments: [null]
@@ -42,7 +39,6 @@ services:
         abstract: true
         tags:
             - { name: tms_media.mapper.rule, alias: created_before }
-
     tms_media.rule.created_after:
         class: Tms\Bundle\MediaBundle\StorageMapper\Rule\CreatedAfterRule
         arguments: [null]
@@ -50,3 +46,14 @@ services:
         abstract: true
         tags:
             - { name: tms_media.mapper.rule, alias: created_after }
+
+    tms_media.metadata_extractor.image:
+        class: Tms\Bundle\MediaBundle\MetadataExtractor\ImageMetadataExtractor
+        public: false
+        tags:
+            - { name: tms_media.metadata_extractor }
+    tms_media.metadata_extractor.default:
+        class: Tms\Bundle\MediaBundle\MetadataExtractor\DefaultMetadataExtractor
+        public: false
+        tags:
+            - { name: tms_media.metadata_extractor }

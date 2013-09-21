@@ -15,7 +15,10 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Media
  *
- * @ORM\Table(name="media", uniqueConstraints={@ORM\UniqueConstraint(name="Reference", columns={"reference"})})
+ * @ORM\Table(name="media",
+ *    indexes={@ORM\Index(name="media_source", columns={"source"})},
+ *    uniqueConstraints={@ORM\UniqueConstraint(name="media_reference", columns={"reference"})}
+ * )
  * @ORM\Entity(repositoryClass="Tms\Bundle\MediaBundle\Entity\Repository\MediaRepository")
  * @ORM\HasLifecycleCallbacks()
  */
@@ -23,7 +26,7 @@ class Media
 {
     /**
      * @var integer
-     * @ORM\Column(name="id", type="integer")
+     * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
@@ -31,63 +34,57 @@ class Media
 
     /**
      * @var string
-     * @ORM\Column(name="name", type="string", length=255)
+     * @ORM\Column(type="string", length=255)
      */
-    protected $name;
+    protected $source;
 
     /**
      * @var string
-     * @ORM\Column(name="description", type="text", nullable=true)
+     * @ORM\Column(type="string")
      */
-    protected $description;
-
-    /**
-     * @var boolean
-     * @ORM\Column(name="enabled", type="boolean")
-     */
-    protected $enabled;
+    protected $reference;
 
     /**
      * @var string
-     * @ORM\Column(name="providerServiceName", type="string", nullable=false)
+     * @ORM\Column(type="string")
+     */
+    protected $extension;
+
+    /**
+     * @var string
+     * @ORM\Column(name="provider_service_name", type="string")
      */
     protected $providerServiceName;
 
     /**
      * @var string
-     * @ORM\Column(name="reference", type="string")
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    protected $reference;
+    protected $name;
+
+    /**
+     * @var string
+     * @ORM\Column(type="text", nullable=true)
+     */
+    protected $description;
 
     /**
      * @var integer
-     * @ORM\Column(name="width", type="integer", nullable=true)
-     */
-    protected $width;
-
-    /**
-     * @var integer
-     * @ORM\Column(name="heigth", type="integer", nullable=true)
-     */
-    protected $height;
-
-    /**
-     * @var integer
-     * @ORM\Column(name="size", type="integer", nullable=true)
+     * @ORM\Column(type="integer", nullable=true)
      */
     protected $size;
 
     /**
      * @var string
-     * @ORM\Column(name="mimeType", type="string", length=255)
+     * @ORM\Column(name="mime_type", type="string", length=255)
      */
     protected $mimeType;
 
     /**
-     * @var string
-     * @ORM\Column(name="owner", type="string", length=255, nullable=true)
+     * @var boolean
+     * @ORM\Column(type="boolean")
      */
-    protected $owner;
+    protected $enabled;
 
     /**
      * @var \DateTime
@@ -96,10 +93,10 @@ class Media
     protected $createdAt;
 
     /**
-     * @var \DateTime
-     * @ORM\Column(name="updated_at", type="datetime")
+     * @var array
+     * @ORM\Column(type="json_array", nullable=true)
      */
-    protected $updatedAt;
+    protected $metadata;
 
     /**
      * On create
@@ -111,19 +108,7 @@ class Media
         $now = new \DateTime();
         $this
             ->setCreatedAt($now)
-            ->setUpdatedAt($now)
         ;
-    }
-
-    /**
-     * On update
-     *
-     * @ORM\PreUpdate()
-     */
-    public function onUpdate()
-    {
-        $now = new \DateTime();
-        $this->setUpdatedAt($now);
     }
 
     /**
@@ -142,19 +127,18 @@ class Media
     public function toArray()
     {
         return array(
-            'id'                    => $this->getId(),
-            'name'                  => $this->getName(),
-            'description'           => $this->getDescription(),
-            'enabled'               => $this->getEnabled(),
-            'providerServiceName'   => $this->getProviderServiceName(),
-            'reference'             => $this->getReference(),
-            'width'                 => $this->getWidth(),
-            'height'                => $this->getHeight(),
-            'size'                  => $this->getSize(),
-            'mimeType'              => $this->getMimeType(),
-            'owner'                 => $this->getOwner(),
-            'createdAt'             => $this->getCreatedAt()->format('c'),
-            'updatedAt'             => $this->getUpdatedAt()->format('c'),
+            'id'                  => $this->getId(),
+            'source'              => $this->getSource(),
+            'reference'           => $this->getReference(),
+            'extension'           => $this->getExtension(),
+            'providerServiceName' => $this->getProviderServiceName(),
+            'name'                => $this->getName(),
+            'description'         => $this->getDescription(),
+            'size'                => $this->getSize(),
+            'mimeType'            => $this->getMimeType(),
+            'enabled'             => $this->getEnabled(),
+            'createdAt'           => $this->getCreatedAt()->format('c'),
+            'metadata'            => $this->getMetadata(),
         );
     }
 
@@ -166,6 +150,98 @@ class Media
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set source
+     *
+     * @param string $source
+     * @return Media
+     */
+    public function setSource($source)
+    {
+        $this->source = $source;
+
+        return $this;
+    }
+
+    /**
+     * Get source
+     *
+     * @return string 
+     */
+    public function getSource()
+    {
+        return $this->source;
+    }
+
+    /**
+     * Set reference
+     *
+     * @param string $reference
+     * @return Media
+     */
+    public function setReference($reference)
+    {
+        $this->reference = $reference;
+
+        return $this;
+    }
+
+    /**
+     * Get reference
+     *
+     * @return string 
+     */
+    public function getReference()
+    {
+        return $this->reference;
+    }
+
+    /**
+     * Set extension
+     *
+     * @param string $extension
+     * @return Media
+     */
+    public function setExtension($extension)
+    {
+        $this->extension = $extension;
+
+        return $this;
+    }
+
+    /**
+     * Get extension
+     *
+     * @return string 
+     */
+    public function getExtension()
+    {
+        return $this->extension;
+    }
+
+    /**
+     * Set providerServiceName
+     *
+     * @param string $providerServiceName
+     * @return Media
+     */
+    public function setProviderServiceName($providerServiceName)
+    {
+        $this->providerServiceName = $providerServiceName;
+
+        return $this;
+    }
+
+    /**
+     * Get providerServiceName
+     *
+     * @return string 
+     */
+    public function getProviderServiceName()
+    {
+        return $this->providerServiceName;
     }
 
     /**
@@ -215,121 +291,6 @@ class Media
     }
 
     /**
-     * Set enabled
-     *
-     * @param boolean $enabled
-     * @return Media
-     */
-    public function setEnabled($enabled)
-    {
-        $this->enabled = $enabled;
-
-        return $this;
-    }
-
-    /**
-     * Get enabled
-     *
-     * @return boolean 
-     */
-    public function getEnabled()
-    {
-        return $this->enabled;
-    }
-
-    /**
-     * Set provider service name
-     *
-     * @param string $providerServiceName
-     * @return Media
-     */
-    public function setProviderServiceName($providerServiceName)
-    {
-        $this->providerServiceName = $providerServiceName;
-
-        return $this;
-    }
-
-    /**
-     * Get provider service name
-     *
-     * @return string 
-     */
-    public function getProviderServiceName()
-    {
-        return $this->providerServiceName;
-    }
-
-    /**
-     * Set reference
-     *
-     * @param array $reference
-     * @return MediaEntity
-     */
-    public function setReference($reference)
-    {
-        $this->reference = $reference;
-
-        return $this;
-    }
-
-    /**
-     * Get reference data
-     *
-     * @return array 
-     */
-    public function getReference()
-    {
-        return $this->reference;
-    }
-
-    /**
-     * Set width
-     *
-     * @param integer $width
-     * @return Media
-     */
-    public function setWidth($width)
-    {
-        $this->width = $width;
-
-        return $this;
-    }
-
-    /**
-     * Get width
-     *
-     * @return integer 
-     */
-    public function getWidth()
-    {
-        return $this->width;
-    }
-
-    /**
-     * Set height
-     *
-     * @param integer $height
-     * @return Media
-     */
-    public function setHeight($height)
-    {
-        $this->height = $height;
-
-        return $this;
-    }
-
-    /**
-     * Get height
-     *
-     * @return integer 
-     */
-    public function getHeight()
-    {
-        return $this->height;
-    }
-
-    /**
      * Set size
      *
      * @param integer $size
@@ -353,7 +314,7 @@ class Media
     }
 
     /**
-     * Set content type
+     * Set mimeType
      *
      * @param string $mimeType
      * @return Media
@@ -366,7 +327,7 @@ class Media
     }
 
     /**
-     * Get content type
+     * Get mimeType
      *
      * @return string 
      */
@@ -376,30 +337,30 @@ class Media
     }
 
     /**
-     * Set owner
+     * Set enabled
      *
-     * @param string $owner
+     * @param boolean $enabled
      * @return Media
      */
-    public function setOwner($owner)
+    public function setEnabled($enabled)
     {
-        $this->owner = $owner;
+        $this->enabled = $enabled;
 
         return $this;
     }
 
     /**
-     * Get owner
+     * Get enabled
      *
-     * @return string 
+     * @return boolean 
      */
-    public function getOwner()
+    public function getEnabled()
     {
-        return $this->owner;
+        return $this->enabled;
     }
 
     /**
-     * Set created at
+     * Set createdAt
      *
      * @param \DateTime $createdAt
      * @return Media
@@ -412,7 +373,7 @@ class Media
     }
 
     /**
-     * Get created at
+     * Get createdAt
      *
      * @return \DateTime 
      */
@@ -422,25 +383,25 @@ class Media
     }
 
     /**
-     * Set updated at
+     * Set metadata
      *
-     * @param \DateTime $updatedAt
+     * @param array $metadata
      * @return Media
      */
-    public function setUpdatedAt($updatedAt)
+    public function setMetadata($metadata)
     {
-        $this->updatedAt = $updatedAt;
+        $this->metadata = $metadata;
 
         return $this;
     }
 
     /**
-     * Get updated at
+     * Get metadata
      *
-     * @return \DateTime 
+     * @return array 
      */
-    public function getUpdatedAt()
+    public function getMetadata()
     {
-        return $this->updatedAt;
+        return $this->metadata;
     }
 }

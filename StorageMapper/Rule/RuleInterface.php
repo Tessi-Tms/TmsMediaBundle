@@ -18,6 +18,7 @@ interface RuleInterface
      * Check the rule for a file.
      *
      * @param string $file
+     * @return boolean
      */
     public function check($file);
 }

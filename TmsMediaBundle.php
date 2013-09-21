@@ -13,6 +13,7 @@ namespace Tms\Bundle\MediaBundle;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Tms\Bundle\MediaBundle\DependencyInjection\Compiler\DefineMediaProvidersCompilerPass;
+use Tms\Bundle\MediaBundle\DependencyInjection\Compiler\DefineMediaMetadataExtractorCompilerPass;
 
 class TmsMediaBundle extends Bundle
 {
@@ -21,5 +22,6 @@ class TmsMediaBundle extends Bundle
         parent::build($container);
 
         $container->addCompilerPass(new DefineMediaProvidersCompilerPass());
+        $container->addCompilerPass(new DefineMediaMetadataExtractorCompilerPass());
     }
 }

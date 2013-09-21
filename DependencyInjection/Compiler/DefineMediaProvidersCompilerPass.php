@@ -28,6 +28,7 @@ class DefineMediaProvidersCompilerPass implements CompilerPassInterface
 
         $definition = $container->getDefinition('tms_media.manager');
 
+        // StorageMapper
         $ruleServiceIds = array();
         $ruleServices = $container->findTaggedServiceIds('tms_media.mapper.rule');
 

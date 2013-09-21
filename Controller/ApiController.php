@@ -21,6 +21,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
 use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageMapperException;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 class ApiController extends Controller
 {
@@ -35,8 +36,16 @@ class ApiController extends Controller
     {
         $response = new Response();
         try {
-            $mediaRaw = $request->files->get('media');
-            $media = $this->get('tms_media.manager')->addMedia($mediaRaw);
+            $media = $this->get('tms_media.manager')->addMedia(
+                $request->files->get('media'),
+                sprintf('[%s] %s',
+                    $request->getClientIp(),
+                    $request->request->get('source', null)
+                ),
+                $request->request->get('name', null),
+                $request->request->get('description', null)
+            );
+
             $response->setStatusCode(201);
             $response->setContent(json_encode($media->toArray()));
         } catch (MediaAlreadyExistException $e) {
@@ -45,11 +54,13 @@ class ApiController extends Controller
         } catch (NoMatchedStorageMapperException $e) {
             $response->setStatusCode(415);
             $response->setContent($e->getMessage());
+        }  catch (FileException $e) {
+            $response->setStatusCode(413);
+            $response->setContent($e->getMessage());
         } catch (\Exception $e) {
             $response->setStatusCode(418);
             $response->setContent($e->getMessage());
         }
-
 
         return $response;
     }
@@ -81,21 +92,28 @@ class ApiController extends Controller
      *
      * @param Request $request
      * @param string $reference
+     * @Route("/media/{reference}.{_format}", defaults={"_format"=null})
      * @Route("/media/{reference}")
      * @Method({"GET"})
      */
     public function getAction(Request $request, $reference)
     {
+        $format = $request->getRequestFormat();
         $response = new Response();
         try {
             $media = $this->get('tms_media.manager')->retrieveMedia($reference);
             $storageProvider = $this->get('tms_media.manager')->getStorageProvider($media->getProviderServiceName());
             $response->setStatusCode(200);
-            $response->headers->set('Content-Type', $media->getMimeType());
-            $response->headers->set('Content-Length', $media->getSize());
-            $response->setETag($media->getReference());
-            $response->setLastModified($media->getCreatedAt());
-            $response->setContent($storageProvider->read($media->getReference()));
+
+            if(is_null($format) || $format == $media->getExtension()) {
+                $response->headers->set('Content-Type', $media->getMimeType());
+                $response->headers->set('Content-Length', $media->getSize());
+                $response->setETag($media->getReference());
+                $response->setLastModified($media->getCreatedAt());
+                $response->setContent($storageProvider->read($media->getReference()));
+            } else {
+                // TODO: Improve this part with a service
+            }
 
             // TODO: Improve this part with configuration
             $response->setPublic();
