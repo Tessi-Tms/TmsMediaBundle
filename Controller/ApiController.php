@@ -113,6 +113,14 @@ class ApiController extends Controller
                 $response->setContent($storageProvider->read($media->getReference()));
             } else {
                 // TODO: Improve this part with a service
+                if(in_array($format, array('json', 'xml'))) {
+                    $export = $this->get('idci_exporter.manager')->export(array($media), $format);
+                    $response->setContent($export->getContent());
+                    $response->headers->set(
+                        'Content-Type',
+                        sprintf('%s; charset=UTF-8', $export->getContentType())
+                    );
+                }
             }
 
             // TODO: Improve this part with configuration

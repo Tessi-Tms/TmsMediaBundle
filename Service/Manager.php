@@ -124,7 +124,7 @@ class Manager
 
         // Keep media information before handle the file
         $mimeType = $mediaRaw->getMimeType();
-        $extension = $mediaRaw->getExtension();
+        $extension = $mediaRaw->guessExtension();
         $name = is_null($name) ? $mediaRaw->getClientOriginalName() : $name;
         $description = is_null($description) ? $mediaRaw->getClientOriginalName() : $description;
 
