@@ -25,6 +25,7 @@ First add the dependencies in your `composer.json` file :
         ...,
         "knplabs/gaufrette": "0.2.*@dev",
         "knplabs/knp-gaufrette-bundle": "dev-master",
+        "idci/exporter-bundle": "dev-master",
         "tms/media-bundle": "dev-master"
     },
 ```
@@ -46,11 +47,21 @@ public function registerBundles()
     $bundles = array(
         //
         new Knp\Bundle\GaufretteBundle\KnpGaufretteBundle(),
+        new IDCI\Bundle\ExporterBundle\IDCIExporterBundle(),
         new Tms\Bundle\MediaBundle\TmsMediaBundle(),
     );
 }
 ```
-Now the Bundles are installed
+
+Now import the bundle configuration in your `app/config.yml`
+
+```yml
+imports:
+    ...
+    - { resource: @TmsMediaBundle/Resources/config/config.yml }
+```
+
+Bundles are installed
 
 How to use it
 -------------
