@@ -20,6 +20,8 @@ class RestMediaTransformer extends AbstractMediaTransformer
 
     /**
      * Constructor
+     *
+     * @param $cacheManager;
      */
     public function __construct($cacheManager = null, Exporter $exporter)
     {

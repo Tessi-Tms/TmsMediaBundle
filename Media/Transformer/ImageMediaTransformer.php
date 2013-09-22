@@ -12,15 +12,23 @@ namespace Tms\Bundle\MediaBundle\Media\Transformer;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Gaufrette\Filesystem;
 use Tms\Bundle\MediaBundle\Media\ResponseMedia;
+use Gregwar\ImageBundle\Services\ImageHandling as ImageManager;
 
 class ImageMediaTransformer extends AbstractMediaTransformer
 {
+    protected $imageManager;
+
     /**
      * Constructor
+     *
+     * @param $cacheManager;
+     * @param Exporter $exporter
      */
-    public function __construct()
+    public function __construct(ImageManager $imageManager)
     {
         parent::__construct(null);
+
+        $this->imageManager = $imageManager;
     }
 
     /**
@@ -44,16 +52,16 @@ class ImageMediaTransformer extends AbstractMediaTransformer
      */
     public function process(Filesystem $storageProvider, Media $media, $format, $parameters = array())
     {
+        $original = $storageProvider->read($media->getReference());
+
         if($format === $media->getExtension()) {
             $responseMedia = new ResponseMedia($media);
-
-            $responseMedia->setContent(
-                $storageProvider->read($media->getReference())
-            );
+            $responseMedia->setContent($original);
 
             return $responseMedia;
         }
 
+        
         die('good image');
         return $responseMedia;
     }

@@ -21,7 +21,7 @@ abstract class AbstractMediaTransformer implements MediaTransformerInterface
     /**
      * Constructor
      *
-     * @param DoctrineCach|null $cacheManager
+     * @param DoctrineCache|null $cacheManager
      */
     public function __construct($cacheManager = null)
     {

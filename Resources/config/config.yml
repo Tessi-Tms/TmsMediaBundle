@@ -2,3 +2,6 @@ idci_exporter:
     entities:
         medias:
             class: "Tms\\Bundle\\MediaBundle\\Entity\Media"
+
+gregwar_image:
+    cache_dir:  %tms_media_cache_dir%
