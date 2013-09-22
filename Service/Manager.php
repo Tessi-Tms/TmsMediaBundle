@@ -12,8 +12,10 @@ namespace Tms\Bundle\MediaBundle\Service;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Tms\Bundle\MediaBundle\Entity\Media;
+use Tms\Bundle\MediaBundle\Media\ResponseMedia;
 use Tms\Bundle\MediaBundle\StorageMapper\StorageMapperInterface;
 use Tms\Bundle\MediaBundle\MetadataExtractor\MetadataExtractorInterface;
+use Tms\Bundle\MediaBundle\Media\Transformer\MediaTransformerInterface;
 use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
 use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageMapperException;
 use Tms\Bundle\MediaBundle\Exception\UndefinedStorageMapperException;
@@ -28,6 +30,7 @@ class Manager
     protected $defaultStorePath;
     protected $storageMappers = array();
     protected $metadataExtractors = array();
+    protected $mediaTransformers = array();
 
     /**
      * Constructor
@@ -59,6 +62,16 @@ class Manager
     public function addMetadataExtractor(MetadataExtractorInterface $metadataExtractor)
     {
         $this->metadataExtractors[] = $metadataExtractor;
+    }
+
+    /**
+     * Add media transformer
+     *
+     * @param MediaTransformerInterface $mediaTransformer
+     */
+    public function addMediaTransformer(MediaTransformerInterface $mediaTransformer)
+    {
+        $this->mediaTransformers[] = $mediaTransformer;
     }
 
     /**
@@ -231,7 +244,7 @@ class Manager
      * @return StorageMapperInterface
      * @throw NoMatchedStorageProviderException
      */
-    public function guessStorageMapper($mediaPath)
+    protected function guessStorageMapper($mediaPath)
     {
         foreach ($this->storageMappers as $storageMapper) {
             if ($storageMapper->checkRules($mediaPath)) {
@@ -248,12 +261,49 @@ class Manager
      * @param string $mimeType
      * @return MetadataExtractorInterface
      */
-    public function guessMetadataExtractor($mimeType)
+    protected function guessMetadataExtractor($mimeType)
     {
         foreach ($this->metadataExtractors as $metadataExtractor) {
             if ($metadataExtractor->checkMimeType($mimeType)) {
                 return $metadataExtractor;
             }
         }
+    }
+
+    /**
+     * Guess a transformer on the given format
+     *
+     * @param string $format
+     * @return MediaTransformerInterface
+     */
+    protected function guessMediaTransformer($format)
+    {
+        foreach ($this->mediaTransformers as $mediaTransformer) {
+            if ($mediaTransformer->checkFormat($format)) {
+                return $mediaTransformer;
+            }
+        }
+    }
+
+    /**
+     * transform a given Media to a ResponseMedia based on given parameters
+     *
+     * @param Media $media
+     * @param string $format
+     * @param array $parameters
+     * @return ResponseMedia
+     */
+    public function transform(Media $media, $format, $parameters)
+    {
+        $mediaTransformer = $this->guessMediaTransformer($format);
+
+        return $mediaTransformer->transform(
+            $this->getStorageProvider($media->getProviderServiceName()),
+            $media,
+            $format,
+            $parameters
+        );
+
+        return $responseMedia;
     }
 }

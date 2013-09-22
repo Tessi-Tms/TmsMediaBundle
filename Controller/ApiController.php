@@ -98,38 +98,25 @@ class ApiController extends Controller
      */
     public function getAction(Request $request, $reference)
     {
-        $format = $request->getRequestFormat();
         $response = new Response();
         try {
             $media = $this->get('tms_media.manager')->retrieveMedia($reference);
-            $storageProvider = $this->get('tms_media.manager')->getStorageProvider($media->getProviderServiceName());
-            $response->setStatusCode(200);
+            $responseMedia = $this->get('tms_media.manager')->transform(
+                $media,
+                $request->getRequestFormat(),
+                $request->query->all()
+            );
 
-            if(is_null($format) || $format == $media->getExtension()) {
-                $response->headers->set('Content-Type', $media->getMimeType());
-                $response->headers->set('Content-Length', $media->getSize());
-                $response->setETag($media->getReference());
-                $response->setLastModified($media->getCreatedAt());
-                $response->setContent($storageProvider->read($media->getReference()));
-            } else {
-                // TODO: Improve this part with a service
-                if(in_array($format, array('json', 'xml'))) {
-                    $export = $this->get('idci_exporter.manager')->export(array($media), $format);
-                    $response->setContent($export->getContent());
-                    $response->headers->set(
-                        'Content-Type',
-                        sprintf('%s; charset=UTF-8', $export->getContentType())
-                    );
-                }
-            }
-
-            // TODO: Improve this part with configuration
             $response->setPublic();
-            $date = new \DateTime();
-            $date->modify('+3600 seconds');
-            $response->setExpires($date);
-            $response->setMaxAge(3600);
-            $response->setSharedMaxAge(3600);
+            $response->setStatusCode(200);
+            $response->headers->set('Content-Type', $responseMedia->getContentType());
+            $response->headers->set('Content-Length', $responseMedia->getContentLength());
+            $response->setETag($responseMedia->getETag());
+            $response->setLastModified($responseMedia->getLastModifiedAt());
+            $response->setContent($responseMedia->getContent());
+            $response->setExpires($responseMedia->getExpires());
+            $response->setMaxAge($responseMedia->getMaxAge());
+            $response->setSharedMaxAge($responseMedia->getSharedMaxAge());
         } catch (\Exception $e) {
             $response->setStatusCode(404);
             $response->setContent($e->getMessage());

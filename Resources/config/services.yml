@@ -2,6 +2,8 @@ parameters:
     tms_media.storage_mapper.class: Tms\Bundle\MediaBundle\StorageMapper\StorageMapper
 
 services:
+    ## Managers ##
+
     tms_media.manager:
         class: Tms\Bundle\MediaBundle\Service\Manager
         arguments: [@doctrine.orm.entity_manager, %tms_media.default_store_path%]
@@ -10,6 +12,8 @@ services:
         class: %tms_media.storage_mapper.class%
         arguments: [null, null]
         abstract: true
+
+    ## Storage Mapper Rules ##
 
     tms_media.rule.min_size:
         class: Tms\Bundle\MediaBundle\StorageMapper\Rule\MinSizeRule
@@ -47,13 +51,38 @@ services:
         tags:
             - { name: tms_media.mapper.rule, alias: created_after }
 
+    ## Metadata Extrators ##
+
     tms_media.metadata_extractor.image:
         class: Tms\Bundle\MediaBundle\MetadataExtractor\ImageMetadataExtractor
         public: false
         tags:
             - { name: tms_media.metadata_extractor }
+    # Keep the default metadata extractor in last position
     tms_media.metadata_extractor.default:
         class: Tms\Bundle\MediaBundle\MetadataExtractor\DefaultMetadataExtractor
         public: false
         tags:
             - { name: tms_media.metadata_extractor }
+
+    ## Media Transformers ##
+
+    tms_media.transformer.image:
+        class: Tms\Bundle\MediaBundle\Media\Transformer\ImageMediaTransformer
+        arguments: [null]
+        public: false
+        tags:
+            - { name: tms_media.transformer }
+    tms_media.transformer.rest:
+        class: Tms\Bundle\MediaBundle\Media\Transformer\RestMediaTransformer
+        arguments: [null, @idci_exporter.manager]
+        public: false
+        tags:
+            - { name: tms_media.transformer }
+    # Keep the default transformer in last position
+    tms_media.transformer.default:
+        class: Tms\Bundle\MediaBundle\Media\Transformer\DefaultMediaTransformer
+        public: false
+        tags:
+            - { name: tms_media.transformer }
+

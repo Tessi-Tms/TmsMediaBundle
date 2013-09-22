@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
 
-class DefineMediaMetadataExtractorCompilerPass implements CompilerPassInterface
+class DefineMediaTransformersCompilerPass implements CompilerPassInterface
 {
     /**
      * {@inheritdoc}
@@ -28,11 +28,11 @@ class DefineMediaMetadataExtractorCompilerPass implements CompilerPassInterface
         $definition = $container->getDefinition('tms_media.manager');
 
         // MetadataExtractor
-        $taggedServices = $container->findTaggedServiceIds('tms_media.metadata_extractor');
+        $taggedServices = $container->findTaggedServiceIds('tms_media.transformer');
 
         foreach ($taggedServices as $id => $tagAttributes) {
             $definition->addMethodCall(
-                'addMetadataExtractor',
+                'addMediaTransformer',
                 array(new Reference($id), $id)
             );
         }
