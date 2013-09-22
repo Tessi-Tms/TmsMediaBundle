@@ -36,7 +36,7 @@ class DefaultMediaTransformer extends AbstractMediaTransformer
      */
     protected function getAvailableParameters()
     {
-        return array();
+        return array(null);
     }
 
     /**

@@ -54,7 +54,6 @@ class ImageMediaTransformer extends AbstractMediaTransformer
             return $responseMedia;
         }
 
-        var_dump($parameters);
         die('good image');
         return $responseMedia;
     }

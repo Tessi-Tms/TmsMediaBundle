@@ -20,6 +20,7 @@ use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
 use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageMapperException;
 use Tms\Bundle\MediaBundle\Exception\UndefinedStorageMapperException;
 use Tms\Bundle\MediaBundle\Exception\MediaNotFoundException;
+use Tms\Bundle\MediaBundle\Exception\NoMatchedTransformerException;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Gaufrette\Filesystem;
@@ -283,6 +284,8 @@ class Manager
                 return $mediaTransformer;
             }
         }
+
+        throw new NoMatchedTransformerException($format);
     }
 
     /**
@@ -303,7 +306,5 @@ class Manager
             $format,
             $parameters
         );
-
-        return $responseMedia;
     }
 }

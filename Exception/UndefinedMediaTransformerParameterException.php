@@ -22,7 +22,7 @@ class UndefinedMediaTransformerParameterException extends \Exception
         parent::__construct(sprintf(
             'The following parameters are not defined for %s: %s',
             $reflection->getName(),
-            print_r($parameters)
+            json_encode($parameters)
         ));
     }
 }

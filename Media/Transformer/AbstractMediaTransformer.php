@@ -12,6 +12,7 @@ namespace Tms\Bundle\MediaBundle\Media\Transformer;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Gaufrette\Filesystem;
 use Tms\Bundle\MediaBundle\Media\ResponseMedia;
+use Tms\Bundle\MediaBundle\Exception\UndefinedMediaTransformerParameterException;
 
 abstract class AbstractMediaTransformer implements MediaTransformerInterface
 {
@@ -65,7 +66,16 @@ abstract class AbstractMediaTransformer implements MediaTransformerInterface
      */
     public function checkParameters($parameters)
     {
-        return in_array($parameters, $this->getAvailableParameters());
+        $diff = array_diff(
+            array_keys($parameters),
+            $this->getAvailableParameters()
+        );
+
+        if (count($diff) == 0) {
+            return true;
+        }
+
+        throw new UndefinedMediaTransformerParameterException($this, array_values($diff));
     }
 
     /**
@@ -73,6 +83,8 @@ abstract class AbstractMediaTransformer implements MediaTransformerInterface
      */
     public function transform(Filesystem $storageProvider, Media $media, $format, $parameters = array())
     {
+        $this->checkParameters($parameters);
+
         // Cache if configure
         return $this->process($storageProvider, $media, $format, $parameters);
     }
