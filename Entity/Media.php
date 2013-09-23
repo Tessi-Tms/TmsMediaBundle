@@ -398,10 +398,15 @@ class Media
     /**
      * Get metadata
      *
+     * @param string $key
      * @return array 
      */
-    public function getMetadata()
+    public function getMetadata($key = null)
     {
-        return $this->metadata;
+        if(null === $key) {
+            return $this->metadata;
+        }
+
+        return $this->metadata[$key];
     }
 }

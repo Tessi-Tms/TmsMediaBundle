@@ -69,7 +69,7 @@ services:
 
     tms_media.transformer.image:
         class: Tms\Bundle\MediaBundle\Media\Transformer\ImageMediaTransformer
-        arguments: [@image.handling]
+        arguments: [@image.handling,  %tms_media_cache_dir%]
         public: false
         tags:
             - { name: tms_media.transformer }

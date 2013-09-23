@@ -17,18 +17,20 @@ use Gregwar\ImageBundle\Services\ImageHandling as ImageManager;
 class ImageMediaTransformer extends AbstractMediaTransformer
 {
     protected $imageManager;
+    protected $cacheDir;
 
     /**
      * Constructor
      *
-     * @param $cacheManager;
-     * @param Exporter $exporter
+     * @param ImageManager $imageManager
+     * @param string $cacheDir
      */
-    public function __construct(ImageManager $imageManager)
+    public function __construct(ImageManager $imageManager, $cacheDir)
     {
         parent::__construct(null);
 
         $this->imageManager = $imageManager;
+        $this->cacheDir = $cacheDir;
     }
 
     /**
@@ -36,7 +38,7 @@ class ImageMediaTransformer extends AbstractMediaTransformer
      */
     protected function getAvailableFormats()
     {
-        return array('jpg', 'jpeg', 'png', 'gif', 'tiff', 'vnd', 'svg');
+        return array('jpg', 'jpeg', 'png', 'gif');
     }
 
     /**
@@ -44,7 +46,19 @@ class ImageMediaTransformer extends AbstractMediaTransformer
      */
     protected function getAvailableParameters()
     {
-        return array('width', 'height', 'rotate', 'scale', 'greyscale');
+        return array('width', 'height', 'scale', 'grayscale');
+    }
+
+    protected static function getMimeType($type)
+    {
+        $mimeTypeMap = array(
+            'jpg'   => 'image/jpg',
+            'jpeg'  => 'image/jpeg',
+            'png'   => 'image/png',
+            'gif'   => 'image/gif'
+        );
+
+        return $mimeTypeMap[$type];
     }
 
     /**
@@ -52,17 +66,61 @@ class ImageMediaTransformer extends AbstractMediaTransformer
      */
     public function process(Filesystem $storageProvider, Media $media, $format, $parameters = array())
     {
-        $original = $storageProvider->read($media->getReference());
+        $responseMedia = new ResponseMedia();
+        $responseMedia->setContentType(self::getMimeType($format));
 
-        if($format === $media->getExtension()) {
-            $responseMedia = new ResponseMedia($media);
-            $responseMedia->setContent($original);
+        $imageCacheName = sprintf('%s_%s.%s',
+            $media->getReference(),
+            sprintf("%u", crc32(serialize($parameters))),
+            $format
+        );
+        $imageCachePath = sprintf('%s%s', $this->cacheDir, $imageCacheName);
+
+        if(file_exists($imageCachePath)) {
+            $responseMedia->setContent(file_get_contents($imageCachePath));
 
             return $responseMedia;
         }
 
-        
-        die('good image');
+        $originalContent = $storageProvider->read($media->getReference());
+
+        if($format === $media->getExtension() && count($parameters) == 0 ) {
+            $responseMedia = new ResponseMedia($media);
+            $responseMedia->setContent($originalContent);
+
+            return $responseMedia;
+        }
+
+        $imageSourceCachePath = sprintf('%s%s.%s',
+            $this->cacheDir,
+            $media->getReference(),
+            $media->getExtension()
+        );
+
+        file_put_contents($imageSourceCachePath, $originalContent);
+        $image = $this->imageManager->open($imageSourceCachePath);
+
+        if(isset($parameters['width']) || isset($parameters['height'])) {
+            $w = isset($parameters['width']) ? $parameters['width'] : null;
+            $h = isset($parameters['height']) ? $parameters['height'] : null;
+
+            $image->forceResize($w, $h);
+        }
+
+        if(isset($parameters['grayscale'])) {
+            $image->grayscale();
+        }
+
+        if(isset($parameters['scale'])) {
+            $w = $media->getMetadata('width') * $parameters['scale'] / 100;
+
+            $image->scaleResize($w);
+        }
+
+        $image->save($imageCachePath, $format);
+
+        $responseMedia->setContent(file_get_contents($imageCachePath));
+
         return $responseMedia;
     }
 }
