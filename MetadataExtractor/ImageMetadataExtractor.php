@@ -31,9 +31,11 @@ class ImageMetadataExtractor implements MetadataExtractorInterface
      */
     public function extract($mediaPath)
     {
+        $data = getimagesize($mediaPath);
+
         $metadata = array_combine(
-            array('width', 'height', 'type', 'attr', 'bits', 'channels', 'mime'),
-            getimagesize($mediaPath)
+            array('width', 'height'),
+            array($data[0], $data[1])
         );
 
         return $metadata;
