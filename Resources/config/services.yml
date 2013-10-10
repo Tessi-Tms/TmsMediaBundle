@@ -85,4 +85,8 @@ services:
         public: false
         tags:
             - { name: tms_media.transformer }
+            
+    tms_media.manager.media:
+        class: Tms\Bundle\MediaBundle\Manager\MediaManager
+        arguments: [@doctrine.orm.entity_manager, @event_dispatcher]
 
