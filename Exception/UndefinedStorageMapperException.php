@@ -13,9 +13,11 @@ class UndefinedStorageMapperException extends \Exception
 {
     /**
      * The constructor.
+     *
+     * @param string $serviceName
      */
-    public function __construct($id)
+    public function __construct($serviceName)
     {
-        parent::__construct(sprintf('The storage mapper %s is undefined.', $id));
+        parent::__construct(sprintf('The storage mapper %s is undefined.', $serviceName));
     }
 }

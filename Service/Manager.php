@@ -100,7 +100,7 @@ class Manager
             }
         }
 
-        throw new UndefinedStorageMapperException();
+        throw new UndefinedStorageMapperException($providerServiceName);
     }
 
     /**
