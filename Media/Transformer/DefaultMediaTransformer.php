@@ -42,6 +42,14 @@ class DefaultMediaTransformer extends AbstractMediaTransformer
     /**
      * {@inheritdoc}
      */
+    public function checkFormat($format)
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function process(Filesystem $storageProvider, Media $media, $format, $parameters = array())
     {
         $responseMedia = new ResponseMedia($media);
