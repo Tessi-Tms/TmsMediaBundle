@@ -227,14 +227,15 @@ class Manager
     {
         $now = new \DateTime();
 
-        return sprintf('%s-%s-%s',
+        return sprintf('%s-%s-%s-%d',
             sprintf("%u", crc32($source)),
             $now->format('U'),
             md5(sprintf("%s%s%s",
               $mediaRaw->getClientMimeType(),
               $mediaRaw->getClientOriginalName(),
               $mediaRaw->getClientSize()
-            ))
+            )),
+            rand(0, 9999)
         );
     }
 
