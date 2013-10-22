@@ -46,7 +46,7 @@ class ImageMediaTransformer extends AbstractMediaTransformer
      */
     protected function getAvailableParameters()
     {
-        return array('width', 'height', 'scale', 'grayscale', 'maxwidth', 'maxheight');
+        return array('width', 'height', 'scale', 'grayscale', 'maxwidth', 'maxheight', 'minwidth', 'minheight');
     }
 
     protected static function getMimeType($type)
@@ -107,28 +107,33 @@ class ImageMediaTransformer extends AbstractMediaTransformer
             $image->forceResize($w, $h);
         }
 
-        if (isset($parameters['maxwidth']) || isset($parameters['maxheight'])) {
+        if (
+                isset($parameters['maxheight']) ||
+                isset($parameters['maxwidth'])  ||
+                isset($parameters['minheight']) ||
+                isset($parameters['minwidth'])
+            ) {
             $h = $media->getMetadata('height');
             $w = $media->getMetadata('width');
 
-            if (
-                isset($parameters['maxwidth'], $parameters['maxheight'])
-                && ($w > $parameters['maxwidth'])
-                && ($h > $parameters['maxheight'])
-            ) {
-                if ($parameters['maxwidth'] > $parameters['maxheight']) {
+            if  (isset($parameters['minheight']) && $parameters['minheight'] > $h) {
+                $w = $w * $parameters['minheight'] / $h;
+                $h = $parameters['minheight'];
+            }
+
+            if  (isset($parameters['minwidth']) && $parameters['minwidth'] > $w) {
+                $h = $h * $parameters['minwidth'] / $w;
+                $w = $parameters['minwidth'];
+            }
+
+            if  (isset($parameters['maxheight']) && $parameters['maxheight'] < $h) {
                     $w = $w * $parameters['maxheight'] / $h;
                     $h = $parameters['maxheight'];
-                } else {
-                    $h = $h * $parameters['maxwidth'] / $w;
-                    $w = $parameters['maxwidth'];
-                }
-            } elseif (isset($parameters['maxwidth']) && ($w > $parameters['maxwidth'])) {
+            }
+
+            if  (isset($parameters['maxwidth']) && $parameters['maxwidth'] < $w) {
                 $h = $h * $parameters['maxwidth'] / $w;
                 $w = $parameters['maxwidth'];
-            } elseif (isset($parameters['maxheight']) && ($h > $parameters['maxheight'])) {
-                $w = $w * $parameters['maxheight'] / $h;
-                $h = $parameters['maxheight'];
             }
 
             $image->forceResize($w, $h);
