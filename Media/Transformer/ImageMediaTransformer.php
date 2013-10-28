@@ -149,7 +149,7 @@ class ImageMediaTransformer extends AbstractMediaTransformer
             $image->scaleResize($w);
         }
 
-        $image->save($imageCachePath, $format);
+        $image->save($imageCachePath, $format, 95);
 
         $responseMedia->setContent(file_get_contents($imageCachePath));
 
