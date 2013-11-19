@@ -13,15 +13,16 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Gaufrette\Filesystem;
 use Tms\Bundle\MediaBundle\Media\ResponseMedia;
+use Tms\Bundle\MediaBundle\Exception\UnavailabeTransformationException;
 
-class DefaultMediaTransformer extends AbstractMediaTransformer
+class DocumentMediaTransformer extends AbstractMediaTransformer
 {
     /**
      * {@inheritdoc}
      */
     protected function getAvailableFormats()
     {
-        return array(null);
+        return array('pdf', 'doc', 'docx', 'rtf', 'xls', 'xlsx', 'odt');
     }
 
     /**
@@ -30,9 +31,15 @@ class DefaultMediaTransformer extends AbstractMediaTransformer
     public function process(Filesystem $storageProvider, Media $media, $options = array())
     {
         $responseMedia = new ResponseMedia();
+
+        if ($options['format'] !== $media->getExtension() || count($options) > 1) {
+            throw new UnavailabeTransformationException($options);
+        }
+
         $responseMedia
             ->setContent($storageProvider->read($media->getReference()))
             ->setContentType($media->getMimeType())
+            ->setContentLength($media->getSize())
             ->setLastModifiedAt($media->getCreatedAt())
         ;
 

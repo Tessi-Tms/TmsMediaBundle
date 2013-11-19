@@ -73,6 +73,11 @@ services:
         public: false
         tags:
             - { name: tms_media.transformer }
+    tms_media.transformer.document:
+        class: Tms\Bundle\MediaBundle\Media\Transformer\DocumentMediaTransformer
+        public: false
+        tags:
+            - { name: tms_media.transformer }
     tms_media.transformer.rest:
         class: Tms\Bundle\MediaBundle\Media\Transformer\RestMediaTransformer
         arguments: [@idci_exporter.manager]
