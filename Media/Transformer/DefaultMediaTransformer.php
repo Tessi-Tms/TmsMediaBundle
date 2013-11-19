@@ -21,7 +21,7 @@ class DefaultMediaTransformer extends AbstractMediaTransformer
      */
     protected function getAvailableFormats()
     {
-        return array(null);
+        return array('pdf');
     }
 
     /**
