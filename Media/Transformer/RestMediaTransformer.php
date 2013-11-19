@@ -9,6 +9,7 @@
 
 namespace Tms\Bundle\MediaBundle\Media\Transformer;
 
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Gaufrette\Filesystem;
 use Tms\Bundle\MediaBundle\Media\ResponseMedia;
@@ -21,11 +22,10 @@ class RestMediaTransformer extends AbstractMediaTransformer
     /**
      * Constructor
      *
-     * @param $cacheManager;
+     * @param $Exporter;
      */
-    public function __construct($cacheManager = null, Exporter $exporter)
+    public function __construct(Exporter $exporter)
     {
-        parent::__construct($cacheManager);
         $this->exporter = $exporter;
     }
 
@@ -40,28 +40,19 @@ class RestMediaTransformer extends AbstractMediaTransformer
     /**
      * {@inheritdoc}
      */
-    protected function getAvailableParameters()
-    {
-        return array(null);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function process(Filesystem $storageProvider, Media $media, $format, $parameters = array())
+    public function process(Filesystem $storageProvider, Media $media, $options = array())
     {
         $responseMedia = new ResponseMedia();
-        $export = $this->exporter->export(array($media), $format);
+        $export = $this->exporter->export(array($media), $options['format']);
 
-        $responseMedia->setContent($export->getContent());
-        $responseMedia->setContentType(
-            sprintf('%s; charset=UTF-8', $export->getContentType())
-        );
-        $responseMedia->setETag(sprintf('%s-%s',
-            $media->getReference(),
-            $format
-        ));
-        $responseMedia->setLastModifiedAt(new \DateTime('now'));
+        $responseMedia
+            ->setContent($export->getContent())
+            ->setContentType(sprintf(
+                '%s; charset=UTF-8',
+                $export->getContentType()
+            ))
+            ->setLastModifiedAt($media->getCreatedAt())
+        ;
 
         return $responseMedia;
     }

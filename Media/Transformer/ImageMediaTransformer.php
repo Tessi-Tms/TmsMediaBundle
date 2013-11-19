@@ -9,6 +9,7 @@
 
 namespace Tms\Bundle\MediaBundle\Media\Transformer;
 
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Gaufrette\Filesystem;
 use Tms\Bundle\MediaBundle\Media\ResponseMedia;
@@ -27,8 +28,6 @@ class ImageMediaTransformer extends AbstractMediaTransformer
      */
     public function __construct(ImageManager $imageManager, $cacheDir)
     {
-        parent::__construct(null);
-
         $this->imageManager = $imageManager;
         $this->cacheDir = $cacheDir;
     }
@@ -44,49 +43,58 @@ class ImageMediaTransformer extends AbstractMediaTransformer
     /**
      * {@inheritdoc}
      */
-    protected function getAvailableParameters()
+    protected function setDefaultOptions(OptionsResolverInterface $resolver)
     {
-        return array('width', 'height', 'scale', 'grayscale', 'maxwidth', 'maxheight', 'minwidth', 'minheight');
-    }
-
-    protected static function getMimeType($type)
-    {
-        $mimeTypeMap = array(
-            'jpg'   => 'image/jpg',
-            'jpeg'  => 'image/jpeg',
-            'png'   => 'image/png',
-            'gif'   => 'image/gif'
-        );
-
-        return $mimeTypeMap[$type];
+        parent::setDefaultOptions($resolver);
+        $resolver->setOptional(array(
+            'width',
+            'height',
+            'scale',
+            'grayscale',
+            'maxwidth',
+            'maxheight',
+            'minwidth',
+            'minheight'
+        ));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function process(Filesystem $storageProvider, Media $media, $format, $parameters = array())
+    public function process(Filesystem $storageProvider, Media $media, $options = array())
     {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $responseMedia = new ResponseMedia();
-        $responseMedia->setContentType(self::getMimeType($format));
 
-        $imageCacheName = sprintf('%s_%s.%s',
-            $media->getReference(),
-            sprintf("%u", crc32(serialize($parameters))),
-            $format
-        );
-        $imageCachePath = sprintf('%s%s', $this->cacheDir, $imageCacheName);
+        $originalContent = $storageProvider->read($media->getReference());
 
-        if(file_exists($imageCachePath)) {
-            $responseMedia->setContent(file_get_contents($imageCachePath));
+        if ($options['format'] === $media->getExtension() && count($options) == 1) {
+            $responseMedia
+                ->setContent($originalContent)
+                ->setContentType($media->getMimeType())
+                ->setContentLength($media->getSize())
+                ->setLastModifiedAt($media->getCreatedAt())
+            ;
 
             return $responseMedia;
         }
 
-        $originalContent = $storageProvider->read($media->getReference());
+        $imageCacheName = sprintf('%s_%s.%s',
+            $media->getReference(),
+            sprintf("%u", crc32(serialize($options))),
+            $options['format']
+        );
+        $imageCachePath = sprintf('%s%s', $this->cacheDir, $imageCacheName);
+        if (file_exists($imageCachePath)) {
+            $date = new \DateTime();
+            $date->setTimestamp(filemtime($imageCachePath));
 
-        if($format === $media->getExtension() && count($parameters) == 0 ) {
-            $responseMedia = new ResponseMedia($media);
-            $responseMedia->setContent($originalContent);
+            $responseMedia
+                ->setContent(file_get_contents($imageCachePath))
+                ->setContentType(finfo_file($finfo, $imageCachePath))
+                ->setContentLength(filesize($imageCachePath))
+                ->setLastModifiedAt($date)
+            ;
 
             return $responseMedia;
         }
@@ -100,58 +108,62 @@ class ImageMediaTransformer extends AbstractMediaTransformer
         file_put_contents($imageSourceCachePath, $originalContent);
         $image = $this->imageManager->open($imageSourceCachePath);
 
-        if(isset($parameters['width']) || isset($parameters['height'])) {
-            $w = isset($parameters['width']) ? $parameters['width'] : null;
-            $h = isset($parameters['height']) ? $parameters['height'] : null;
+        if (isset($options['width']) || isset($options['height'])) {
+            $w = isset($options['width']) ? $options['width'] : null;
+            $h = isset($options['height']) ? $options['height'] : null;
 
             $image->forceResize($w, $h);
         }
 
-        if (
-                isset($parameters['maxheight']) ||
-                isset($parameters['maxwidth'])  ||
-                isset($parameters['minheight']) ||
-                isset($parameters['minwidth'])
-            ) {
+        if (isset($options['maxheight']) ||
+            isset($options['maxwidth'])  ||
+            isset($options['minheight']) ||
+            isset($options['minwidth'])
+        ) {
             $h = $media->getMetadata('height');
             $w = $media->getMetadata('width');
 
-            if  (isset($parameters['minheight']) && $parameters['minheight'] > $h) {
-                $w = $w * $parameters['minheight'] / $h;
-                $h = $parameters['minheight'];
+            if  (isset($options['minheight']) && $options['minheight'] > $h) {
+                $w = $w * $options['minheight'] / $h;
+                $h = $options['minheight'];
             }
 
-            if  (isset($parameters['minwidth']) && $parameters['minwidth'] > $w) {
-                $h = $h * $parameters['minwidth'] / $w;
-                $w = $parameters['minwidth'];
+            if  (isset($options['minwidth']) && $options['minwidth'] > $w) {
+                $h = $h * $options['minwidth'] / $w;
+                $w = $options['minwidth'];
             }
 
-            if  (isset($parameters['maxheight']) && $parameters['maxheight'] < $h) {
-                    $w = $w * $parameters['maxheight'] / $h;
-                    $h = $parameters['maxheight'];
+            if  (isset($options['maxheight']) && $options['maxheight'] < $h) {
+                $w = $w * $options['maxheight'] / $h;
+                $h = $options['maxheight'];
             }
 
-            if  (isset($parameters['maxwidth']) && $parameters['maxwidth'] < $w) {
-                $h = $h * $parameters['maxwidth'] / $w;
-                $w = $parameters['maxwidth'];
+            if  (isset($options['maxwidth']) && $options['maxwidth'] < $w) {
+                $h = $h * $options['maxwidth'] / $w;
+                $w = $options['maxwidth'];
             }
 
             $image->forceResize($w, $h);
         }
 
-        if(isset($parameters['grayscale'])) {
+        if (isset($options['grayscale'])) {
             $image->grayscale();
         }
 
-        if(isset($parameters['scale'])) {
-            $w = $media->getMetadata('width') * $parameters['scale'] / 100;
+        if (isset($options['scale'])) {
+            $w = $media->getMetadata('width') * $options['scale'] / 100;
 
             $image->scaleResize($w);
         }
 
-        $image->save($imageCachePath, $format, 95);
+        $image->save($imageCachePath, $options['format'], 95);
 
-        $responseMedia->setContent(file_get_contents($imageCachePath));
+        $responseMedia
+            ->setContent(file_get_contents($imageCachePath))
+            ->setContentType(finfo_file($finfo, $imageCachePath))
+            ->setContentLength(filesize($imageCachePath))
+            ->setLastModifiedAt(new \DateTime('now'))
+        ;
 
         return $responseMedia;
     }

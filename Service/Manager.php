@@ -293,19 +293,17 @@ class Manager
      * transform a given Media to a ResponseMedia based on given parameters
      *
      * @param Media $media
-     * @param string $format
-     * @param array $parameters
+     * @param array $options
      * @return ResponseMedia
      */
-    public function transform(Media $media, $format, $parameters)
+    public function transform(Media $media, $options)
     {
-        $mediaTransformer = $this->guessMediaTransformer($format);
+        $mediaTransformer = $this->guessMediaTransformer($options['format']);
 
         return $mediaTransformer->transform(
             $this->getStorageProvider($media->getProviderServiceName()),
             $media,
-            $format,
-            $parameters
+            $options
         );
     }
 }

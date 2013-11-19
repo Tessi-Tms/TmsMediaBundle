@@ -24,21 +24,12 @@ interface MediaTransformerInterface
     public function checkFormat($format);
 
     /**
-     * Check parameters
-     *
-     * @param array $parameters
-     * @return boolean
-     */
-    public function checkParameters($parameters);
-
-    /**
      * transform
      *
      * @param Filesystem $storageProvider
      * @param Media $media
-     * @param string $format
-     * @param array $parameters
+     * @param array $options
      * @return ResponseMedia
      */
-    public function transform(Filesystem $storageProvider, Media $media, $format, $parameters = array());
+    public function transform(Filesystem $storageProvider, Media $media, $options = array());
 }

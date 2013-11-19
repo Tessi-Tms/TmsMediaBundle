@@ -23,23 +23,6 @@ class ResponseMedia
     protected $sharedMaxAge;
 
     /**
-     * Constructor
-     *
-     * @param Media|null $media
-     */
-    public function __construct(Media $media = null)
-    {
-        if(null !== $media) {
-            $this
-                ->setContentType($media->getMimeType())
-                ->setContentLength($media->getSize())
-                ->setETag($media->getReference())
-                ->setLastModifiedAt($media->getCreatedAt())
-            ;
-        }
-    }
-
-    /**
      * Set content
      *
      * @param string $content

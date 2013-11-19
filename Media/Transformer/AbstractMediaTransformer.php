@@ -9,25 +9,14 @@
 
 namespace Tms\Bundle\MediaBundle\Media\Transformer;
 
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Gaufrette\Filesystem;
 use Tms\Bundle\MediaBundle\Media\ResponseMedia;
-use Tms\Bundle\MediaBundle\Exception\UndefinedMediaTransformerParameterException;
 
 abstract class AbstractMediaTransformer implements MediaTransformerInterface
 {
-    protected $cacheManager;
-
-    /**
-     * Constructor
-     *
-     * @param DoctrineCache|null $cacheManager
-     */
-    public function __construct($cacheManager = null)
-    {
-        $this->cacheManager = $cacheManager;
-    }
-
     /**
      * Get available formats
      *
@@ -36,22 +25,14 @@ abstract class AbstractMediaTransformer implements MediaTransformerInterface
     abstract protected function getAvailableFormats();
 
     /**
-     * Get available parameters
-     *
-     * @return array
-     */
-    abstract protected function getAvailableParameters();
-
-    /**
      * process the transformation
      *
      * @param Filesystem $storageProvider
      * @param Media $media
-     * @param string $format
-     * @param array $parameters
+     * @param array $options
      * @return ResponseMedia
      */
-    abstract protected function process(Filesystem $storageProvider, Media $media, $format, $parameters = array());
+    abstract protected function process(Filesystem $storageProvider, Media $media, $options = array());
 
     /**
      * {@inheritdoc}
@@ -62,30 +43,37 @@ abstract class AbstractMediaTransformer implements MediaTransformerInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Set default options
+     *
+     * @param OptionsResolverInterface
      */
-    public function checkParameters($parameters)
+    protected function setDefaultOptions(OptionsResolverInterface $resolver)
     {
-        $diff = array_diff(
-            array_keys($parameters),
-            $this->getAvailableParameters()
-        );
-
-        if (count($diff) == 0) {
-            return true;
-        }
-
-        throw new UndefinedMediaTransformerParameterException($this, array_values($diff));
+        $resolver->setRequired(array(
+            'format'
+        ));
+        $resolver->setDefaults(array(
+            'format' => $this->getAvailableFormats()
+        ));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function transform(Filesystem $storageProvider, Media $media, $format, $parameters = array())
+    public function transform(Filesystem $storageProvider, Media $media, $options = array())
     {
-        $this->checkParameters($parameters);
+        $resolver = new OptionsResolver();
+        $this->setDefaultOptions($resolver);
+        $resolvedOptions = $resolver->resolve($options);
 
-        // Cache if configure
-        return $this->process($storageProvider, $media, $format, $parameters);
+        $responseMedia = $this
+            ->process($storageProvider, $media, $resolvedOptions)
+            ->setETag(sprintf('%s%s',
+                $media->getReference(),
+                null !== $options['format'] ? '.'.$options['format'] : ''
+            ))
+        ;
+
+        return $responseMedia;
     }
 }

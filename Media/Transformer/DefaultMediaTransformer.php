@@ -9,20 +9,13 @@
 
 namespace Tms\Bundle\MediaBundle\Media\Transformer;
 
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Gaufrette\Filesystem;
 use Tms\Bundle\MediaBundle\Media\ResponseMedia;
 
 class DefaultMediaTransformer extends AbstractMediaTransformer
 {
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        parent::__construct(null);
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -34,28 +27,14 @@ class DefaultMediaTransformer extends AbstractMediaTransformer
     /**
      * {@inheritdoc}
      */
-    protected function getAvailableParameters()
+    public function process(Filesystem $storageProvider, Media $media, $options = array())
     {
-        return array(null);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function checkFormat($format)
-    {
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function process(Filesystem $storageProvider, Media $media, $format, $parameters = array())
-    {
-        $responseMedia = new ResponseMedia($media);
-        $responseMedia->setContent(
-            $storageProvider->read($media->getReference())
-        );
+        $responseMedia = new ResponseMedia();
+        $responseMedia
+            ->setContent($storageProvider->read($media->getReference()))
+            ->setContentType($media->getMimeType())
+            ->setLastModifiedAt($media->getCreatedAt())
+        ;
 
         return $responseMedia;
     }

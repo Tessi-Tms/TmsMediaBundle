@@ -69,13 +69,13 @@ services:
 
     tms_media.transformer.image:
         class: Tms\Bundle\MediaBundle\Media\Transformer\ImageMediaTransformer
-        arguments: [@image.handling,  %tms_media_cache_dir%]
+        arguments: [@image.handling, %tms_media_cache_dir%]
         public: false
         tags:
             - { name: tms_media.transformer }
     tms_media.transformer.rest:
         class: Tms\Bundle\MediaBundle\Media\Transformer\RestMediaTransformer
-        arguments: [null, @idci_exporter.manager]
+        arguments: [@idci_exporter.manager]
         public: false
         tags:
             - { name: tms_media.transformer }
@@ -85,7 +85,7 @@ services:
         public: false
         tags:
             - { name: tms_media.transformer }
-            
+
     tms_media.manager.media:
         class: Tms\Bundle\MediaBundle\Manager\MediaManager
         arguments: [@doctrine.orm.entity_manager, @event_dispatcher]

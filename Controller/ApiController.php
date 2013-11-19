@@ -103,8 +103,10 @@ class ApiController extends Controller
             $media = $this->get('tms_media.manager')->retrieveMedia($reference);
             $responseMedia = $this->get('tms_media.manager')->transform(
                 $media,
-                $request->getRequestFormat(),
-                $request->query->all()
+                array_merge(
+                  array('format' => $request->getRequestFormat()),
+                  $request->query->all()
+                )
             );
 
             $response->setPublic();
@@ -114,12 +116,16 @@ class ApiController extends Controller
             $response->setETag($responseMedia->getETag());
             $response->setLastModified($responseMedia->getLastModifiedAt());
             $response->setContent($responseMedia->getContent());
+/*
             $response->setExpires($responseMedia->getExpires());
             $response->setMaxAge($responseMedia->getMaxAge());
             $response->setSharedMaxAge($responseMedia->getSharedMaxAge());
+*/
         } catch (\Exception $e) {
-            $response->setStatusCode(404);
+            var_dump(get_class($e));die;
+            $response->setStatusCode(500);
             $response->setContent($e->getMessage());
+            $response->headers->set('Content-Type', $responseMedia->getContentType());
         }
 
         return $response;
