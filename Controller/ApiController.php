@@ -122,10 +122,9 @@ class ApiController extends Controller
             $response->setSharedMaxAge($responseMedia->getSharedMaxAge());
 */
         } catch (\Exception $e) {
-            var_dump(get_class($e));die;
             $response->setStatusCode(500);
             $response->setContent($e->getMessage());
-            $response->headers->set('Content-Type', $responseMedia->getContentType());
+            $response->headers->set('Content-Type', 'text/html');
         }
 
         return $response;
