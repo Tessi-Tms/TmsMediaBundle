@@ -16,7 +16,10 @@ use Doctrine\ORM\Mapping as ORM;
  * Media
  *
  * @ORM\Table(name="media",
- *    indexes={@ORM\Index(name="media_source", columns={"source"})},
+ *    indexes={
+ *        @ORM\Index(name="media_source", columns={"source"}),
+ *        @ORM\Index(name="media_mimetype", columns={"mime_type"})
+ *    },
  *    uniqueConstraints={@ORM\UniqueConstraint(name="media_reference", columns={"reference"})}
  * )
  * @ORM\Entity(repositoryClass="Tms\Bundle\MediaBundle\Entity\Repository\MediaRepository")
