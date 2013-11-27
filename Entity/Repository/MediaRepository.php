@@ -50,7 +50,7 @@ class MediaRepository extends EntityRepository
         return $this
             ->getEntityManager()
             ->createQuery(
-                'SELECT m.mimeType, sum(m.size)/1024 as size
+                'SELECT m.mimeType, sum(m.size)/1048576 as size
                     FROM TmsMediaBundle:Media m
                     WHERE m.createdAt >= :from
                     AND m.createdAt <= :to
