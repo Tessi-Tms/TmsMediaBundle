@@ -2,6 +2,8 @@
 
 namespace Tms\Bundle\MediaBundle\handler;
 
+use Tms\Bundle\MediaBundle\Exception\ImagickException;
+
 class ImageHandler
 {
     private $imagick;
@@ -20,7 +22,7 @@ class ImageHandler
     public function read($imageSourcePath)
     {
         if (!$this->imagick->readImage($imageSourcePath)) {
-            throw new Exception('Error - ReadImage');
+            throw new ImagickException('readImage');
         }
 
         return $this;
@@ -35,7 +37,7 @@ class ImageHandler
     public function save($imageSourcePath)
     {
         if (!$this->imagick->writeImage($imageSourcePath)) {
-            throw new Exception('Error - WriteImage');
+            throw new ImagickException('writeImage');
         }
         $this->imagick->destroy();
 
@@ -51,7 +53,7 @@ class ImageHandler
     public function name($name)
     {
         if (!$this->imagick->setImageFilename($name)) {
-            throw new Exception('Error - ImageFilename');
+            throw new ImagickException('setImageFilename');
         }
 
         return $this;
@@ -60,7 +62,7 @@ class ImageHandler
     public function grayscale()
     {
         if (!$this->imagick->setImageColorspace(2)) {
-            throw new Exception('Error - ImageColorspace');
+            throw new ImagickException('setImageColorspace');
         }
 
         return $this;
@@ -76,7 +78,7 @@ class ImageHandler
     public function resize($width, $height)
     {
         if (!$this->imagick->resizeImage($width, $height, \Imagick::FILTER_LANCZOS, 1)) {
-            throw new Exception('Error - ResizeImage');
+            throw new ImagickException('resizeImage');
         }
 
         return $this;
@@ -90,8 +92,8 @@ class ImageHandler
      */
     public function rotate($degrees)
     {
-        if (!$this->imagick->rotateImage(new \ImagickPixel(), $degrees)) {
-            throw new Exception('Error - RotateImage');
+        if (!$this->imagick->rotateImage(new \ImagickPixel('none'), $degrees)) {
+            throw new ImagickException('rotateImage');
         }
 
         return $this;
@@ -106,7 +108,7 @@ class ImageHandler
     public function quality($quality)
     {
         if (!$this->imagick->setImageCompressionQuality($quality)) {
-            throw new Exception('Error - ImageCompressionQuality');
+            throw new ImagickException('setImageCompressionQuality');
         }
 
         return $this;
@@ -119,7 +121,7 @@ class ImageHandler
     public function format($format)
     {
         if (!$this->imagick->setImageFormat($format)) {
-            throw new Exception('Error - ImageFormat');
+            throw new ImagickException('setImageFormat');
         }
 
         return $this;
