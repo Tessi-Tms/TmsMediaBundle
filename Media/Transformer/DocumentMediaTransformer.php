@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @license: GPL
  *
@@ -28,12 +28,12 @@ class DocumentMediaTransformer extends AbstractMediaTransformer
     /**
      * {@inheritdoc}
      */
-    public function process(Filesystem $storageProvider, Media $media, $options = array())
+    public function process(Filesystem $storageProvider, Media $media)
     {
         $responseMedia = new ResponseMedia();
 
-        if ($options['format'] !== $media->getExtension() || count($options) > 1) {
-            throw new UnavailabeTransformationException($options);
+        if ($this->options['format'] !== $media->getExtension() || count($this->options) > 1) {
+            throw new UnavailabeTransformationException($this->options);
         }
 
         $responseMedia

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @license: GPL
  *
@@ -40,10 +40,10 @@ class RestMediaTransformer extends AbstractMediaTransformer
     /**
      * {@inheritdoc}
      */
-    public function process(Filesystem $storageProvider, Media $media, $options = array())
+    public function process(Filesystem $storageProvider, Media $media)
     {
         $responseMedia = new ResponseMedia();
-        $export = $this->exporter->export(array($media), $options['format']);
+        $export = $this->exporter->export(array($media), $this->options['format']);
 
         $responseMedia
             ->setContent($export->getContent())

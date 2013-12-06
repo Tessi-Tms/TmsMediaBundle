@@ -3,4 +3,7 @@
 nbproject/
 # Gedit
 *~
+# Eclipse
+.project
+
 vendor/*
