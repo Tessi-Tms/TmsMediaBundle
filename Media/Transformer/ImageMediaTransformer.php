@@ -145,15 +145,15 @@ class ImageMediaTransformer extends AbstractMediaTransformer
         }
 
         $image
-            //->format($this->getFormat())
+            ->format($this->getFormat())
             ->quality(95)
             ->save($cachedImageSourcePath);
 
         return $this->createResponseMedia(
-                file_get_contents($cachedImageSourcePath),
-                finfo_file($this->fileinfo, $cachedImageSourcePath),
-                filesize($cachedImageSourcePath),
-                new \DateTime('now')
+            file_get_contents($cachedImageSourcePath),
+            finfo_file($this->fileinfo, $cachedImageSourcePath),
+            filesize($cachedImageSourcePath),
+            new \DateTime('now')
         );
     }
 
@@ -232,30 +232,30 @@ class ImageMediaTransformer extends AbstractMediaTransformer
         $date->setTimestamp(filemtime($sourcePath));
 
         return $this->createResponseMedia(
-                file_get_contents($sourcePath),
-                finfo_file($this->fileinfo, $sourcePath),
-                filesize($sourcePath),
-                $date
+            file_get_contents($sourcePath),
+            finfo_file($this->fileinfo, $sourcePath),
+            filesize($sourcePath),
+            $date
         );
     }
 
     /**
      *
-     * @param Object $originalContent
+     * @param File $originalContent
      * @param string $reference
      * @param string $extension
-     * @return Object
+     * @return string $imageSourcePath
      */
     private function createCachedImage($originalContent, $reference, $extension)
     {
-        $image = sprintf('%s%s.%s',
-                $this->cacheDirectory,
-                $reference,
-                $extension
+        $imageSourcePath = sprintf('%s%s.%s',
+            $this->cacheDirectory,
+            $reference,
+            $extension
         );
-        file_put_contents($image, $originalContent);
+        file_put_contents($imageSourcePath, $originalContent);
 
-        return $image;
+        return $imageSourcePath;
     }
 
     /**

@@ -111,4 +111,17 @@ class ImageHandler
 
         return $this;
     }
+
+    /**
+     *
+     * @param unknown $format
+     */
+    public function format($format)
+    {
+        if (!$this->imagick->setImageFormat($format)) {
+            throw new Exception('Error - ImageFormat');
+        }
+
+        return $this;
+    }
 }
