@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @license: GPL
  *
@@ -17,6 +17,8 @@ use Tms\Bundle\MediaBundle\Media\ResponseMedia;
 
 abstract class AbstractMediaTransformer implements MediaTransformerInterface
 {
+    protected $options;
+
     /**
      * Get available formats
      *
@@ -25,14 +27,13 @@ abstract class AbstractMediaTransformer implements MediaTransformerInterface
     abstract protected function getAvailableFormats();
 
     /**
-     * process the transformation
+     * Process the transformation
      *
      * @param Filesystem $storageProvider
      * @param Media $media
-     * @param array $options
      * @return ResponseMedia
      */
-    abstract protected function process(Filesystem $storageProvider, Media $media, $options = array());
+    abstract protected function process(Filesystem $storageProvider, Media $media);
 
     /**
      * {@inheritdoc}
@@ -64,16 +65,21 @@ abstract class AbstractMediaTransformer implements MediaTransformerInterface
     {
         $resolver = new OptionsResolver();
         $this->setDefaultOptions($resolver);
-        $resolvedOptions = $resolver->resolve($options);
+        $this->options = $resolver->resolve($options);
 
         $responseMedia = $this
-            ->process($storageProvider, $media, $resolvedOptions)
+            ->process($storageProvider, $media)
             ->setETag(sprintf('%s%s',
                 $media->getReference(),
-                null !== $options['format'] ? '.'.$options['format'] : ''
+                null !== $this->getFormat() ? '.' . $this->getFormat() : ''
             ))
         ;
 
         return $responseMedia;
+    }
+
+    protected function getFormat()
+    {
+        return $this->options['format'];
     }
 }

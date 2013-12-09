@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @license: GPL
  *
@@ -27,7 +27,7 @@ class DefaultMediaTransformer extends AbstractMediaTransformer
     /**
      * {@inheritdoc}
      */
-    public function process(Filesystem $storageProvider, Media $media, $options = array())
+    public function process(Filesystem $storageProvider, Media $media)
     {
         $responseMedia = new ResponseMedia();
         $responseMedia

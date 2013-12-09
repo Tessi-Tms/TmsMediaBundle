@@ -18,8 +18,7 @@
         "doctrine/doctrine-bundle":     "1.2.*",
         "twig/twig":                    "*",
         "knplabs/knp-gaufrette-bundle": "dev-master",
-        "idci/exporter-bundle":         "dev-master",
-        "gregwar/image-bundle":         "dev-master"
+        "idci/exporter-bundle":         "dev-master"
     },
     "autoload": {
         "psr-0": { "Tms\\Bundle\\MediaBundle": "" }

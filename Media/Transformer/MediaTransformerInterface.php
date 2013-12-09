@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @license: GPL
  *
@@ -28,8 +28,7 @@ interface MediaTransformerInterface
      *
      * @param Filesystem $storageProvider
      * @param Media $media
-     * @param array $options
      * @return ResponseMedia
      */
-    public function transform(Filesystem $storageProvider, Media $media, $options = array());
+    public function transform(Filesystem $storageProvider, Media $media);
 }
