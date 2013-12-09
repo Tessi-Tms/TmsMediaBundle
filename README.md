@@ -26,7 +26,6 @@ First add the dependencies in your `composer.json` file :
         "knplabs/gaufrette": "0.2.*@dev",
         "knplabs/knp-gaufrette-bundle": "dev-master",
         "idci/exporter-bundle": "dev-master",
-        "gregwar/image-bundle": "dev-master",
         "tms/media-bundle": "dev-master"
     },
 ```
@@ -49,7 +48,6 @@ public function registerBundles()
         //
         new Knp\Bundle\GaufretteBundle\KnpGaufretteBundle(),
         new IDCI\Bundle\ExporterBundle\IDCIExporterBundle(),
-        new Gregwar\ImageBundle\GregwarImageBundle(),
         new Tms\Bundle\MediaBundle\TmsMediaBundle(),
     );
 }
