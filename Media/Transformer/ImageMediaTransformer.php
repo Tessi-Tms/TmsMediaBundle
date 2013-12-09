@@ -46,6 +46,7 @@ class ImageMediaTransformer extends AbstractMediaTransformer
     protected function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         parent::setDefaultOptions($resolver);
+
         $resolver->setOptional(array(
             'width',
             'height',

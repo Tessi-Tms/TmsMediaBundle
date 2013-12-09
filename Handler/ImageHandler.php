@@ -44,21 +44,6 @@ class ImageHandler
         return $this;
     }
 
-    /**
-     *
-     * @param string $name
-     * @throws Exception
-     * @return \Tms\Bundle\MediaBundle\handler\ImageHandler
-     */
-    public function name($name)
-    {
-        if (!$this->imagick->setImageFilename($name)) {
-            throw new ImagickException('setImageFilename');
-        }
-
-        return $this;
-    }
-
     public function grayscale()
     {
         if (!$this->imagick->setImageColorspace(2)) {
@@ -116,7 +101,7 @@ class ImageHandler
 
     /**
      *
-     * @param unknown $format
+     * @param string $format
      */
     public function format($format)
     {
