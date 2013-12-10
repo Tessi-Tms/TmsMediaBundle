@@ -9,8 +9,8 @@
 
 namespace Tms\Bundle\MediaBundle\Media\Transformer;
 
-use Tms\Bundle\MediaBundle\Entity\Media;
 use Gaufrette\Filesystem;
+use Tms\Bundle\MediaBundle\Entity\Media;
 use Tms\Bundle\MediaBundle\Media\ResponseMedia;
 
 interface MediaTransformerInterface
@@ -30,5 +30,5 @@ interface MediaTransformerInterface
      * @param Media $media
      * @return ResponseMedia
      */
-    public function transform(Filesystem $storageProvider, Media $media);
+    public function transform(Filesystem $storageProvider, Media $media, array $options = array());
 }

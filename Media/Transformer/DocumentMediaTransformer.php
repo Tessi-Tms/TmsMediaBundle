@@ -28,12 +28,12 @@ class DocumentMediaTransformer extends AbstractMediaTransformer
     /**
      * {@inheritdoc}
      */
-    public function process(Filesystem $storageProvider, Media $media)
+    public function process(Filesystem $storageProvider, Media $media, array $options = array())
     {
         $responseMedia = new ResponseMedia();
 
-        if ($this->options['format'] !== $media->getExtension() || count($this->options) > 1) {
-            throw new UnavailabeTransformationException($this->options);
+        if ($options['format'] !== $media->getExtension() || count($options) > 1) {
+            throw new UnavailabeTransformationException($options);
         }
 
         $responseMedia
