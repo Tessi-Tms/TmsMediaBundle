@@ -97,4 +97,3 @@ services:
 
     tms_media_image_handler:
         class: Tms\Bundle\MediaBundle\Handler\ImageHandler
-        
