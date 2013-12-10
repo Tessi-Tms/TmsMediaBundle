@@ -12,13 +12,11 @@ namespace Tms\Bundle\MediaBundle\Media\Transformer;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Tms\Bundle\MediaBundle\Entity\Media;
-use Gaufrette\Filesystem;
 use Tms\Bundle\MediaBundle\Media\ResponseMedia;
+use Gaufrette\Filesystem;
 
 abstract class AbstractMediaTransformer implements MediaTransformerInterface
 {
-    protected $options;
-
     /**
      * Get available formats
      *
@@ -33,7 +31,7 @@ abstract class AbstractMediaTransformer implements MediaTransformerInterface
      * @param Media $media
      * @return ResponseMedia
      */
-    abstract protected function process(Filesystem $storageProvider, Media $media);
+    abstract protected function process(Filesystem $storageProvider, Media $media, array $options = array());
 
     /**
      * {@inheritdoc}
@@ -61,25 +59,25 @@ abstract class AbstractMediaTransformer implements MediaTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function transform(Filesystem $storageProvider, Media $media, $options = array())
+    public function transform(Filesystem $storageProvider, Media $media, array $options = array())
     {
         $resolver = new OptionsResolver();
         $this->setDefaultOptions($resolver);
-        $this->options = $resolver->resolve($options);
+        $resolver->resolve($options);
 
         $responseMedia = $this
-            ->process($storageProvider, $media)
+            ->process($storageProvider, $media, $options)
             ->setETag(sprintf('%s%s',
                 $media->getReference(),
-                null !== $this->getFormat() ? '.' . $this->getFormat() : ''
+                null !== $this->getFormat($options) ? '.' . $this->getFormat($options) : ''
             ))
         ;
 
         return $responseMedia;
     }
 
-    protected function getFormat()
+    protected function getFormat(array $options)
     {
-        return $this->options['format'];
+        return $options['format'];
     }
 }

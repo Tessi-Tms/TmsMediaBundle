@@ -69,7 +69,7 @@ services:
 
     tms_media.transformer.image:
         class: Tms\Bundle\MediaBundle\Media\Transformer\ImageMediaTransformer
-        arguments: [@tms_media_image_handler, %tms_media_cache_dir%]
+        arguments: [%tms_media_cache_dir%]
         public: false
         tags:
             - { name: tms_media.transformer }
@@ -94,6 +94,3 @@ services:
     tms_media.manager.media:
         class: Tms\Bundle\MediaBundle\Manager\MediaManager
         arguments: [@doctrine.orm.entity_manager, @event_dispatcher]
-
-    tms_media_image_handler:
-        class: Tms\Bundle\MediaBundle\Handler\ImageHandler

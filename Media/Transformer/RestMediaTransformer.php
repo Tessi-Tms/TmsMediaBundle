@@ -40,10 +40,10 @@ class RestMediaTransformer extends AbstractMediaTransformer
     /**
      * {@inheritdoc}
      */
-    public function process(Filesystem $storageProvider, Media $media)
+    public function process(Filesystem $storageProvider, Media $media, array $options = array())
     {
         $responseMedia = new ResponseMedia();
-        $export = $this->exporter->export(array($media), $this->options['format']);
+        $export = $this->exporter->export(array($media), $options['format']);
 
         $responseMedia
             ->setContent($export->getContent())
