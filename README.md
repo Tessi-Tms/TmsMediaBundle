@@ -94,7 +94,7 @@ For a 201 HTTP Response code, you will also get all media informations (in json 
 **Example of usage**
 
 ```curl 
-curl -F name=@pathToTheFile http://your_domain/media
+curl -F name=@pathToTheFile http://your_domain/api/media
 ```
 
 #### Delete a media
@@ -119,7 +119,7 @@ This will result to a :
 **Example of usage**
 
 ```curl
-curl -X DELETE http://your_domain/media/reference
+curl -X DELETE http://your_domain/api/media/reference
 ```
 
 #### Get a media
@@ -144,7 +144,7 @@ This will result to a :
 **Example of usage**
 
 ```curl
-curl http://your_domain/media/reference
+curl http://your_domain/api/media/reference
 ```
 
 ### Configure your filesystems
