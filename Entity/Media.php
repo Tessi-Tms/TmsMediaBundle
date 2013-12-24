@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @author:  Sekou KOÏTA <sekou.koita@supinfo.com>
  * @license: GPL
@@ -148,7 +148,7 @@ class Media
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -171,7 +171,7 @@ class Media
     /**
      * Get source
      *
-     * @return string 
+     * @return string
      */
     public function getSource()
     {
@@ -194,7 +194,7 @@ class Media
     /**
      * Get reference
      *
-     * @return string 
+     * @return string
      */
     public function getReference()
     {
@@ -217,7 +217,7 @@ class Media
     /**
      * Get extension
      *
-     * @return string 
+     * @return string
      */
     public function getExtension()
     {
@@ -240,7 +240,7 @@ class Media
     /**
      * Get providerServiceName
      *
-     * @return string 
+     * @return string
      */
     public function getProviderServiceName()
     {
@@ -263,7 +263,7 @@ class Media
     /**
      * Get name
      *
-     * @return string 
+     * @return string
      */
     public function getName()
     {
@@ -286,7 +286,7 @@ class Media
     /**
      * Get description
      *
-     * @return string 
+     * @return string
      */
     public function getDescription()
     {
@@ -309,7 +309,7 @@ class Media
     /**
      * Get size
      *
-     * @return integer 
+     * @return integer
      */
     public function getSize()
     {
@@ -332,7 +332,7 @@ class Media
     /**
      * Get mimeType
      *
-     * @return string 
+     * @return string
      */
     public function getMimeType()
     {
@@ -355,7 +355,7 @@ class Media
     /**
      * Get enabled
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getEnabled()
     {
@@ -378,7 +378,7 @@ class Media
     /**
      * Get createdAt
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreatedAt()
     {
@@ -402,7 +402,7 @@ class Media
      * Get metadata
      *
      * @param string $key
-     * @return array 
+     * @return array
      */
     public function getMetadata($key = null)
     {
@@ -410,6 +410,6 @@ class Media
             return $this->metadata;
         }
 
-        return $this->metadata[$key];
+        return (isset($this->metadata[$key]) ? $this->metadata[$key] : null);
     }
 }

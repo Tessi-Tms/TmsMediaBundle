@@ -81,6 +81,13 @@ class ImageMedia
 
         $height = $this->media->getMetadata('height');
         $width = $this->media->getMetadata('width');
+        if (!$height) {
+            $height = $this->imagick->getImageHeight();
+        }
+        if (!$width) {
+            $width = $this->imagick->getImageWidth();
+        }
+
         if ($minheight && $minheight > $height) {
             $width = $width * $minheight / $height;
             $height = $minheight;
