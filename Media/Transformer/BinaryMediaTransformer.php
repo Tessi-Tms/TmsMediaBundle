@@ -11,6 +11,7 @@
 namespace Tms\Bundle\MediaBundle\Media\Transformer;
 
 use Gaufrette\Filesystem;
+use Tms\Bundle\MediaBundle\Entity\Media;
 
 class BinaryMediaTransformer extends ImageMediaTransformer
 {
