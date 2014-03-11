@@ -25,7 +25,7 @@ class BinaryMediaTransformer extends ImageMediaTransformer
      */
     public function process(Filesystem $storageProvider, Media $media, array $options = array())
     {
-        $processed = parent::process($storageProvider, $media, $options)
+        $processed = parent::process($storageProvider, $media, $options);
         return $this->getBinary($processed);
     }
 
@@ -34,6 +34,6 @@ class BinaryMediaTransformer extends ImageMediaTransformer
     */
     private function getBinary($imageMedia)
     {
-        return true;
+        return $imageMedia;
     }
 }
