@@ -73,6 +73,12 @@ services:
         public: false
         tags:
             - { name: tms_media.transformer }
+    tms_media.transformer.binary:
+        class: Tms\Bundle\MediaBundle\Media\Transformer\BinaryMediaTransformer
+        arguments: [%tms_media_cache_dir%]
+        public: false
+        tags:
+            - { name: tms_media.transformer }
     tms_media.transformer.document:
         class: Tms\Bundle\MediaBundle\Media\Transformer\DocumentMediaTransformer
         public: false
