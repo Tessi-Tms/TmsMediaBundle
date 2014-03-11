@@ -104,8 +104,8 @@ class ApiController extends Controller
             $responseMedia = $this->get('tms_media.manager')->transform(
                 $media,
                 array_merge(
-                  array('format' => $request->getRequestFormat()),
-                  $request->query->all()
+                    $request->query->all(),
+                    array('format' => $request->getRequestFormat())
                 )
             );
 

@@ -68,6 +68,7 @@ class ImageMediaTransformer extends AbstractMediaTransformer
         $originalContent = $storageProvider->read($media->getReference());
 
         if ($this->getFormat($options) === $media->getExtension() && count($options) === 1) {
+
             return $this->createResponseMedia(
                 $originalContent,
                 $media->getMimeType(),
@@ -165,7 +166,6 @@ class ImageMediaTransformer extends AbstractMediaTransformer
 
         $date = new \DateTime();
         $date->setTimestamp(filemtime($sourcePath));
-
         return $this->createResponseMedia(
             file_get_contents($sourcePath),
             finfo_file(self::$fileinfo, $sourcePath),
@@ -202,7 +202,7 @@ class ImageMediaTransformer extends AbstractMediaTransformer
      * @param \DateTime $date
      * @return ResponseMedia
      */
-    private function createResponseMedia($content, $mimeType, $size, $date)
+    protected function createResponseMedia($content, $mimeType, $size, $date)
     {
         $responseMedia = new ResponseMedia();
         $responseMedia

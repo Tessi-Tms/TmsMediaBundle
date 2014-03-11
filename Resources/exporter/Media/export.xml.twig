@@ -15,6 +15,9 @@
       <{{ k }}>{{ v }}</{{ k }}>
     {% endfor %}
   </metadata>
+  {% if entity.raw%}
+    <raw>{{ entity.raw }}</raw>
+  {% endif %}
 </media>
 {% endspaceless %}
 

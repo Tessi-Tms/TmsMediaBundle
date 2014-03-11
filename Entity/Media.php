@@ -102,6 +102,11 @@ class Media
     protected $metadata;
 
     /**
+     * @var string
+     */
+    protected $raw;
+
+    /**
      * On create
      *
      * @ORM\PrePersist()
@@ -411,5 +416,28 @@ class Media
         }
 
         return (isset($this->metadata[$key]) ? $this->metadata[$key] : null);
+    }
+
+    /**
+     * Set raw
+     *
+     * @param string $raw
+     * @return Media
+     */
+    public function setRaw($raw)
+    {
+        $this->raw = $raw;
+
+        return $this;
+    }
+
+    /**
+     * Get raw
+     *
+     * @return string
+     */
+    public function getRaw()
+    {
+        return $this->raw;
     }
 }

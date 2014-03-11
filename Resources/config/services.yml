@@ -75,7 +75,7 @@ services:
             - { name: tms_media.transformer }
     tms_media.transformer.binary:
         class: Tms\Bundle\MediaBundle\Media\Transformer\BinaryMediaTransformer
-        arguments: [%tms_media_cache_dir%]
+        arguments: [%tms_media_cache_dir%, @idci_exporter.manager]
         public: false
         tags:
             - { name: tms_media.transformer }
