@@ -65,7 +65,7 @@ class BinaryMediaTransformer extends ImageMediaTransformer
             'options'         => $options
         );
         $options['format'] = $options['mediaFormat'];
-        parent::process($storageProvider, $media, $options);
+        return parent::process($storageProvider, $media, $options);
         
     }
 
