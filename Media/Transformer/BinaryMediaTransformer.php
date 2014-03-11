@@ -10,6 +10,8 @@
 
 namespace Tms\Bundle\MediaBundle\Media\Transformer;
 
+use Gaufrette\Filesystem;
+
 class BinaryMediaTransformer extends ImageMediaTransformer
 {
     /**
@@ -30,7 +32,7 @@ class BinaryMediaTransformer extends ImageMediaTransformer
     }
 
     /*
-    * 
+    * get the binary of a processed image
     */
     private function getBinary($imageMedia)
     {
