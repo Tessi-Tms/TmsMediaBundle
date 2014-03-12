@@ -41,8 +41,8 @@ class BinaryMediaTransformer extends ImageMediaTransformer
     }
 
     /**
-    * {@inheritdoc}
-    */
+     * {@inheritdoc}
+     */
     protected function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         parent::setDefaultOptions($resolver);
@@ -57,7 +57,7 @@ class BinaryMediaTransformer extends ImageMediaTransformer
      */
     public function process(Filesystem $storageProvider, Media $media, array $options = array())
     {
-    //TODO securize Format parameters, present and valid+
+    //TODO securize Format parameters, present and valid
 
         $this->processParameters = array(
             'storageProvider' => $storageProvider,
@@ -65,26 +65,21 @@ class BinaryMediaTransformer extends ImageMediaTransformer
             'options'         => $options
         );
         $options['format'] = $options['mediaFormat'];
-        return parent::process($storageProvider, $media, $options);
-        
+
+        return parent::process($storageProvider, $media, $options);  
     }
 
-     /**
-     * Create a response media
-     *
-     * @param string $content
-     * @param string $mimeType
-     * @param integer $size
-     * @param \DateTime $date
-     * @return ResponseMedia
+    /**
+     * {@inheritdoc}
      */
     protected function createResponseMedia($content, $mimeType, $size, $date)
     {
         $responseMedia = new ResponseMedia();
         $this->processParameters['media']->setRaw($content);        
-        $export = $this->exporter->export($this->processParameters['media'], $this->processParameters['options']['outputFormat']);
+        $export = $this->exporter->export(array($this->processParameters['media']), $this->processParameters['options']['outputFormat']);
+        $size = strlen($export->getContent());
 
-        $responseMedia
+        return $responseMedia
             ->setContent($export->getContent())
             ->setContentType(sprintf(
                 '%s; charset=UTF-8',
@@ -93,7 +88,5 @@ class BinaryMediaTransformer extends ImageMediaTransformer
             ->setLastModifiedAt($this->processParameters['media']->getCreatedAt())
             ->setContentLength($size)
         ;
-
-        return $responseMedia;
     }
 }
