@@ -5,16 +5,15 @@
   "reference": "{{ entity.reference }}",
   "extension": "{{ entity.extension }}",
   "providerServiceName": "{{ entity.providerServiceName }}",
-  "name": {{ entity.name }}",
+  "name": "{{ entity.name }}",
   "description": "{{ entity.description }}",
   "size": "{{ entity.size }}",
   "mimeType": "{{ entity.mimeType }}",
   "enabled": "{{ entity.enabled }}",
   "createdAt": "{{ entity.createdAt|date('c') }}",
-  "metadata": [{% for k,v in entity.metadata %}{% if not loop.first %}, {% endif %}"{{ k }}": "{{ v }}"{% endfor %}]
+  "metadata": { {% for k,v in entity.metadata %}{% if not loop.first %}, {% endif %}"{{ k }}": "{{ v }}"{% endfor %} }
   {% if entity.raw %}
   ,"raw" : "{{ entity.raw }}"
   {% endif %}
 }
 {% endspaceless %}
-
