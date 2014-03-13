@@ -18,18 +18,34 @@ use Tms\Bundle\MediaBundle\Exception\ImagickException;
 use Gaufrette\Filesystem;
 use IDCI\Bundle\ExporterBundle\Service\Manager as Exporter;
 
-class BinaryMediaTransformer extends ImageMediaTransformer
+class BinaryMediaTransformer extends AbstractMediaTransformer
 {
+    /**
+     * The image transformer.
+     *
+     * @var MediaTransformerInterface
+     */
+    private $imageTransformer;
+
+    /**
+     * The rest transformer.
+     *
+     * @var MediaTransformerInterface
+     */
+    private $restTransformer;
 
     /**
      * Constructor
      *
      * @param $Exporter;
      */
-    public function __construct($cacheDirectory, Exporter $exporter)
+    public function __construct(
+        AbstractMediaTransformer $imageTransformer,
+        AbstractMediaTransformer $restTransformer
+    )
     {
-        parent::__construct($cacheDirectory);
-        $this->exporter = $exporter;
+        $this->imageTransformer = $imageTransformer;
+        $this->restTransformer = $restTransformer;
     }
 
     /**
@@ -47,6 +63,21 @@ class BinaryMediaTransformer extends ImageMediaTransformer
     {
         parent::setDefaultOptions($resolver);
         $resolver->setOptional(array(
+            'resize',
+            'scale',
+            'grayscale',
+            'rotate',
+            'width',
+            'height',
+            'maxwidth',
+            'maxheight',
+            'minwidth',
+            'minheight',
+            'mediaFormat',
+            'outputFormat'
+        ));
+
+        $resolver->setRequired(array(
             'mediaFormat',
             'outputFormat'
         ));
@@ -55,38 +86,12 @@ class BinaryMediaTransformer extends ImageMediaTransformer
      /**
      * {@inheritdoc}
      */
-    public function process(Filesystem $storageProvider, Media $media, array $options = array())
-    {
-    //TODO securize Format parameters, present and valid
-
-        $this->processParameters = array(
-            'storageProvider' => $storageProvider,
-            'media'           => $media,
-            'options'         => $options
-        );
+    protected function process(Filesystem $storageProvider, Media $media, array $options = array())
+    {   
         $options['format'] = $options['mediaFormat'];
-
-        return parent::process($storageProvider, $media, $options);  
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function createResponseMedia($content, $mimeType, $size, $date)
-    {
-        $responseMedia = new ResponseMedia();
-        $this->processParameters['media']->setRaw($content);        
-        $export = $this->exporter->export(array($this->processParameters['media']), $this->processParameters['options']['outputFormat']);
-        $size = strlen($export->getContent());
-
-        return $responseMedia
-            ->setContent($export->getContent())
-            ->setContentType(sprintf(
-                '%s; charset=UTF-8',
-                $export->getContentType()
-            ))
-            ->setLastModifiedAt($this->processParameters['media']->getCreatedAt())
-            ->setContentLength($size)
-        ;
+        $res = $this->imageTransformer->process($storageProvider, $media, $options);
+        $options['format'] = $options['outputFormat'];
+        $media->setRaw((string)$res->getContent());
+        return $this->restTransformer->process($storageProvider, $media, $options);
     }
 }
