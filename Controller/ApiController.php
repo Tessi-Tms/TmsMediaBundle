@@ -129,4 +129,39 @@ class ApiController extends Controller
 
         return $response;
     }
+
+    /**
+     * GetBinary
+     *
+     * @param Request $request
+     * @param string $reference
+     * @Route("/media/{reference}/{_format}.bin", defaults={"_format"=null})
+     * @Method({"GET"})
+     */
+    public function getBinaryAction(Request $request, $reference)
+    {
+        $response = new Response();
+        try {
+            $request = $this->getRequest();
+
+            $response = $this->forward('TmsMediaBundle:Api:get', array(
+                '_format'   => $request->getRequestFormat(),
+                'reference' => $reference,
+                'request'   => $request,
+            ));
+
+            if($response->getStatusCode() == 500) {
+                throw new \Exception($response->getContent());
+            } else {
+                $response->headers->set('Content-Type', 'application/octet-stream');
+            }
+
+        } catch (\Exception $e) {
+            $response->setStatusCode(500);
+            $response->setContent($e->getMessage());
+            $response->headers->set('Content-Type', 'text/html');
+        }
+
+        return $response;
+    }
 }
