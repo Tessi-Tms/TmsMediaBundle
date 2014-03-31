@@ -426,7 +426,7 @@ class Media
      */
     public function setRaw($raw)
     {
-        $this->raw = base64_encode($raw);
+        $this->raw = $raw;
 
         return $this;
     }
