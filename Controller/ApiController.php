@@ -145,17 +145,16 @@ class ApiController extends Controller
             $request = $this->getRequest();
 
             $response = $this->forward('TmsMediaBundle:Api:get', array(
-                '_format'   => $request->getRequestFormat(),
-                'reference' => $reference,
                 'request'   => $request,
+                'reference' => $reference,
+                '_format'   => $request->getRequestFormat(),
             ));
 
-            if($response->getStatusCode() == 500) {
+            if ($response->getStatusCode() == 500) {
                 throw new \Exception($response->getContent());
             } else {
                 $response->headers->set('Content-Type', 'application/octet-stream');
             }
-
         } catch (\Exception $e) {
             $response->setStatusCode(500);
             $response->setContent($e->getMessage());
