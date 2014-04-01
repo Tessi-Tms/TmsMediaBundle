@@ -145,12 +145,12 @@ class ApiController extends Controller
         try{
             $response = $this->getAction($request, $reference, $_format);
 
-            if($response->getStatusCode() == 500) {
+            if ($response->getStatusCode() == 500) {
                 throw new \Exception($response->getContent());
             } else {
                 $response->headers->set('Content-Type', 'application/octet-stream');
             }
-        
+
         } catch (\Exception $e) {
             $response->setStatusCode(500);
             $response->setContent($e->getMessage());
