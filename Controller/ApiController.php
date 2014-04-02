@@ -140,21 +140,9 @@ class ApiController extends Controller
      */
     public function getBinaryAction(Request $request, $reference, $_format)
     {
-        $response = new Response();
-
-        try{
-            $response = $this->getAction($request, $reference, $_format);
-
-            if ($response->getStatusCode() == 500) {
-                throw new \Exception($response->getContent());
-            } else {
-                $response->headers->set('Content-Type', 'application/octet-stream');
-            }
-
-        } catch (\Exception $e) {
-            $response->setStatusCode(500);
-            $response->setContent($e->getMessage());
-            $response->headers->set('Content-Type', 'text/html');
+        $response = $this->getAction($request, $reference, $_format);
+        if ($response->getStatusCode() != 500) {
+            $response->headers->set('Content-Type', 'application/octet-stream');
         }
 
         return $response;
