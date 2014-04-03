@@ -63,8 +63,7 @@ abstract class AbstractMediaTransformer implements MediaTransformerInterface
     {
         $resolver = new OptionsResolver();
         $this->setDefaultOptions($resolver);
-        $resolver->resolve($options);
-
+        $options = $resolver->resolve($options);
         $responseMedia = $this
             ->process($storageProvider, $media, $options)
             ->setETag(sprintf('%s%s',

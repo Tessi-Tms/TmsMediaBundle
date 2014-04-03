@@ -96,7 +96,7 @@ class ApiController extends Controller
      * @Route("/media/{reference}")
      * @Method({"GET"})
      */
-    public function getAction(Request $request, $reference)
+    public function getAction(Request $request, $reference, $_format)
     {
         $response = new Response();
         try {
@@ -104,8 +104,8 @@ class ApiController extends Controller
             $responseMedia = $this->get('tms_media.manager')->transform(
                 $media,
                 array_merge(
-                  array('format' => $request->getRequestFormat()),
-                  $request->query->all()
+                    $request->query->all(),
+                    array('format' => $request->getRequestFormat())
                 )
             );
 
@@ -125,6 +125,24 @@ class ApiController extends Controller
             $response->setStatusCode(500);
             $response->setContent($e->getMessage());
             $response->headers->set('Content-Type', 'text/html');
+        }
+
+        return $response;
+    }
+
+    /**
+     * GetBinary
+     *
+     * @param Request $request
+     * @param string $reference
+     * @Route("/media/{reference}/{_format}.bin", defaults={"_format"=null})
+     * @Method({"GET"})
+     */
+    public function getBinaryAction(Request $request, $reference, $_format)
+    {
+        $response = $this->getAction($request, $reference, $_format);
+        if ($response->getStatusCode() != 500) {
+            $response->headers->set('Content-Type', 'application/octet-stream');
         }
 
         return $response;
