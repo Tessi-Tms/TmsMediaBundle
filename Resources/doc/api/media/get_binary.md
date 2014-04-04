@@ -13,7 +13,7 @@ Retrieve one notification
 
 ## HTTP Request parameters
 
-[see parameters along {_format}](../get_media.md)
+[see parameters along {_format}](../media/get_media.md)
 
 ## HTTP Response codes
 | Code | Description
