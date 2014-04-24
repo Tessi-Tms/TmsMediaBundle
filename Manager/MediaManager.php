@@ -3,8 +3,8 @@
 namespace Tms\Bundle\MediaBundle\Manager;
 
 //use Tms\Bundle\MediaBundle\Entity\Media;
-use Tms\Bundle\SsoServerBundle\Event\MediaEvent;
-use Tms\Bundle\OperationBundle\Event\MediaEvents;
+use Tms\Bundle\MediaBundle\Event\MediaEvent;
+use Tms\Bundle\MediaBundle\Event\MediaEvents;
 
 /**
  * Media manager.
