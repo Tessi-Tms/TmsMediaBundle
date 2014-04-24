@@ -34,9 +34,6 @@ Alternatively, you can clean the orphan media files:
 
 <info>php app/console %command.name% /path/to/my/mediaFiles/ --force</info>
 
-You can also clean the files referenced with a specific entity manager:
-
-<info>php app/console %command.name% --em=default</info>
 EOT
         );
     }
@@ -44,10 +41,6 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {       
         $timeStart = microtime(true);
-
-        // Disable Doctrine logs
-        $em = $this->getContainer()->get('doctrine')->getEntityManager($input->getOption('em'));
-        $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $folderPath = $input->getArgument('folderPath');
         $output->writeln(sprintf('<info>Start Media Cleaner on %s</info>', $folderPath));
