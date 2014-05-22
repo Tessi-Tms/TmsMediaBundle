@@ -21,6 +21,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
 use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageMapperException;
+use Tms\Bundle\MediaBundle\Exception\MediaNotFoundException;
+use Tms\Bundle\MediaBundle\Exception\NoMatchedTransformerException;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 class ApiController extends Controller
@@ -121,8 +123,16 @@ class ApiController extends Controller
             $response->setMaxAge($responseMedia->getMaxAge());
             $response->setSharedMaxAge($responseMedia->getSharedMaxAge());
 */
+        } catch (MediaNotFoundException $e) {
+            $response->setStatusCode(404);
+            $response->setContent($e->getMessage());
+            $response->headers->set('Content-Type', 'text/html');
+        } catch (NoMatchedTransformerException $e) {
+            $response->setStatusCode(404);
+            $response->setContent($e->getMessage());
+            $response->headers->set('Content-Type', 'text/html');
         } catch (\Exception $e) {
-            $response->setStatusCode(500);
+            $response->setStatusCode(503);
             $response->setContent($e->getMessage());
             $response->headers->set('Content-Type', 'text/html');
         }
