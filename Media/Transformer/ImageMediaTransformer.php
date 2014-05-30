@@ -132,7 +132,7 @@ class ImageMediaTransformer extends AbstractMediaTransformer
             sprintf("%u", crc32(serialize($options))),
             $this->getFormat($options)
         );
-        $imageCachePath = sprintf('%s%s', $this->cacheDirectory, $imageCacheName);
+        $imageCachePath = sprintf('%s/%s', $this->cacheDirectory, $imageCacheName);
 
         return $imageCachePath;
     }
@@ -183,7 +183,7 @@ class ImageMediaTransformer extends AbstractMediaTransformer
      */
     private function createImageMedia($originalContent, $media)
     {
-        $sourcePath = sprintf('%s%s.%s.tmp',
+        $sourcePath = sprintf('%s/%s.%s.tmp',
             $this->cacheDirectory,
             $media->getReference(),
             $media->getExtension()
