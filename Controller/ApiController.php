@@ -49,13 +49,9 @@ class ApiController extends Controller
             );
 
             $response->setStatusCode(201);
-            var_dump(json_encode(array_merge(
-                $media->toArray(),
-                array('public_uri' => $this->get('tms_media.manager.media')->getMediaPublicUri($media))
-            ))); die;
             $response->setContent(json_encode(array_merge(
                 $media->toArray(),
-                array('public_uri' => $this->get('tms_media.manager.media')->getMediaPublicUri($media))
+                array('publicUri' => $this->get('tms_media.manager.media')->getMediaPublicUri($media))
             )));
         } catch (MediaAlreadyExistException $e) {
             $response->setStatusCode(400);
