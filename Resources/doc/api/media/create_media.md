@@ -22,5 +22,5 @@ For a 201 HTTP Response code, you will also get all media informations (in json 
 **Example of usage**
 
 ```curl 
-curl -F name=@pathToTheFile http://your_domain/api/media
+curl -F media=@pathToTheFile http://your_domain/api/media
 ```
