@@ -38,7 +38,7 @@ class ApiController extends Controller
     {
         $response = new Response();
         try {
-            $media = $this->get('tms_media.manager')->addMedia(
+            $media = $this->get('tms_media.manager.media')->addMedia(
                 $request->files->get('media'),
                 sprintf('[%s] %s',
                     $request->getClientIp(),
@@ -49,7 +49,14 @@ class ApiController extends Controller
             );
 
             $response->setStatusCode(201);
-            $response->setContent(json_encode($media->toArray()));
+            var_dump(json_encode(array_merge(
+                $media->toArray(),
+                array('public_uri' => $this->get('tms_media.manager.media')->getMediaPublicUri($media))
+            ))); die;
+            $response->setContent(json_encode(array_merge(
+                $media->toArray(),
+                array('public_uri' => $this->get('tms_media.manager.media')->getMediaPublicUri($media))
+            )));
         } catch (MediaAlreadyExistException $e) {
             $response->setStatusCode(400);
             $response->setContent($e->getMessage());
@@ -79,7 +86,7 @@ class ApiController extends Controller
     {
         $response = new Response();
         try {
-            $this->get('tms_media.manager')->deleteMedia($reference);
+            $this->get('tms_media.manager.media')->deleteMedia($reference);
             $response->setStatusCode(204);
         } catch (\Exception $e) {
             $response->setStatusCode(404);
@@ -102,8 +109,8 @@ class ApiController extends Controller
     {
         $response = new Response();
         try {
-            $media = $this->get('tms_media.manager')->retrieveMedia($reference);
-            $responseMedia = $this->get('tms_media.manager')->transform(
+            $media = $this->get('tms_media.manager.media')->retrieveMedia($reference);
+            $responseMedia = $this->get('tms_media.manager.media')->transform(
                 $media,
                 array_merge(
                     $request->query->all(),

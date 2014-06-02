@@ -30,6 +30,8 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->scalarNode('api_public_endpoint')->isRequired()->end()
+                ->scalarNode('cache_directory')->isRequired()->end()
                 ->scalarNode('default_store_path')->defaultValue('/tmp')->end()
                 ->arrayNode('storage_mappers')
                     ->isRequired()

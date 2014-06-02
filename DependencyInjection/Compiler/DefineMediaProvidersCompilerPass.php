@@ -22,11 +22,11 @@ class DefineMediaProvidersCompilerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition('tms_media.manager')) {
+        if (!$container->hasDefinition('tms_media.manager.media')) {
             return;
         }
 
-        $definition = $container->getDefinition('tms_media.manager');
+        $definition = $container->getDefinition('tms_media.manager.media');
 
         // StorageMapper
         $ruleServiceIds = array();
