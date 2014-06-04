@@ -9,9 +9,7 @@ namespace Tms\Bundle\MediaBundle\Entity\Repository;
  *
  */
 
-use Doctrine\ORM\EntityRepository;
-
-class MediaRepository extends EntityRepository
+class MediaRepository extends AbstractEntityRepository
 {
     /**
      * Get the number of medias for each mime type
