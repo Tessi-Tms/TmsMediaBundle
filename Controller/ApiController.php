@@ -177,6 +177,9 @@ class ApiController extends Controller
         $response = new Response();
         $response->setPublic();
         $response->setStatusCode(200);
+        // Cache for one year
+        $response->setMaxAge(31536000);
+        $response->setSharedMaxAge(31536000);
 
         if ($_format == 'json') {
             $response->headers->set('Content-Type', 'application/json');
