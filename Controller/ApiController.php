@@ -154,8 +154,39 @@ class ApiController extends Controller
     public function getBinaryAction(Request $request, $reference, $_format)
     {
         $response = $this->getAction($request, $reference, $_format);
-        if ($response->getStatusCode() != 500) {
+        if ($response->getStatusCode() == 200) {
             $response->headers->set('Content-Type', 'application/octet-stream');
+        }
+
+        return $response;
+    }
+
+    /**
+     * GetEndpoint
+     *
+     * @param Request $request
+     * @Route("/endpoint.{_format}", defaults={"_format"="json"})
+     * @Method({"GET"})
+     */
+    public function getEndpointAction(Request $request, $_format)
+    {
+        $data = array(
+            'publicEndpoint' => $this->get('tms_media.manager.media')->getApiPublicEndpoint()
+        );
+
+        $response = new Response();
+        $response->setPublic();
+        $response->setStatusCode(200);
+
+        if ($_format == 'json') {
+            $response->headers->set('Content-Type', 'application/json');
+            $response->setContent(json_encode($data));
+        } elseif ($_format == 'xml') {
+            $xml = new \SimpleXMLElement('<root/>');
+            $data = array_flip($data);
+            array_walk_recursive($data, array($xml, 'addChild'));
+            $response->headers->set('Content-Type', 'text/xml');
+            $response->setContent($xml->asXML());
         }
 
         return $response;
