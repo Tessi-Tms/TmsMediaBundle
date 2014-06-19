@@ -379,10 +379,9 @@ class MediaManager extends AbstractManager
      */
     public function getMediaPublicUri(Media $media)
     {
-        return sprintf('%s/media/%s.%s',
+        return sprintf('%s/media/%s',
             $this->getApiPublicEndpoint(),
-            $media->getReference(),
-            $media->getExtension()
+            $media->getReference()
         );
     }
 
