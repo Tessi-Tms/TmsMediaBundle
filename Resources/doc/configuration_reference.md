@@ -56,14 +56,45 @@ tms_media:
 
 ### Configure the path your cache folder
 
+
+This, allow you to set the path of your cache folder.
+The cache folder stock  post-transformed images which have been already provided to clients.
+
+add the line below in your config file :
+
+```yml
+tms_media:
+    default_store_path:  %tms_media.default_store_path%
+```
+
+and add an entry in your parameters file :
+
+```yml
+ tms_media.default_store_path: /sample/images/store
+```
+
 ### Configure the path of your upload folder
 
+This, allow you to set the path of your upload folder.
+
+add the line below in your config file :
+
+```yml
+tms_media:
+    cache_directory:     %tms_media.cache_directory%
+```
+
+and add an entry in your parameters file :
+
+```yml
+ tms_media.cache_directory: '%kernel.root_dir%/../web/sample/cache'
+```
 
 ### Configure your public endpoint
 
 This feature allow your media urls to be seen with your commercial domain rather than the domain of your bucket, cdn, other.
 
-add the line below in your config file:
+add the line below in your config file :
 
 ```yml
 tms_media:
