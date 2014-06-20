@@ -53,3 +53,24 @@ tms_media:
                 created_before: 2014-08-14T12:00:00+0100
                 created_after: 2014-07-14T21:00:00+0100
 ```
+
+### Configure the path your cache folder
+
+### Configure the path of your upload folder
+
+
+### Configure your public endpoint
+
+This feature allow your media urls to be seen with your commercial domain rather than the domain of your bucket, cdn, other.
+
+add the line below in your config file:
+
+```yml
+tms_media:
+    api_public_endpoint: %tms_media.api_public_endpoint%
+```
+and add an entry in your parameters file
+
+```yml
+ tms_media.api_public_endpoint: //my.sampledomain.com
+```
