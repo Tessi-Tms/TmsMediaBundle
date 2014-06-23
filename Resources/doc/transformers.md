@@ -27,7 +27,7 @@ Like this:
 
 ```php
 
-abstract class AbstractMediaStuffTransformer implements MediaTransformerInterface
+abstract class AbstractStuffMediaTransformer implements MediaTransformerInterface
 {
     /**
      * {@inheritdoc}
@@ -85,7 +85,7 @@ Extends it :
 
 ```php
 
-class MyStuffMediaTransformer extends AbstractMediaStuffTransformer
+class MyStuffMediaTransformer extends AbstractStuffMediaTransformer
 {
 ```
 
