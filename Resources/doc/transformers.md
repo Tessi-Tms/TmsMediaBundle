@@ -7,21 +7,22 @@ What is it
 Transformer is a service class wich allow you to apply some transformation to the required raw media.
 
 
-How to add a new customized transformers
-----------------------------------------
+How to add a new customized transformer
+---------------------------------------
 
-Declare the transformers in the service files and tag it as below :
+Declare the transformer in the service files and tag it as below :
 
 ```yml
 
     tms_media.transformer.default:
-        class: Tms\Bundle\MediaBundle\Media\Transformer\DefaultMediaTransformer
+        class: Tms\Bundle\MediaBundle\Media\Transformer\MyStuffMediaTransformer
         public: false
         tags:
             - { name: tms_media.transformer }
 ```
 
-Must implements MediaTransfomerInterface or extends a class whose implements it.
+You must implements MediaTransfomerInterface or extends a class whose implements it.
+
 Like this:
 
 ```php
@@ -57,6 +58,7 @@ abstract class AbstractMediaStuffTransformer implements MediaTransformerInterfac
     .
 }
 ```
+
 Implies you declare inside these methods below :
 
 ```php
@@ -79,7 +81,6 @@ Implies you declare inside these methods below :
 
 ```
 
-
 Extends it :
 
 ```php
@@ -87,7 +88,9 @@ Extends it :
 class MyStuffMediaTransformer extends AbstractMediaStuffTransformer
 {
 ```
+
 define available formats :
+
 ```php
 
     /**
