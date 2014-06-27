@@ -1,4 +1,4 @@
-TmsOperationBundle
+TmsMediaBundle
 ==================
 
 Symfony2's TMS Media Bundle.
