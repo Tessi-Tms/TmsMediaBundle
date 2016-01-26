@@ -411,7 +411,7 @@ class Media
      */
     public function getMetadata($key = null)
     {
-        if(null === $key) {
+        if (null === $key) {
             return $this->metadata;
         }
 
