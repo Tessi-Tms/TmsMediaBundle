@@ -285,9 +285,16 @@ class MediaManager extends AbstractManager
      * @param string $source
      * @param string $name
      * @param string $description
+     * @param array  $metadata
      * @return Media
      */
-    public function addMedia(UploadedFile $mediaRaw, $source = null, $name = null, $description = null)
+    public function addMedia(
+        UploadedFile $mediaRaw,
+        $source = null,
+        $name = null,
+        $description = null,
+        $metadata = array()
+    )
     {
         $reference = $this->generateMediaReference($source, $mediaRaw);
 
@@ -327,10 +334,12 @@ class MediaManager extends AbstractManager
         $media->setSize(filesize($defaultMediaPath));
         $media->setMimeType($mimeType);
 
-        $media->setMetadata($this
-            ->guessMetadataExtractor($mimeType)
-            ->extract($defaultMediaPath)
-        );
+        $media->setMetadata(array_merge_recursive(
+            $metadata,
+            $this
+                ->guessMetadataExtractor($mimeType)
+                ->extract($defaultMediaPath)
+        ));
 
         $this->add($media);
 

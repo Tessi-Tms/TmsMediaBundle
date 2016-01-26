@@ -15,6 +15,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerAware;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -23,7 +25,6 @@ use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
 use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageMapperException;
 use Tms\Bundle\MediaBundle\Exception\MediaNotFoundException;
 use Tms\Bundle\MediaBundle\Exception\NoMatchedTransformerException;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 class ApiController extends Controller
 {
@@ -45,7 +46,8 @@ class ApiController extends Controller
                     $request->request->get('source', null)
                 ),
                 $request->request->get('name', null),
-                $request->request->get('description', null)
+                $request->request->get('description', null),
+                $request->request->get('metadata', array())
             );
 
             $response->setStatusCode(201);
@@ -65,6 +67,37 @@ class ApiController extends Controller
         } catch (\Exception $e) {
             $response->setStatusCode(418);
             $response->setContent($e->getMessage());
+        }
+
+        return $response;
+    }
+
+    /**
+     * Put
+     *
+     * @param Request $request
+     * @Route("/media/{reference}")
+     * @Method({"PUT"})
+     */
+    public function putAction(Request $request, $reference)
+    {
+        $response = new Response();
+        try {
+            $media = $this->get('tms_media.manager.media')->retrieveMedia($reference);
+            $media->setMetadata(array_merge_recursive(
+                $media->getMetadata(),
+                $request->request->get('metadata', array())
+            ));
+            $this->get('tms_media.manager.media')->update($media);
+            $response->setStatusCode(200);
+        } catch (MediaNotFoundException $e) {
+            $response->setStatusCode(404);
+            $response->setContent($e->getMessage());
+            $response->headers->set('Content-Type', 'text/html');
+        } catch (\Exception $e) {
+            $response->setStatusCode(503);
+            $response->setContent($e->getMessage());
+            $response->headers->set('Content-Type', 'text/html');
         }
 
         return $response;
@@ -106,18 +139,26 @@ class ApiController extends Controller
         $response = new Response();
         try {
             $media = $this->get('tms_media.manager.media')->retrieveMedia($reference);
-            $responseMedia = $this->get('tms_media.manager.media')->transform(
-                $media,
-                array_merge(
-                    $request->query->all(),
+            try {
+                $responseMedia = $this->get('tms_media.manager.media')->transform(
+                    $media,
+                    array_merge(
+                        $request->query->all(),
+                        array('format' => $request->getRequestFormat())
+                    )
+                );
+            } catch (InvalidOptionsException $e) {
+                $responseMedia = $this->get('tms_media.manager.media')->transform(
+                    $media,
                     array('format' => $request->getRequestFormat())
-                )
-            );
+                );
+            }
 
             $response->setPublic();
             $response->setStatusCode(200);
             $response->headers->set('Content-Type', $responseMedia->getContentType());
             $response->headers->set('Content-Length', $responseMedia->getContentLength());
+            $response->headers->set('Access-Control-Allow-Origin', '*');
             $response->setETag($responseMedia->getETag());
             $response->setLastModified($responseMedia->getLastModifiedAt());
             $response->setContent($responseMedia->getContent());
