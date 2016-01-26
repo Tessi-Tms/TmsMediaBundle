@@ -10,6 +10,7 @@
 namespace Tms\Bundle\MediaBundle\Media\Transformer;
 
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\Options;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Tms\Bundle\MediaBundle\Media\ResponseMedia;
 use Tms\Bundle\MediaBundle\Media\ImageMedia;
@@ -46,18 +47,20 @@ class ImageMediaTransformer extends AbstractMediaTransformer
     {
         parent::setDefaultOptions($resolver);
 
-        $resolver->setOptional(array(
-            'resize',
-            'scale',
-            'grayscale',
-            'rotate',
-            'width',
-            'height',
-            'maxwidth',
-            'maxheight',
-            'minwidth',
-            'minheight',
-        ));
+        $resolver
+            ->setOptional(array(
+                'resize',
+                'scale',
+                'grayscale',
+                'rotate',
+                'width',
+                'height',
+                'maxwidth',
+                'maxheight',
+                'minwidth',
+                'minheight',
+            ))
+        ;
     }
 
     /**
