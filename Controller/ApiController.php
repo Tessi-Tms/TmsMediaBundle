@@ -84,7 +84,7 @@ class ApiController extends Controller
         $response = new Response();
         try {
             $media = $this->get('tms_media.manager.media')->retrieveMedia($reference);
-            $media->setMetadata(array_merge_recursive(
+            $media->setMetadata(array_merge(
                 $media->getMetadata(),
                 $request->request->get('metadata', array())
             ));
