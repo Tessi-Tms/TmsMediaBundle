@@ -139,31 +139,20 @@ class MediaManager extends AbstractManager
     /**
      * Return the configuration
      *
-     * @return array
+     * @param string $key The configuration key to retrieve if given.
+     * @return mixed
      */
-    public function getConfiguration()
+    public function getConfiguration($key = null)
     {
-        return $this->configuration;
-    }
+        if (null === $key) {
+            return $this->configuration;
+        }
 
-    /**
-     * Get the default store path
-     *
-     * @return string
-     */
-    public function getDefaultStorePath()
-    {
-        return $this->configuration['default_store_path'];
-    }
+        if (isset($this->configuration[$key])) {
+            return $this->configuration[$key];
+        }
 
-    /**
-     * Get the api public endpoint
-     *
-     * @return string
-     */
-    public function getApiPublicEndpoint()
-    {
-        return $this->configuration['api_public_endpoint'];
+        return null;
     }
 
     /**
@@ -353,7 +342,12 @@ class MediaManager extends AbstractManager
     {
         $resolver = new OptionsResolver();
         $this->setupParameters($resolver);
-        $resolvedParameters = $resolver->resolve($parameters);
+        $resolvedParameters = $resolver->resolve(array_merge(
+            array(
+                'default_store_path' => $this->getConfiguration('default_store_path')
+            ),
+            $parameters
+        ));
 
         $media = $this->findOneBy(array(
             'reference' => $resolvedParameters['reference']
@@ -440,7 +434,7 @@ class MediaManager extends AbstractManager
     public function getMediaPublicUri(Media $media)
     {
         return sprintf('%s/media/%s',
-            $this->getApiPublicEndpoint(),
+            $this->getConfiguration('api_public_endpoint'),
             $media->getReference()
         );
     }
