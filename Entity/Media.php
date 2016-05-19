@@ -90,21 +90,21 @@ class Media
     protected $enabled;
 
     /**
-     * @var \DateTime
-     * @ORM\Column(name="created_at", type="datetime")
-     */
-    protected $createdAt;
-
-    /**
      * @var array
      * @ORM\Column(type="json_array", nullable=true)
      */
     protected $metadata;
 
     /**
+     * @var \DateTime
+     * @ORM\Column(name="created_at", type="datetime")
+     */
+    protected $createdAt;
+
+    /**
      * @var string
      */
-    protected $raw;
+    private $raw;
 
     /**
      * On create
@@ -368,29 +368,6 @@ class Media
     }
 
     /**
-     * Set createdAt
-     *
-     * @param \DateTime $createdAt
-     * @return Media
-     */
-    public function setCreatedAt($createdAt)
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    /**
-     * Get createdAt
-     *
-     * @return \DateTime
-     */
-    public function getCreatedAt()
-    {
-        return $this->createdAt;
-    }
-
-    /**
      * Set metadata
      *
      * @param array $metadata
@@ -416,6 +393,29 @@ class Media
         }
 
         return (isset($this->metadata[$key]) ? $this->metadata[$key] : null);
+    }
+
+    /**
+     * Set createdAt
+     *
+     * @param \DateTime $createdAt
+     * @return Media
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * Get createdAt
+     *
+     * @return \DateTime
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
     }
 
     /**
