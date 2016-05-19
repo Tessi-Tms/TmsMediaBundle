@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @author:  Sekou KOÏTA <sekou.koita@supinfo.com>
  * @license: GPL
@@ -31,23 +31,9 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('api_public_endpoint')->isRequired()->end()
+                ->scalarNode('working_directory')->isRequired()->end()
                 ->scalarNode('cache_directory')->isRequired()->end()
-                ->scalarNode('default_store_path')->defaultValue('/tmp')->end()
-                ->arrayNode('storage_mappers')
-                    ->isRequired()
-                    ->requiresAtLeastOneElement()
-                    ->prototype('array')
-                        ->children()
-                            ->scalarNode('storage_provider')->isRequired()->end()
-                            ->arrayNode('rules')
-                                ->isRequired()
-                                ->defaultValue(array())
-                                ->requiresAtLeastOneElement()
-                                ->prototype('variable')->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
+                ->scalarNode('default_storage_provider')->isRequired()->end()
             ->end()
         ;
 

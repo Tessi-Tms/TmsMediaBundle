@@ -3,6 +3,7 @@
 namespace Tms\Bundle\MediaBundle\Manager;
 
 use Doctrine\ORM\EntityManager;
+use Gaufrette\FilesystemMap;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\OptionsResolver\Options;
@@ -14,8 +15,6 @@ use Tms\Bundle\MediaBundle\StorageMapper\StorageMapperInterface;
 use Tms\Bundle\MediaBundle\MetadataExtractor\MetadataExtractorInterface;
 use Tms\Bundle\MediaBundle\Media\Transformer\MediaTransformerInterface;
 use Tms\Bundle\MediaBundle\Entity\Media;
-use Tms\Bundle\MediaBundle\Exception\UndefinedStorageMapperException;
-use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageMapperException;
 use Tms\Bundle\MediaBundle\Exception\NoMatchedTransformerException;
 use Tms\Bundle\MediaBundle\Exception\MediaNotFoundException;
 use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
@@ -28,7 +27,7 @@ use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
 class MediaManager extends AbstractManager
 {
     protected $configuration;
-    protected $storageMappers;
+    protected $filesystemMap;
     protected $metadataExtractors;
     protected $mediaTransformers;
 
@@ -41,31 +40,39 @@ class MediaManager extends AbstractManager
     protected function setupParameters(OptionsResolverInterface $resolver)
     {
         $resolver
-            ->setRequired(array('media'))
+            ->setRequired(array(
+                'media',
+                'working_directory',
+                'cache_directory',
+                'default_storage_provider',
+                'api_public_endpoint',
+            ))
             ->setDefaults(array(
                 'processing_file'    => null,
                 'source'             => null,
                 'name'               => null,
                 'description'        => null,
                 'metadata'           => array(),
-                'default_store_path' => '/tmp',
                 'mime_type'          => null,
                 'extension'          => null,
                 'size'               => null,
                 'reference'          => null,
             ))
             ->setAllowedTypes(array(
-                'media'              => array('Symfony\Component\HttpFoundation\File\UploadedFile'),
-                'processing_file'    => array('Symfony\Component\HttpFoundation\File\File'),
-                'source'             => array('null', 'string'),
-                'name'               => array('null', 'string'),
-                'description'        => array('null', 'string'),
-                'metadata'           => array('array'),
-                'default_store_path' => array('string'),
-                'mime_type'          => array('null', 'string'),
-                'extension'          => array('null', 'string'),
-                'size'               => array('null', 'integer'),
-                'reference'          => array('null', 'string'),
+                'media'                    => array('Symfony\Component\HttpFoundation\File\UploadedFile'),
+                'processing_file'          => array('Symfony\Component\HttpFoundation\File\File'),
+                'working_directory'        => array('string'),
+                'cache_directory'          => array('string'),
+                'default_storage_provider' => array('string'),
+                'api_public_endpoint'      => array('string'),
+                'source'                   => array('null', 'string'),
+                'name'                     => array('null', 'string'),
+                'description'              => array('null', 'string'),
+                'metadata'                 => array('array'),
+                'mime_type'                => array('null', 'string'),
+                'extension'                => array('null', 'string'),
+                'size'                     => array('null', 'integer'),
+                'reference'                => array('null', 'string'),
             ))
             ->setNormalizers(array(
                 'name'            => function(Options $options, $value) {
@@ -90,7 +97,7 @@ class MediaManager extends AbstractManager
                 },
                 'processing_file' => function(Options $options, $value) {
                     return $options['media']->move(
-                        $options['default_store_path'],
+                        $options['cache_directory'],
                         uniqid('tmp_media_')
                     );
                 },
@@ -118,20 +125,22 @@ class MediaManager extends AbstractManager
     /**
      * Constructor
      *
+     * @param array                         $configuration
      * @param EntityManager                 $entityManager
      * @param ContainerAwareEventDispatcher $eventDispatcher
-     * @param array                         $configuration
+     * @param FilesystemMap                 $filesystemMap
      */
     public function __construct(
+        array $configuration = array(),
         EntityManager $entityManager,
         ContainerAwareEventDispatcher $eventDispatcher,
-        array $configuration = array()
+        FilesystemMap $filesystemMap
     )
     {
         parent::__construct($entityManager, $eventDispatcher);
 
         $this->configuration      = $configuration;
-        $this->storageMappers     = array();
+        $this->filesystemMap      = $filesystemMap;
         $this->metadataExtractors = array();
         $this->mediaTransformers  = array();
     }
@@ -218,52 +227,6 @@ class MediaManager extends AbstractManager
     }
 
     /**
-     * Add storage mapper
-     *
-     * @param StorageMapperInterface $storageMapper
-     */
-    public function addStorageMapper(StorageMapperInterface $storageMapper)
-    {
-        $this->storageMappers[] = $storageMapper;
-    }
-
-    /**
-     * Guess a storage mapper based on the given mediaRaw.
-     *
-     * @param array $parameters
-     * @return StorageMapperInterface
-     * @throw NoMatchedStorageProviderException
-     */
-    protected function guessStorageMapper(array $parameters)
-    {
-        foreach ($this->storageMappers as $storageMapper) {
-            if ($storageMapper->checkRules($parameters)) {
-                return $storageMapper;
-            }
-        }
-
-        throw new NoMatchedStorageMapperException();
-    }
-
-    /**
-     * Get storage provider
-     *
-     * @param string providerServiceName
-     * @return Gaufrette\Filesystem The storage provider.
-     * @throw UndefinedStorageMapperException
-     */
-    public function getStorageProvider($providerServiceName)
-    {
-        foreach ($this->storageMappers as $storageMapper) {
-            if($providerServiceName == $storageMapper->getStorageProviderServiceName()) {
-                return $storageMapper->getStorageProvider();
-            }
-        }
-
-        throw new UndefinedStorageMapperException($providerServiceName);
-    }
-
-    /**
      * Add metadata extractor
      *
      * @param MetadataExtractorInterface $metadataExtractor
@@ -343,9 +306,7 @@ class MediaManager extends AbstractManager
         $resolver = new OptionsResolver();
         $this->setupParameters($resolver);
         $resolvedParameters = $resolver->resolve(array_merge(
-            array(
-                'default_store_path' => $this->getConfiguration('default_store_path')
-            ),
+            $this->getConfiguration(),
             $parameters
         ));
 
@@ -357,15 +318,16 @@ class MediaManager extends AbstractManager
             throw new MediaAlreadyExistException();
         }
 
-        // Guess a storage provider and use it to store the media
-        $storageMapper = $this->guessStorageMapper($resolvedParameters);
-        $storageMapper->getStorageProvider()->write(
-            $resolvedParameters['reference'],
-            file_get_contents($resolvedParameters['processing_file'])
-        );
-        $providerServiceName = $storageMapper->getStorageProviderServiceName();
+        $provider = $this->filesystemMap->get($resolvedParameters['default_storage_provider']);
+        var_dump($resolvedParameters, $provider);die;
 
-        var_dump($providerServiceName);die;
+        $this->getStorageProvider()->write(
+            $resolvedParameters['reference'],
+            file_get_contents($resolvedParameters['processing_file']->getRealPath())
+        );
+
+        //$providerServiceName = $storageMapper->getStorageProviderServiceName();
+
 
         // Keep media informations in database
         $media = new Media();

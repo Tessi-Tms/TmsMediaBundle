@@ -36,10 +36,26 @@ class MediaManagerTest extends \PHPUnit_Framework_TestCase
             ->getMock()
         ;
 
+        $gaufrette = $this->getMockBuilder("Gaufrette\FilesystemMap")
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $gaufrette
+            ->expects($this->any())
+            ->method('get')
+            ->will($this->returnValue('test'))
+        ;
+
         $this->mediaManager = new MediaManager(
+            array(
+                'working_directory'        => '/tmp/media_working',
+                'cache_directory'          => '/tmp/media_cache',
+                'default_storage_provider' => 'gaufrette.default_media_filesystem',
+                'api_public_endpoint'      => '//media-manager.local/app_dev.php/api',
+            ),
             $entityManager,
             $eventDispatcher,
-            array('default_store_path' => '/tmp')
+            $gaufrette
         );
     }
 
