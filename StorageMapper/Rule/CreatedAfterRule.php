@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @author:  Sekou KOÏTA <sekou.koita@supinfo.com>
  * @license: GPL
@@ -17,11 +17,15 @@ class CreatedAfterRule extends AbstractCreatedRule
     /**
      * {@inheritdoc}
      */
-    function check($file)
+    function check(array $parameters)
     {
+        if (null === $this->getRuleArguments()) {
+            return false;
+        }
+
         $now = new \DateTime();
         $after = self::convertToDateTime($this->getRuleArguments());
-        if($after->format('U') > $now->format('U')) {
+        if ($after->format('U') > $now->format('U')) {
             return false;
         }
 

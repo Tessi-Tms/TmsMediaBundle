@@ -5,14 +5,30 @@ namespace Tms\Bundle\MediaBundle\Tests\Manager;
 use Tms\Bundle\MediaBundle\Manager\MediaManager;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class MediaManagerTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
+        $entityRepository = $this->getMockBuilder("Doctrine\ORM\EntityRepository")
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $entityRepository
+            ->expects($this->any())
+            ->method('findOneBy')
+            ->will($this->returnValue(null))
+        ;
+
         $entityManager = $this->getMockBuilder("Doctrine\ORM\EntityManager")
             ->disableOriginalConstructor()
             ->getMock()
+        ;
+        $entityManager
+            ->expects($this->any())
+            ->method('getRepository')
+            ->will($this->returnValue($entityRepository))
         ;
 
         $eventDispatcher = $this->getMockBuilder("Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher")
@@ -23,27 +39,23 @@ class MediaManagerTest extends \PHPUnit_Framework_TestCase
         $this->mediaManager = new MediaManager(
             $entityManager,
             $eventDispatcher,
-            array()
+            array('default_store_path' => '/tmp')
         );
     }
 
     public function testAddMedia()
     {
-        $rawMedia = $this->getMockBuilder("Symfony\Component\HttpFoundation\File\UploadedFile")
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
+        copy(__DIR__.'/../data/linux.png', '/tmp/test_copy_linux.png');
 
-        $rawMedia
-            ->expects($this->any())
-            ->method('getClientMimeType')
-            ->will($this->returnValue('image/png'))
-            ->method('getClientOriginalName')
-            ->will($this->returnValue('dummy_media'))
-            ->method('getClientSize')
-            ->will($this->returnValue(102400))
-        ;
+        $uploadedFile = new UploadedFile(
+            '/tmp/test_copy_linux.png',
+            'dummy_test_file',
+            null,
+            null,
+            null,
+            true
+        );
 
-        $this->mediaManager->addMedia($rawMedia, array());
+        $this->mediaManager->addMedia(array('media' => $uploadedFile));
     }
 }

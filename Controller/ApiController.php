@@ -39,16 +39,16 @@ class ApiController extends Controller
     {
         $response = new Response();
         try {
-            $media = $this->get('tms_media.manager.media')->addMedia(
-                $request->files->get('media'),
-                sprintf('[%s] %s',
+            $media = $this->get('tms_media.manager.media')->addMedia(array(
+                'media'       => $request->files->get('media'),
+                'source'      => sprintf('[%s] %s',
                     $request->getClientIp(),
                     $request->request->get('source', null)
                 ),
-                $request->request->get('name', null),
-                $request->request->get('description', null),
-                $request->request->get('metadata', array())
-            );
+                'name'        => $request->request->get('name', null),
+                'description' => $request->request->get('description', null),
+                'metadata'    => $request->request->get('metadata', array()),
+            ));
 
             $response->setStatusCode(201);
             $response->setContent(json_encode(array_merge(

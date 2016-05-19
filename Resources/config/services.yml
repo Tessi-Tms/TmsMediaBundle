@@ -17,6 +17,13 @@ services:
 
     ## Storage Mapper Rules ##
 
+    tms_media.rule.default:
+        class: Tms\Bundle\MediaBundle\StorageMapper\Rule\DefaultRule
+        arguments: [null]
+        public: false
+        abstract: true
+        tags:
+            - { name: tms_media.mapper.rule, alias: default }
     tms_media.rule.min_size:
         class: Tms\Bundle\MediaBundle\StorageMapper\Rule\MinSizeRule
         arguments: [null]

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @author:  Sekou KOÏTA <sekou.koita@supinfo.com>
  * @license: GPL
@@ -18,9 +18,9 @@ interface StorageMapperInterface
     /**
      * Check the rules.
      *
-     * @param string $mediaPath
+     * @param array $parameters
      */
-    public function checkRules($mediaPath);
+    public function checkRules(array $parameters);
 
     /**
      * Add a rule to the provider.

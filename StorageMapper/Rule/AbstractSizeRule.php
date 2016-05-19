@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @author:  Sekou KOÏTA <sekou.koita@supinfo.com>
  * @license: GPL
@@ -26,7 +26,7 @@ abstract class AbstractSizeRule extends AbstractRule
         $bytesMap = array("KB" => 1, "MB" => 2, "GB" => 3, "TB" => 4, "PB" => 5);
         $unit = strtoupper(substr($from, -2));
 
-        if(!isset($bytesMap[$unit])) {
+        if (!isset($bytesMap[$unit])) {
             throw new InvalidSizeRuleException($from);
         }
 

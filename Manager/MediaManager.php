@@ -5,6 +5,7 @@ namespace Tms\Bundle\MediaBundle\Manager;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Tms\Bundle\MediaBundle\Event\MediaEvent;
@@ -40,17 +41,76 @@ class MediaManager extends AbstractManager
     protected function setupParameters(OptionsResolverInterface $resolver)
     {
         $resolver
+            ->setRequired(array('media'))
             ->setDefaults(array(
-                'source'      => null,
-                'name'        => null,
-                'description' => null,
-                'metadata'    => array(),
+                'processing_file'    => null,
+                'source'             => null,
+                'name'               => null,
+                'description'        => null,
+                'metadata'           => array(),
+                'default_store_path' => '/tmp',
+                'mime_type'          => null,
+                'extension'          => null,
+                'size'               => null,
+                'reference'          => null,
             ))
             ->setAllowedTypes(array(
-                'source'      => array('null', 'string'),
-                'name'        => array('null', 'string'),
-                'description' => array('null', 'string'),
-                'metadata'    => array('array'),
+                'media'              => array('Symfony\Component\HttpFoundation\File\UploadedFile'),
+                'processing_file'    => array('Symfony\Component\HttpFoundation\File\File'),
+                'source'             => array('null', 'string'),
+                'name'               => array('null', 'string'),
+                'description'        => array('null', 'string'),
+                'metadata'           => array('array'),
+                'default_store_path' => array('string'),
+                'mime_type'          => array('null', 'string'),
+                'extension'          => array('null', 'string'),
+                'size'               => array('null', 'integer'),
+                'reference'          => array('null', 'string'),
+            ))
+            ->setNormalizers(array(
+                'name'            => function(Options $options, $value) {
+                    if (null !== $value) {
+                        return $value;
+                    }
+
+                    return $options['media']->getClientOriginalName();
+                },
+                'description'     => function(Options $options, $value) {
+                    if (null !== $value) {
+                        return $value;
+                    }
+
+                    return $options['media']->getClientOriginalName();
+                },
+                'mime_type'       => function(Options $options, $value) {
+                    return $options['media']->getMimeType();
+                },
+                'extension'       => function(Options $options, $value) {
+                    return $options['media']->guessExtension();
+                },
+                'processing_file' => function(Options $options, $value) {
+                    return $options['media']->move(
+                        $options['default_store_path'],
+                        uniqid('tmp_media_')
+                    );
+                },
+                'size'            => function(Options $options, $value) {
+                    return $options['processing_file']->getSize();
+                },
+                'reference'       => function(Options $options, $value) {
+                    $now = new \DateTime();
+
+                    return sprintf('%s-%s-%s-%d',
+                        sprintf("%u", crc32($options['source'])),
+                        $now->format('U'),
+                        md5(sprintf("%s%s%s",
+                            $options['mime_type'],
+                            $options['name'],
+                            $options['size']
+                        )),
+                        rand(0, 9999)
+                    );
+                },
             ))
         ;
     }
@@ -181,14 +241,14 @@ class MediaManager extends AbstractManager
     /**
      * Guess a storage mapper based on the given mediaRaw.
      *
-     * @param string $mediaPath
+     * @param array $parameters
      * @return StorageMapperInterface
      * @throw NoMatchedStorageProviderException
      */
-    protected function guessStorageMapper($mediaPath)
+    protected function guessStorageMapper(array $parameters)
     {
         foreach ($this->storageMappers as $storageMapper) {
-            if ($storageMapper->checkRules($mediaPath)) {
+            if ($storageMapper->checkRules($parameters)) {
                 return $storageMapper;
             }
         }
@@ -284,96 +344,58 @@ class MediaManager extends AbstractManager
     }
 
     /**
-     * Generate a unique rereference for a mediaRaw
-     *
-     * @param UploadedFile $mediaRaw
-     * @param string $source
-     *
-     * @return string
-     */
-    public function generateMediaReference(UploadedFile $mediaRaw, $source)
-    {
-        $now = new \DateTime();
-
-        return sprintf('%s-%s-%s-%d',
-            sprintf("%u", crc32($source)),
-            $now->format('U'),
-            md5(sprintf("%s%s%s",
-              $mediaRaw->getClientMimeType(),
-              $mediaRaw->getClientOriginalName(),
-              $mediaRaw->getClientSize()
-            )),
-            rand(0, 9999)
-        );
-    }
-
-    /**
      * Add Media
      *
-     * @param UploadedFile $mediaRaw
-     * @param array        $parameters
+     * @param array $parameters
      * @return Media
      */
-    public function addMedia(UploadedFile $mediaRaw, array $parameters)
+    public function addMedia(array $parameters)
     {
         $resolver = new OptionsResolver();
         $this->setupParameters($resolver);
         $resolvedParameters = $resolver->resolve($parameters);
 
-        var_dump($parameters);die;
+        $media = $this->findOneBy(array(
+            'reference' => $resolvedParameters['reference']
+        ));
 
-        $reference = $this->generateMediaReference(
-            $mediaRaw,
-            $resolvedParameters['source']
-        );
-
-        $media = $this->findOneBy(array('reference' => $reference));
-
-        if ($media) {
+        if (null !== $media) {
             throw new MediaAlreadyExistException();
         }
 
-        // Keep media information before handle the file
-        $mimeType = $mediaRaw->getMimeType();
-        $extension = $mediaRaw->guessExtension();
-        $name = is_null($name) ? $mediaRaw->getClientOriginalName() : $name;
-        $description = is_null($description) ? $mediaRaw->getClientOriginalName() : $description;
-
-        // Store the media at the default path
-        $mediaRaw->move($this->getDefaultStorePath(), $reference);
-        $defaultMediaPath = sprintf('%s/%s', $this->getDefaultStorePath(), $reference);
-
         // Guess a storage provider and use it to store the media
-        $storageMapper = $this->guessStorageMapper($defaultMediaPath);
+        $storageMapper = $this->guessStorageMapper($resolvedParameters);
         $storageMapper->getStorageProvider()->write(
-            $reference,
-            file_get_contents($defaultMediaPath)
+            $resolvedParameters['reference'],
+            file_get_contents($resolvedParameters['processing_file'])
         );
         $providerServiceName = $storageMapper->getStorageProviderServiceName();
+
+        var_dump($providerServiceName);die;
 
         // Keep media informations in database
         $media = new Media();
 
-        $media->setSource($source);
-        $media->setReference($reference);
-        $media->setExtension($extension);
+        $media->setSource($resolvedParameters['source']);
+        $media->setReference($resolvedParameters['reference']);
+        $media->setExtension($resolvedParameters['extension']);
         $media->setProviderServiceName($providerServiceName);
-        $media->setName($name);
-        $media->setDescription($description);
-        $media->setSize(filesize($defaultMediaPath));
-        $media->setMimeType($mimeType);
+        $media->setName($resolvedParameters['name']);
+        $media->setDescription($resolvedParameters['description']);
+        $media->setSize($resolvedParameters['size']);
+        $media->setMimeType($resolvedParameters['mime_type']);
 
         $media->setMetadata(array_merge_recursive(
-            $metadata,
+            $resolvedParameters['metadata'],
             $this
-                ->guessMetadataExtractor($mimeType)
-                ->extract($defaultMediaPath)
+                ->guessMetadataExtractor($resolvedParameters['mime_type'])
+                ->extract($resolvedParameters['processing_file']->getRealPath())
         ));
 
         $this->add($media);
 
         // Remove the media if a provider was well guess and used, and the media entity stored.
-        unlink($defaultMediaPath);
+        unlink($resolvedParameters['processing_file']->getRealPath());
 
         return $media;
     }

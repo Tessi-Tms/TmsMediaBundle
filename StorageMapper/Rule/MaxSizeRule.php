@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @author:  Sekou KOÏTA <sekou.koita@supinfo.com>
  * @license: GPL
@@ -17,9 +17,13 @@ class MaxSizeRule extends AbstractSizeRule
     /**
      * {@inheritdoc}
      */
-    function check($file)
+    function check(array $parameters)
     {
-        if(filesize($file) > self::convertToBytes($this->getRuleArguments())) {
+        if (!isset($parameters['size'])) {
+            return false;
+        }
+
+        if ($parameters['size'] > self::convertToBytes($this->getRuleArguments())) {
             return false;
         }
 

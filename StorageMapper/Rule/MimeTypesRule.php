@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @author:  Sekou KOÏTA <sekou.koita@supinfo.com>
  * @license: GPL
@@ -17,12 +17,12 @@ class MimeTypesRule extends AbstractRule
     /**
      * {@inheritdoc}
      */
-    function check($file)
+    function check(array $parameters)
     {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mimeType = finfo_file($finfo, $file);
-        finfo_close($finfo);
+        if (!isset($parameters['mime_type']) || null === $this->getRuleArguments()) {
+            return false;
+        }
 
-        return in_array($mimeType, $this->getRuleArguments());
+        return in_array($parameters['mime_type'], $this->getRuleArguments());
     }
 }

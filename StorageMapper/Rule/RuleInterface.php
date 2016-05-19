@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @author:  Sekou KOÏTA <sekou.koita@supinfo.com>
  * @license: GPL
@@ -17,8 +17,8 @@ interface RuleInterface
     /**
      * Check the rule for a file.
      *
-     * @param string $file
+     * @param array $parameters
      * @return boolean
      */
-    public function check($file);
+    public function check(array $parameters);
 }
