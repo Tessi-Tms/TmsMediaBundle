@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @author:  Sekou KOÏTA <sekou.koita@supinfo.com>
  * @license: GPL
@@ -16,18 +16,18 @@ use Tms\Bundle\MediaBundle\StorageMapper\Rule\RuleInterface;
 
 class StorageMapper implements StorageMapperInterface
 {
-    
     protected $storageProvider;
     protected $storageProviderServiceName;
-    protected $rules = array();
+    protected $rules;
 
     /**
      * Constructor
      */
     public function __construct(Filesystem $storageProvider, $storageProviderServiceName)
     {
-        $this->storageProvider = $storageProvider;
+        $this->storageProvider            = $storageProvider;
         $this->storageProviderServiceName = $storageProviderServiceName;
+        $this->rules                      = array();
     }
 
     /**
@@ -59,7 +59,7 @@ class StorageMapper implements StorageMapperInterface
      */
     public function checkRules($mediaPath)
     {
-        foreach($this->rules as $rule) {
+        foreach ($this->rules as $rule) {
             if (!$rule->check($mediaPath)) {
                 return false;
             }
