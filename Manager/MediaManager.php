@@ -3,6 +3,8 @@
 namespace Tms\Bundle\MediaBundle\Manager;
 
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Tms\Bundle\MediaBundle\Event\MediaEvent;
@@ -11,7 +13,6 @@ use Tms\Bundle\MediaBundle\StorageMapper\StorageMapperInterface;
 use Tms\Bundle\MediaBundle\MetadataExtractor\MetadataExtractorInterface;
 use Tms\Bundle\MediaBundle\Media\Transformer\MediaTransformerInterface;
 use Tms\Bundle\MediaBundle\Entity\Media;
-
 use Tms\Bundle\MediaBundle\Exception\UndefinedStorageMapperException;
 use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageMapperException;
 use Tms\Bundle\MediaBundle\Exception\NoMatchedTransformerException;
@@ -26,9 +27,33 @@ use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
 class MediaManager extends AbstractManager
 {
     protected $configuration;
-    protected $storageMappers = array();
-    protected $metadataExtractors = array();
-    protected $mediaTransformers = array();
+    protected $storageMappers;
+    protected $metadataExtractors;
+    protected $mediaTransformers;
+
+    /**
+     * Setup parameters.
+     *
+     * @param OptionsResolverInterface $resolver.
+     * @return array
+     */
+    protected function setupParameters(OptionsResolverInterface $resolver)
+    {
+        $resolver
+            ->setDefaults(array(
+                'source'      => null,
+                'name'        => null,
+                'description' => null,
+                'metadata'    => array(),
+            ))
+            ->setAllowedTypes(array(
+                'source'      => array('null', 'string'),
+                'name'        => array('null', 'string'),
+                'description' => array('null', 'string'),
+                'metadata'    => array('array'),
+            ))
+        ;
+    }
 
     /**
      * Constructor
@@ -40,15 +65,19 @@ class MediaManager extends AbstractManager
     public function __construct(
         EntityManager $entityManager,
         ContainerAwareEventDispatcher $eventDispatcher,
-        $configuration
+        array $configuration = array()
     )
     {
         parent::__construct($entityManager, $eventDispatcher);
-        $this->configuration = $configuration;
+
+        $this->configuration      = $configuration;
+        $this->storageMappers     = array();
+        $this->metadataExtractors = array();
+        $this->mediaTransformers  = array();
     }
 
     /**
-     * Get the default store path
+     * Return the configuration
      *
      * @return array
      */
@@ -150,24 +179,6 @@ class MediaManager extends AbstractManager
     }
 
     /**
-     * Get storage provider
-     *
-     * @param string providerServiceName
-     * @return Gaufrette\Filesystem The storage provider.
-     * @throw UndefinedStorageMapperException
-     */
-    public function getStorageProvider($providerServiceName)
-    {
-        foreach($this->storageMappers as $storageMapper) {
-            if($providerServiceName == $storageMapper->getStorageProviderServiceName()) {
-                return $storageMapper->getStorageProvider();
-            }
-        }
-
-        throw new UndefinedStorageMapperException($providerServiceName);
-    }
-
-    /**
      * Guess a storage mapper based on the given mediaRaw.
      *
      * @param string $mediaPath
@@ -183,6 +194,24 @@ class MediaManager extends AbstractManager
         }
 
         throw new NoMatchedStorageMapperException();
+    }
+
+    /**
+     * Get storage provider
+     *
+     * @param string providerServiceName
+     * @return Gaufrette\Filesystem The storage provider.
+     * @throw UndefinedStorageMapperException
+     */
+    public function getStorageProvider($providerServiceName)
+    {
+        foreach ($this->storageMappers as $storageMapper) {
+            if($providerServiceName == $storageMapper->getStorageProviderServiceName()) {
+                return $storageMapper->getStorageProvider();
+            }
+        }
+
+        throw new UndefinedStorageMapperException($providerServiceName);
     }
 
     /**
@@ -257,12 +286,12 @@ class MediaManager extends AbstractManager
     /**
      * Generate a unique rereference for a mediaRaw
      *
-     * @param string $source
      * @param UploadedFile $mediaRaw
+     * @param string $source
      *
      * @return string
      */
-    public function generateMediaReference($source, UploadedFile $mediaRaw)
+    public function generateMediaReference(UploadedFile $mediaRaw, $source)
     {
         $now = new \DateTime();
 
@@ -282,21 +311,21 @@ class MediaManager extends AbstractManager
      * Add Media
      *
      * @param UploadedFile $mediaRaw
-     * @param string $source
-     * @param string $name
-     * @param string $description
-     * @param array  $metadata
+     * @param array        $parameters
      * @return Media
      */
-    public function addMedia(
-        UploadedFile $mediaRaw,
-        $source = null,
-        $name = null,
-        $description = null,
-        $metadata = array()
-    )
+    public function addMedia(UploadedFile $mediaRaw, array $parameters)
     {
-        $reference = $this->generateMediaReference($source, $mediaRaw);
+        $resolver = new OptionsResolver();
+        $this->setupParameters($resolver);
+        $resolvedParameters = $resolver->resolve($parameters);
+
+        var_dump($parameters);die;
+
+        $reference = $this->generateMediaReference(
+            $mediaRaw,
+            $resolvedParameters['source']
+        );
 
         $media = $this->findOneBy(array('reference' => $reference));
 
@@ -393,5 +422,4 @@ class MediaManager extends AbstractManager
             $media->getReference()
         );
     }
-
 }
