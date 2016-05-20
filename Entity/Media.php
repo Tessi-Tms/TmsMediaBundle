@@ -49,6 +49,12 @@ class Media
 
     /**
      * @var string
+     * @ORM\Column(name="reference_prefix", type="string")
+     */
+    protected $referencePrefix;
+
+    /**
+     * @var string
      * @ORM\Column(type="string")
      */
     protected $extension;
@@ -204,6 +210,29 @@ class Media
     public function getReference()
     {
         return $this->reference;
+    }
+
+    /**
+     * Set reference prefix
+     *
+     * @param string $referencePrefix
+     * @return Media
+     */
+    public function setReferencePrefix($referencePrefix)
+    {
+        $this->referencePrefix = $referencePrefix;
+
+        return $this;
+    }
+
+    /**
+     * Get reference prefix
+     *
+     * @return string
+     */
+    public function getReferencePrefix()
+    {
+        return $this->referencePrefix;
     }
 
     /**

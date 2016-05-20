@@ -57,6 +57,7 @@ class MediaManager extends AbstractManager
                 'extension'          => null,
                 'size'               => null,
                 'reference'          => null,
+                'reference_prefix'   => null,
             ))
             ->setAllowedTypes(array(
                 'media'               => array('Symfony\Component\HttpFoundation\File\UploadedFile'),
@@ -73,38 +74,39 @@ class MediaManager extends AbstractManager
                 'extension'           => array('null', 'string'),
                 'size'                => array('null', 'integer'),
                 'reference'           => array('null', 'string'),
+                'reference_prefix'    => array('null', 'string'),
             ))
             ->setNormalizers(array(
-                'name'            => function(Options $options, $value) {
+                'name'             => function(Options $options, $value) {
                     if (null !== $value) {
                         return $value;
                     }
 
                     return $options['media']->getClientOriginalName();
                 },
-                'description'     => function(Options $options, $value) {
+                'description'      => function(Options $options, $value) {
                     if (null !== $value) {
                         return $value;
                     }
 
                     return $options['media']->getClientOriginalName();
                 },
-                'mime_type'       => function(Options $options, $value) {
+                'mime_type'        => function(Options $options, $value) {
                     return $options['media']->getMimeType();
                 },
-                'extension'       => function(Options $options, $value) {
+                'extension'        => function(Options $options, $value) {
                     return $options['media']->guessExtension();
                 },
-                'processing_file' => function(Options $options, $value) {
+                'processing_file'  => function(Options $options, $value) {
                     return $options['media']->move(
                         $options['working_directory'],
                         uniqid('tmp_media_')
                     );
                 },
-                'size'            => function(Options $options, $value) {
+                'size'             => function(Options $options, $value) {
                     return $options['processing_file']->getSize();
                 },
-                'reference'       => function(Options $options, $value) {
+                'reference'        => function(Options $options, $value) {
                     $now = new \DateTime();
 
                     return sprintf('%s-%s-%s-%d',
@@ -117,6 +119,13 @@ class MediaManager extends AbstractManager
                         )),
                         rand(0, 9999)
                     );
+                },
+                'reference_prefix' => function(Options $options, $value) {
+                    if (isset($options['metadata']['customer'])) {
+                        $value .= $options['metadata']['customer'];
+                    }
+
+                    return $value;
                 },
             ))
         ;
@@ -302,6 +311,22 @@ class MediaManager extends AbstractManager
     }
 
     /**
+     * Build the storage key
+     *
+     * @param string $referencePrefix
+     * @param string $reference
+     * @return string
+     */
+    public function buildStorageKey($referencePrefix, $reference)
+    {
+        if ('' === $referencePrefix) {
+            return $reference;
+        }
+
+        return sprintf('%s/%s', $referencePrefix, $reference);
+    }
+
+    /**
      * Add Media
      *
      * @param array $parameters
@@ -327,7 +352,10 @@ class MediaManager extends AbstractManager
         $provider = $this->filesystemMap->get($resolvedParameters['storage_provider']);
 
         $provider->write(
-            $resolvedParameters['reference'],
+            $this->buildStorageKey(
+                $resolvedParameters['reference_prefix'],
+                $resolvedParameters['reference']
+            ),
             file_get_contents($resolvedParameters['processing_file']->getRealPath())
         );
 
@@ -336,6 +364,7 @@ class MediaManager extends AbstractManager
 
         $media->setSource($resolvedParameters['source']);
         $media->setReference($resolvedParameters['reference']);
+        $media->setReferencePrefix($resolvedParameters['reference_prefix']);
         $media->setExtension($resolvedParameters['extension']);
         $media->setProviderServiceName($resolvedParameters['storage_provider']);
         $media->setName($resolvedParameters['name']);
@@ -368,7 +397,12 @@ class MediaManager extends AbstractManager
     {
         $media = $this->retrieveMedia($reference);
         $storageProvider = $this->filesystemMap->get($media->getProviderServiceName());
-        $this->delete($media);
+        $this->delete(
+            $this->buildStorageKey(
+                $media->getReferencePrefix(),
+                $media->getReference()
+            )
+        );
     }
 
     /**
@@ -385,7 +419,15 @@ class MediaManager extends AbstractManager
         return $mediaTransformer->transform(
             $this->filesystemMap->get($media->getProviderServiceName()),
             $media,
-            $options
+            array_merge(
+                $options,
+                array(
+                    'storage_key' => $this->buildStorageKey(
+                        $media->getReferencePrefix(),
+                        $media->getReference()
+                    )
+                )
+            )
         );
     }
 

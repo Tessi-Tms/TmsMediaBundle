@@ -31,7 +31,7 @@ class DefaultMediaTransformer extends AbstractMediaTransformer
     {
         $responseMedia = new ResponseMedia();
         $responseMedia
-            ->setContent($storageProvider->read($media->getReference()))
+            ->setContent($storageProvider->read($options['storage_key']))
             ->setContentType($media->getMimeType())
             ->setLastModifiedAt($media->getCreatedAt())
         ;

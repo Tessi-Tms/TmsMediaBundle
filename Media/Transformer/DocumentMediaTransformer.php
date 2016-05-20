@@ -37,7 +37,7 @@ class DocumentMediaTransformer extends AbstractMediaTransformer
         }
 
         $responseMedia
-            ->setContent($storageProvider->read($media->getReference()))
+            ->setContent($storageProvider->read($options['storage_key']))
             ->setContentType($media->getMimeType())
             ->setContentLength($media->getSize())
             ->setLastModifiedAt($media->getCreatedAt())
