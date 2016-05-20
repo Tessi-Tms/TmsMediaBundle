@@ -3,7 +3,7 @@
 namespace Tms\Bundle\MediaBundle\Manager;
 
 use Doctrine\ORM\EntityManager;
-use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Abstract manager.
@@ -15,7 +15,7 @@ abstract class AbstractManager
     protected $entityManager;
     protected $eventDispatcher;
 
-    public function __construct(EntityManager $entityManager, ContainerAwareEventDispatcher $eventDispatcher)
+    public function __construct(EntityManager $entityManager, EventDispatcherInterface $eventDispatcher)
     {
         $this->entityManager = $entityManager;
         $this->eventDispatcher = $eventDispatcher;
@@ -34,7 +34,7 @@ abstract class AbstractManager
     /**
      * Get EventDispatcher
      *
-     * @return ContainerAwareEventDispatcher
+     * @return EventDispatcherInterface
      */
     public function getEventDispatcher()
     {

@@ -33,7 +33,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('api_public_endpoint')->isRequired()->end()
                 ->scalarNode('working_directory')->isRequired()->end()
                 ->scalarNode('cache_directory')->isRequired()->end()
-                ->scalarNode('default_storage_provider')->isRequired()->end()
+                ->scalarNode('storage_provider')->isRequired()->end()
             ->end()
         ;
 

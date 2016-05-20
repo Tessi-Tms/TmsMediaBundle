@@ -2,10 +2,13 @@
 
 namespace Tms\Bundle\MediaBundle\Tests\Manager;
 
-use Tms\Bundle\MediaBundle\Manager\MediaManager;
-use Doctrine\ORM\EntityManager;
-use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Doctrine\ORM\EntityManager;
+use Gaufrette\Adapter\Local;
+use Gaufrette\Filesystem;
+use Tms\Bundle\MediaBundle\Manager\MediaManager;
+use Tms\Bundle\MediaBundle\MetadataExtractor\DefaultMetadataExtractor;
+use Tms\Bundle\MediaBundle\MetadataExtractor\ImageMetadataExtractor;
 
 class MediaManagerTest extends \PHPUnit_Framework_TestCase
 {
@@ -31,32 +34,45 @@ class MediaManagerTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($entityRepository))
         ;
 
-        $eventDispatcher = $this->getMockBuilder("Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher")
+        $eventDispatcher = $this->getMockBuilder("Symfony\Component\EventDispatcher\EventDispatcherInterface")
             ->disableOriginalConstructor()
             ->getMock()
         ;
 
-        $gaufrette = $this->getMockBuilder("Gaufrette\FilesystemMap")
+        $localAdapter = new Local('/tmp/media_storage', true);
+        $filesystem = new Filesystem($localAdapter);
+
+        $gaufrette = $this->getMockBuilder("Knp\Bundle\GaufretteBundle\FilesystemMap")
             ->disableOriginalConstructor()
             ->getMock()
         ;
         $gaufrette
             ->expects($this->any())
             ->method('get')
-            ->will($this->returnValue('test'))
+            ->will($this->returnValue($filesystem))
         ;
 
         $this->mediaManager = new MediaManager(
             array(
-                'working_directory'        => '/tmp/media_working',
-                'cache_directory'          => '/tmp/media_cache',
-                'default_storage_provider' => 'gaufrette.default_media_filesystem',
-                'api_public_endpoint'      => '//media-manager.local/app_dev.php/api',
+                'working_directory'   => '/tmp/media_working',
+                'cache_directory'     => '/tmp/media_cache',
+                'storage_provider'    => 'default_media',
+                'api_public_endpoint' => '//media-manager.local/app_dev.php/api',
             ),
             $entityManager,
             $eventDispatcher,
             $gaufrette
         );
+
+        // MetadataExtractor
+        $imageMetadataExtractor   = new ImageMetadataExtractor();
+        $defaultMetadataExtractor = new DefaultMetadataExtractor();
+
+        $this
+            ->mediaManager
+            ->addMetadataExtractor($imageMetadataExtractor)
+            ->addMetadataExtractor($defaultMetadataExtractor)
+        ;
     }
 
     public function testAddMedia()
@@ -72,6 +88,11 @@ class MediaManagerTest extends \PHPUnit_Framework_TestCase
             true
         );
 
-        $this->mediaManager->addMedia(array('media' => $uploadedFile));
+        $media = $this->mediaManager->addMedia(array('media' => $uploadedFile));
+
+        $this->assertEquals($media->getExtension(), 'png');
+        $this->assertEquals($media->getProviderServiceName(), 'default_media');
+        $this->assertEquals($media->getMetadata(), array('width' => 128, 'height' => 128));
+        $this->assertTrue($media->getEnabled());
     }
 }

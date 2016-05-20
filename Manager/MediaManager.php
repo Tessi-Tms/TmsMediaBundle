@@ -3,11 +3,11 @@
 namespace Tms\Bundle\MediaBundle\Manager;
 
 use Doctrine\ORM\EntityManager;
-use Gaufrette\FilesystemMap;
+use Knp\Bundle\GaufretteBundle\FilesystemMap;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\OptionsResolver\Options;
-use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Tms\Bundle\MediaBundle\Event\MediaEvent;
 use Tms\Bundle\MediaBundle\Event\MediaEvents;
@@ -44,7 +44,7 @@ class MediaManager extends AbstractManager
                 'media',
                 'working_directory',
                 'cache_directory',
-                'default_storage_provider',
+                'storage_provider',
                 'api_public_endpoint',
             ))
             ->setDefaults(array(
@@ -59,20 +59,20 @@ class MediaManager extends AbstractManager
                 'reference'          => null,
             ))
             ->setAllowedTypes(array(
-                'media'                    => array('Symfony\Component\HttpFoundation\File\UploadedFile'),
-                'processing_file'          => array('Symfony\Component\HttpFoundation\File\File'),
-                'working_directory'        => array('string'),
-                'cache_directory'          => array('string'),
-                'default_storage_provider' => array('string'),
-                'api_public_endpoint'      => array('string'),
-                'source'                   => array('null', 'string'),
-                'name'                     => array('null', 'string'),
-                'description'              => array('null', 'string'),
-                'metadata'                 => array('array'),
-                'mime_type'                => array('null', 'string'),
-                'extension'                => array('null', 'string'),
-                'size'                     => array('null', 'integer'),
-                'reference'                => array('null', 'string'),
+                'media'               => array('Symfony\Component\HttpFoundation\File\UploadedFile'),
+                'processing_file'     => array('Symfony\Component\HttpFoundation\File\File'),
+                'working_directory'   => array('string'),
+                'cache_directory'     => array('string'),
+                'storage_provider'    => array('string'),
+                'api_public_endpoint' => array('string'),
+                'source'              => array('null', 'string'),
+                'name'                => array('null', 'string'),
+                'description'         => array('null', 'string'),
+                'metadata'            => array('array'),
+                'mime_type'           => array('null', 'string'),
+                'extension'           => array('null', 'string'),
+                'size'                => array('null', 'integer'),
+                'reference'           => array('null', 'string'),
             ))
             ->setNormalizers(array(
                 'name'            => function(Options $options, $value) {
@@ -97,7 +97,7 @@ class MediaManager extends AbstractManager
                 },
                 'processing_file' => function(Options $options, $value) {
                     return $options['media']->move(
-                        $options['cache_directory'],
+                        $options['working_directory'],
                         uniqid('tmp_media_')
                     );
                 },
@@ -125,15 +125,15 @@ class MediaManager extends AbstractManager
     /**
      * Constructor
      *
-     * @param array                         $configuration
-     * @param EntityManager                 $entityManager
-     * @param ContainerAwareEventDispatcher $eventDispatcher
-     * @param FilesystemMap                 $filesystemMap
+     * @param array                    $configuration
+     * @param EntityManager            $entityManager
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param FilesystemMap            $filesystemMap
      */
     public function __construct(
         array $configuration = array(),
         EntityManager $entityManager,
-        ContainerAwareEventDispatcher $eventDispatcher,
+        EventDispatcherInterface $eventDispatcher,
         FilesystemMap $filesystemMap
     )
     {
@@ -230,10 +230,13 @@ class MediaManager extends AbstractManager
      * Add metadata extractor
      *
      * @param MetadataExtractorInterface $metadataExtractor
+     * @return self
      */
     public function addMetadataExtractor(MetadataExtractorInterface $metadataExtractor)
     {
         $this->metadataExtractors[] = $metadataExtractor;
+
+        return $this;
     }
 
     /**
@@ -255,10 +258,13 @@ class MediaManager extends AbstractManager
      * Add media transformer
      *
      * @param MediaTransformerInterface $mediaTransformer
+     * @return self
      */
     public function addMediaTransformer(MediaTransformerInterface $mediaTransformer)
     {
         $this->mediaTransformers[] = $mediaTransformer;
+
+        return $this;
     }
 
     /**
@@ -318,16 +324,12 @@ class MediaManager extends AbstractManager
             throw new MediaAlreadyExistException();
         }
 
-        $provider = $this->filesystemMap->get($resolvedParameters['default_storage_provider']);
-        var_dump($resolvedParameters, $provider);die;
+        $provider = $this->filesystemMap->get($resolvedParameters['storage_provider']);
 
-        $this->getStorageProvider()->write(
+        $provider->write(
             $resolvedParameters['reference'],
             file_get_contents($resolvedParameters['processing_file']->getRealPath())
         );
-
-        //$providerServiceName = $storageMapper->getStorageProviderServiceName();
-
 
         // Keep media informations in database
         $media = new Media();
@@ -335,7 +337,7 @@ class MediaManager extends AbstractManager
         $media->setSource($resolvedParameters['source']);
         $media->setReference($resolvedParameters['reference']);
         $media->setExtension($resolvedParameters['extension']);
-        $media->setProviderServiceName($providerServiceName);
+        $media->setProviderServiceName($resolvedParameters['storage_provider']);
         $media->setName($resolvedParameters['name']);
         $media->setDescription($resolvedParameters['description']);
         $media->setSize($resolvedParameters['size']);
@@ -350,8 +352,9 @@ class MediaManager extends AbstractManager
 
         $this->add($media);
 
-        // Remove the media if a provider was well guess and used, and the media entity stored.
+        // Remove the media once the provider has well stored it.
         unlink($resolvedParameters['processing_file']->getRealPath());
+        $resolvedParameters['processing_file'] = null;
 
         return $media;
     }
@@ -364,7 +367,7 @@ class MediaManager extends AbstractManager
     public function deleteMedia($reference)
     {
         $media = $this->retrieveMedia($reference);
-        $storageProvider = $this->getStorageProvider($media->getProviderServiceName());
+        $storageProvider = $this->filesystemMap->get($media->getProviderServiceName());
         $this->delete($media);
     }
 
@@ -380,7 +383,7 @@ class MediaManager extends AbstractManager
         $mediaTransformer = $this->guessMediaTransformer($options['format']);
 
         return $mediaTransformer->transform(
-            $this->getStorageProvider($media->getProviderServiceName()),
+            $this->filesystemMap->get($media->getProviderServiceName()),
             $media,
             $options
         );
