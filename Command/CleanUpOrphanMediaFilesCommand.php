@@ -39,7 +39,7 @@ EOT
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
-    {       
+    {
         $timeStart = microtime(true);
 
         $folderPath = $input->getArgument('folderPath');
@@ -71,7 +71,7 @@ EOT
 
         $timeEnd = microtime(true);
         $time = $timeEnd - $timeStart;
-        $output->writeln(sprintf('<comment>Ending Media Cleaner [%d sec] %d files processed, %d files removed, %d files untouched</comment>',            
+        $output->writeln(sprintf('<comment>Ending Media Cleaner [%d sec] %d files processed, %d files removed, %d files untouched</comment>',
             $time,
             $count,
             $rcount,
