@@ -49,7 +49,7 @@ class Media
 
     /**
      * @var string
-     * @ORM\Column(name="reference_prefix", type="string")
+     * @ORM\Column(name="reference_prefix", type="string", nullable=true)
      */
     protected $referencePrefix;
 

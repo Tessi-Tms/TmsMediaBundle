@@ -32,6 +32,28 @@ class MediaManager extends AbstractManager
     protected $mediaTransformers;
 
     /**
+     * Guess reference prefix
+     *
+     * @param array $metadata
+     *
+     * @return string.
+     */
+    public static function guessReferencePrefix(array $metadata)
+    {
+        $nodes = array();
+
+        if (isset($metadata['customer'])) {
+            $nodes[] = $metadata['customer'];
+        }
+
+        if (isset($metadata['offer'])) {
+            $nodes[] = $metadata['offer'];
+        }
+
+        return implode('/', $nodes);
+    }
+
+    /**
      * Setup parameters.
      *
      * @param OptionsResolverInterface $resolver.
@@ -121,8 +143,8 @@ class MediaManager extends AbstractManager
                     );
                 },
                 'reference_prefix' => function(Options $options, $value) {
-                    if (isset($options['metadata']['customer'])) {
-                        $value .= $options['metadata']['customer'];
+                    if (null === $value) {
+                        return MediaManager::guessReferencePrefix($options['metadata']);
                     }
 
                     return $value;
@@ -152,6 +174,16 @@ class MediaManager extends AbstractManager
         $this->filesystemMap      = $filesystemMap;
         $this->metadataExtractors = array();
         $this->mediaTransformers  = array();
+    }
+
+    /**
+     * Returns the filesystem map.
+     *
+     * @return FilesystemMap
+     */
+    public function getFilesystemMap()
+    {
+        return $this->filesystemMap;
     }
 
     /**
@@ -349,7 +381,7 @@ class MediaManager extends AbstractManager
             throw new MediaAlreadyExistException();
         }
 
-        $provider = $this->filesystemMap->get($resolvedParameters['storage_provider']);
+        $provider = $this->getFilesystemMap()->get($resolvedParameters['storage_provider']);
 
         $provider->write(
             $this->buildStorageKey(
@@ -396,7 +428,7 @@ class MediaManager extends AbstractManager
     public function deleteMedia($reference)
     {
         $media = $this->retrieveMedia($reference);
-        $storageProvider = $this->filesystemMap->get($media->getProviderServiceName());
+        $storageProvider = $this->getFilesystemMap()->get($media->getProviderServiceName());
         $this->delete(
             $this->buildStorageKey(
                 $media->getReferencePrefix(),
@@ -417,7 +449,7 @@ class MediaManager extends AbstractManager
         $mediaTransformer = $this->guessMediaTransformer($options['format']);
 
         return $mediaTransformer->transform(
-            $this->filesystemMap->get($media->getProviderServiceName()),
+            $this->getFilesystemMap()->get($media->getProviderServiceName()),
             $media,
             array_merge(
                 $options,
