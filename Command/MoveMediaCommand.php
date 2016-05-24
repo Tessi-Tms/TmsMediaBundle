@@ -63,15 +63,19 @@ EOT
             ));
 
             if ($input->getOption('force')) {
-                $provider->write(
-                    $manager->buildStorageKey($prefix, $media->getReference()),
-                    $provider->read($media->getReference())
-                );
+                try {
+                    $provider->write(
+                        $manager->buildStorageKey($prefix, $media->getReference()),
+                        $provider->read($media->getReference())
+                    );
 
-                $provider->delete($media->getReference());
+                    $provider->delete($media->getReference());
 
-                $media->setReferencePrefix($prefix);
-                $manager->update($media);
+                    $media->setReferencePrefix($prefix);
+                    $manager->update($media);
+                } catch (\Exception $e) {
+                    $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
+                }
             }
         }
     }
