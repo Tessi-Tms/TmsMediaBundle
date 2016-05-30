@@ -72,6 +72,7 @@ EOT
                     $provider->delete($media->getReference());
 
                     $media->setReferencePrefix($prefix);
+                    $media->setProviderServiceName('web_images');
                     $manager->update($media);
                 } catch (\Exception $e) {
                     $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
