@@ -74,7 +74,7 @@ EOT
                             $media->getReference()
                         ));
 
-                        $mediaEntityManager->delete($media);
+                        $mediaManager->delete($media);
                         $rcount++;
                     } else {
                         $output->writeln(sprintf(
