@@ -429,12 +429,13 @@ class MediaManager extends AbstractManager
     {
         $media = $this->retrieveMedia($reference);
         $storageProvider = $this->getFilesystemMap()->get($media->getProviderServiceName());
-        $this->delete(
+        $storageProvider->delete(
             $this->buildStorageKey(
                 $media->getReferencePrefix(),
                 $media->getReference()
             )
         );
+        $this->delete($media);
     }
 
     /**
