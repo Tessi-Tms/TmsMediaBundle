@@ -16,17 +16,17 @@ class CleanUpMediaWithoutFileCommand extends ContainerAwareCommand
     {
         $this
             ->setName('tms-media:cleanup:without-file-medias')
-            ->setDescription('log media without associated files')
+            ->setDescription('Display or remove media without associated files')
             // ->addArgument('folderPath', InputArgument::REQUIRED, 'The folder\'s path')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'if present the media record will be removed from entities')
             ->setHelp(<<<EOT
 The <info>%command.name%</info> command.
 
-<info>php app/console %command.name% -f </info>
+<info>php app/console %command.name% -f</info>
 
 If you have some doubt about media integrity, you could check it by this way.
 
-<info>php app/console %command.name% </info>
+<info>php app/console %command.name%</info>
 
 Alternatively, you can clean media entities and remove those have no file associated:
 
@@ -39,47 +39,56 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $timeStart = microtime(true);
-        $output->writeln(sprintf('<comment>Start Media Cleaner </comment>'));
+        $output->writeln(sprintf('<comment>Start Media Cleaner</comment>'));
 
-        $mediaStorageManager = $this->getContainer()->get('tms_media.manager');
-        $mediaEntityManager = $this->getContainer()->get('tms_media.manager.media');
+        $mediaManager = $this->getContainer()->get('tms_media.manager.media');
 
-        $medias = $mediaEntityManager->findAll();
+        $medias = $mediaManager->findAll();
         $count = $rcount = $pcount = 0;
         foreach ($medias as $media) {
             try {
-                $providerServiceName = $media->getProviderServiceName();
-                $reference = $media->getReference();
-                $storageProvider = $mediaStorageManager->getStorageProvider($providerServiceName);
-                $fileExists = $storageProvider->getAdapter()->exists($reference);
+                $storageProvider = $mediaManager
+                    ->getFilesystemMap()
+                    ->get($media->getProviderServiceName())
+                ;
+
+                $fileExists = $storageProvider
+                    ->getAdapter()
+                    ->exists($mediaManager->buildStorageKey(
+                        $media->getReferencePrefix(),
+                        $media->getReference()
+                    ))
+                ;
 
                 if ($fileExists) {
                     $output->writeln(sprintf(
-                        '<info>FOUND [%s] %s</info>',
-                        $providerServiceName,
-                        $reference
+                        '<comment>[FOUND] %s // %s</comment>',
+                        $media->getProviderServiceName(),
+                        $media->getReference()
                     ));
                 } else {
-                    $output->writeln(sprintf(
-                        '<question>NOT FOUND [%s] %s</question>',
-                        $providerServiceName,
-                        $reference
-                    ));
-
                     if ($input->getOption('force')) {
                         $output->writeln(sprintf(
-                            '<info;options=bold>REMOVE from entities media references :     %s </info;options=bold>',
-                            $reference
+                            '<info>[REMOVE] %s // %s</info>',
+                            $media->getProviderServiceName(),
+                            $media->getReference()
                         ));
 
-                        $mediaEntityManager->delete($media);
+                        $mediaManager->delete($media);
                         $rcount++;
+                    } else {
+                        $output->writeln(sprintf(
+                            '<error>[NOT FOUND] %s // %s</error>',
+                            $media->getProviderServiceName(),
+                            $media->getReference()
+                        ));
                     }
+
                     $pcount++;
                 }
             } catch (\Exception $e) {
                 $output->writeln(sprintf(
-                    '<error>FileSystem exception: %s</error>',
+                    '<error>[ERROR] %s</error>',
                     $e->getMessage()
                 ));
             }
@@ -87,8 +96,9 @@ EOT
         }
         $timeEnd = microtime(true);
         $time = $timeEnd - $timeStart;
+
         $output->writeln(sprintf(
-            '<comment>Ending Media Cleaner [%d sec] %d problem encountered on a total of %d entities processed, %d entities removed, %d entities untouched</comment>',
+            '<comment>[DONE] %d sec %d problem encountered on %d entities processed, %d entities removed, %d entities untouched</comment>',
             $time,
             $pcount,
             $count,

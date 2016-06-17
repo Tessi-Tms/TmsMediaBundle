@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @author:  Sekou KOÏTA <sekou.koita@supinfo.com>
  * @license: GPL
@@ -35,6 +35,5 @@ class TmsMediaExtension extends Extension
 
         $container->setParameter('tms_media.configuration', $config);
         $container->setParameter('tms_media.cache_directory', $config['cache_directory']);
-        $container->setParameter('tms_media.config.storage_mappers', $config['storage_mappers']);
     }
 }

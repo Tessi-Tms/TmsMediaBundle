@@ -68,7 +68,7 @@ class ImageMediaTransformer extends AbstractMediaTransformer
      */
     public function process(Filesystem $storageProvider, Media $media, array $options = array())
     {
-        $originalContent = $storageProvider->read($media->getReference());
+        $originalContent = $storageProvider->read($options['storage_key']);
 
         if ($this->getFormat($options) === $media->getExtension() && count($options) === 1) {
 

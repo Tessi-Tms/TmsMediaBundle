@@ -3,7 +3,11 @@
 namespace Tms\Bundle\MediaBundle\Manager;
 
 use Doctrine\ORM\EntityManager;
-use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
+use Knp\Bundle\GaufretteBundle\FilesystemMap;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\Options;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Tms\Bundle\MediaBundle\Event\MediaEvent;
 use Tms\Bundle\MediaBundle\Event\MediaEvents;
@@ -11,9 +15,6 @@ use Tms\Bundle\MediaBundle\StorageMapper\StorageMapperInterface;
 use Tms\Bundle\MediaBundle\MetadataExtractor\MetadataExtractorInterface;
 use Tms\Bundle\MediaBundle\Media\Transformer\MediaTransformerInterface;
 use Tms\Bundle\MediaBundle\Entity\Media;
-
-use Tms\Bundle\MediaBundle\Exception\UndefinedStorageMapperException;
-use Tms\Bundle\MediaBundle\Exception\NoMatchedStorageMapperException;
 use Tms\Bundle\MediaBundle\Exception\NoMatchedTransformerException;
 use Tms\Bundle\MediaBundle\Exception\MediaNotFoundException;
 use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
@@ -26,55 +27,182 @@ use Tms\Bundle\MediaBundle\Exception\MediaAlreadyExistException;
 class MediaManager extends AbstractManager
 {
     protected $configuration;
-    protected $storageMappers = array();
-    protected $metadataExtractors = array();
-    protected $mediaTransformers = array();
+    protected $filesystemMap;
+    protected $metadataExtractors;
+    protected $mediaTransformers;
+
+    /**
+     * Guess reference prefix
+     *
+     * @param array $metadata
+     *
+     * @return string.
+     */
+    public static function guessReferencePrefix(array $metadata)
+    {
+        $nodes = array();
+
+        if (isset($metadata['customer'])) {
+            $nodes[] = $metadata['customer'];
+        }
+
+        if (isset($metadata['offer'])) {
+            $nodes[] = $metadata['offer'];
+        }
+
+        return implode('/', $nodes);
+    }
+
+    /**
+     * Setup parameters.
+     *
+     * @param OptionsResolverInterface $resolver.
+     * @return array
+     */
+    protected function setupParameters(OptionsResolverInterface $resolver)
+    {
+        $resolver
+            ->setRequired(array(
+                'media',
+                'working_directory',
+                'cache_directory',
+                'storage_provider',
+                'api_public_endpoint',
+            ))
+            ->setDefaults(array(
+                'processing_file'    => null,
+                'source'             => null,
+                'name'               => null,
+                'description'        => null,
+                'metadata'           => array(),
+                'mime_type'          => null,
+                'extension'          => null,
+                'size'               => null,
+                'reference'          => null,
+                'reference_prefix'   => null,
+            ))
+            ->setAllowedTypes(array(
+                'media'               => array('Symfony\Component\HttpFoundation\File\UploadedFile'),
+                'processing_file'     => array('Symfony\Component\HttpFoundation\File\File'),
+                'working_directory'   => array('string'),
+                'cache_directory'     => array('string'),
+                'storage_provider'    => array('string'),
+                'api_public_endpoint' => array('string'),
+                'source'              => array('null', 'string'),
+                'name'                => array('null', 'string'),
+                'description'         => array('null', 'string'),
+                'metadata'            => array('array'),
+                'mime_type'           => array('null', 'string'),
+                'extension'           => array('null', 'string'),
+                'size'                => array('null', 'integer'),
+                'reference'           => array('null', 'string'),
+                'reference_prefix'    => array('null', 'string'),
+            ))
+            ->setNormalizers(array(
+                'name'             => function(Options $options, $value) {
+                    if (null !== $value) {
+                        return $value;
+                    }
+
+                    return $options['media']->getClientOriginalName();
+                },
+                'description'      => function(Options $options, $value) {
+                    if (null !== $value) {
+                        return $value;
+                    }
+
+                    return $options['media']->getClientOriginalName();
+                },
+                'mime_type'        => function(Options $options, $value) {
+                    return $options['media']->getMimeType();
+                },
+                'extension'        => function(Options $options, $value) {
+                    return $options['media']->guessExtension();
+                },
+                'processing_file'  => function(Options $options, $value) {
+                    return $options['media']->move(
+                        $options['working_directory'],
+                        uniqid('tmp_media_')
+                    );
+                },
+                'size'             => function(Options $options, $value) {
+                    return $options['processing_file']->getSize();
+                },
+                'reference'        => function(Options $options, $value) {
+                    $now = new \DateTime();
+
+                    return sprintf('%s-%s-%s-%d',
+                        sprintf("%u", crc32($options['source'])),
+                        $now->format('U'),
+                        md5(sprintf("%s%s%s",
+                            $options['mime_type'],
+                            $options['name'],
+                            $options['size']
+                        )),
+                        rand(0, 9999)
+                    );
+                },
+                'reference_prefix' => function(Options $options, $value) {
+                    if (null === $value) {
+                        return MediaManager::guessReferencePrefix($options['metadata']);
+                    }
+
+                    return $value;
+                },
+            ))
+        ;
+    }
 
     /**
      * Constructor
      *
-     * @param EntityManager                 $entityManager
-     * @param ContainerAwareEventDispatcher $eventDispatcher
-     * @param array                         $configuration
+     * @param array                    $configuration
+     * @param EntityManager            $entityManager
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param FilesystemMap            $filesystemMap
      */
     public function __construct(
+        array $configuration = array(),
         EntityManager $entityManager,
-        ContainerAwareEventDispatcher $eventDispatcher,
-        $configuration
+        EventDispatcherInterface $eventDispatcher,
+        FilesystemMap $filesystemMap
     )
     {
         parent::__construct($entityManager, $eventDispatcher);
-        $this->configuration = $configuration;
+
+        $this->configuration      = $configuration;
+        $this->filesystemMap      = $filesystemMap;
+        $this->metadataExtractors = array();
+        $this->mediaTransformers  = array();
     }
 
     /**
-     * Get the default store path
+     * Returns the filesystem map.
      *
-     * @return array
+     * @return FilesystemMap
      */
-    public function getConfiguration()
+    public function getFilesystemMap()
     {
-        return $this->configuration;
+        return $this->filesystemMap;
     }
 
     /**
-     * Get the default store path
+     * Return the configuration
      *
-     * @return string
+     * @param string $key The configuration key to retrieve if given.
+     * @return mixed
      */
-    public function getDefaultStorePath()
+    public function getConfiguration($key = null)
     {
-        return $this->configuration['default_store_path'];
-    }
+        if (null === $key) {
+            return $this->configuration;
+        }
 
-    /**
-     * Get the api public endpoint
-     *
-     * @return string
-     */
-    public function getApiPublicEndpoint()
-    {
-        return $this->configuration['api_public_endpoint'];
+        if (isset($this->configuration[$key])) {
+            return $this->configuration[$key];
+        }
+
+        return null;
     }
 
     /**
@@ -140,59 +268,16 @@ class MediaManager extends AbstractManager
     }
 
     /**
-     * Add storage mapper
-     *
-     * @param StorageMapperInterface $storageMapper
-     */
-    public function addStorageMapper(StorageMapperInterface $storageMapper)
-    {
-        $this->storageMappers[] = $storageMapper;
-    }
-
-    /**
-     * Get storage provider
-     *
-     * @param string providerServiceName
-     * @return Gaufrette\Filesystem The storage provider.
-     * @throw UndefinedStorageMapperException
-     */
-    public function getStorageProvider($providerServiceName)
-    {
-        foreach($this->storageMappers as $storageMapper) {
-            if($providerServiceName == $storageMapper->getStorageProviderServiceName()) {
-                return $storageMapper->getStorageProvider();
-            }
-        }
-
-        throw new UndefinedStorageMapperException($providerServiceName);
-    }
-
-    /**
-     * Guess a storage mapper based on the given mediaRaw.
-     *
-     * @param string $mediaPath
-     * @return StorageMapperInterface
-     * @throw NoMatchedStorageProviderException
-     */
-    protected function guessStorageMapper($mediaPath)
-    {
-        foreach ($this->storageMappers as $storageMapper) {
-            if ($storageMapper->checkRules($mediaPath)) {
-                return $storageMapper;
-            }
-        }
-
-        throw new NoMatchedStorageMapperException();
-    }
-
-    /**
      * Add metadata extractor
      *
      * @param MetadataExtractorInterface $metadataExtractor
+     * @return self
      */
     public function addMetadataExtractor(MetadataExtractorInterface $metadataExtractor)
     {
         $this->metadataExtractors[] = $metadataExtractor;
+
+        return $this;
     }
 
     /**
@@ -214,10 +299,13 @@ class MediaManager extends AbstractManager
      * Add media transformer
      *
      * @param MediaTransformerInterface $mediaTransformer
+     * @return self
      */
     public function addMediaTransformer(MediaTransformerInterface $mediaTransformer)
     {
         $this->mediaTransformers[] = $mediaTransformer;
+
+        return $this;
     }
 
     /**
@@ -255,96 +343,79 @@ class MediaManager extends AbstractManager
     }
 
     /**
-     * Generate a unique rereference for a mediaRaw
+     * Build the storage key
      *
-     * @param string $source
-     * @param UploadedFile $mediaRaw
-     *
+     * @param string $referencePrefix
+     * @param string $reference
      * @return string
      */
-    public function generateMediaReference($source, UploadedFile $mediaRaw)
+    public function buildStorageKey($referencePrefix, $reference)
     {
-        $now = new \DateTime();
+        if ('' === $referencePrefix) {
+            return $reference;
+        }
 
-        return sprintf('%s-%s-%s-%d',
-            sprintf("%u", crc32($source)),
-            $now->format('U'),
-            md5(sprintf("%s%s%s",
-              $mediaRaw->getClientMimeType(),
-              $mediaRaw->getClientOriginalName(),
-              $mediaRaw->getClientSize()
-            )),
-            rand(0, 9999)
-        );
+        return sprintf('%s/%s', $referencePrefix, $reference);
     }
 
     /**
      * Add Media
      *
-     * @param UploadedFile $mediaRaw
-     * @param string $source
-     * @param string $name
-     * @param string $description
-     * @param array  $metadata
+     * @param array $parameters
      * @return Media
      */
-    public function addMedia(
-        UploadedFile $mediaRaw,
-        $source = null,
-        $name = null,
-        $description = null,
-        $metadata = array()
-    )
+    public function addMedia(array $parameters)
     {
-        $reference = $this->generateMediaReference($source, $mediaRaw);
+        $resolver = new OptionsResolver();
+        $this->setupParameters($resolver);
+        $resolvedParameters = $resolver->resolve(array_merge(
+            $this->getConfiguration(),
+            $parameters
+        ));
 
-        $media = $this->findOneBy(array('reference' => $reference));
+        $media = $this->findOneBy(array(
+            'reference' => $resolvedParameters['reference']
+        ));
 
-        if ($media) {
+        if (null !== $media) {
             throw new MediaAlreadyExistException();
         }
 
-        // Keep media information before handle the file
-        $mimeType = $mediaRaw->getMimeType();
-        $extension = $mediaRaw->guessExtension();
-        $name = is_null($name) ? $mediaRaw->getClientOriginalName() : $name;
-        $description = is_null($description) ? $mediaRaw->getClientOriginalName() : $description;
+        $provider = $this->getFilesystemMap()->get($resolvedParameters['storage_provider']);
 
-        // Store the media at the default path
-        $mediaRaw->move($this->getDefaultStorePath(), $reference);
-        $defaultMediaPath = sprintf('%s/%s', $this->getDefaultStorePath(), $reference);
-
-        // Guess a storage provider and use it to store the media
-        $storageMapper = $this->guessStorageMapper($defaultMediaPath);
-        $storageMapper->getStorageProvider()->write(
-            $reference,
-            file_get_contents($defaultMediaPath)
+        $provider->write(
+            $this->buildStorageKey(
+                $resolvedParameters['reference_prefix'],
+                $resolvedParameters['reference']
+            ),
+            file_get_contents($resolvedParameters['processing_file']->getRealPath())
         );
-        $providerServiceName = $storageMapper->getStorageProviderServiceName();
 
         // Keep media informations in database
         $media = new Media();
 
-        $media->setSource($source);
-        $media->setReference($reference);
-        $media->setExtension($extension);
-        $media->setProviderServiceName($providerServiceName);
-        $media->setName($name);
-        $media->setDescription($description);
-        $media->setSize(filesize($defaultMediaPath));
-        $media->setMimeType($mimeType);
+        $media->setSource($resolvedParameters['source']);
+        $media->setReference($resolvedParameters['reference']);
+        $media->setReferencePrefix($resolvedParameters['reference_prefix']);
+        $media->setExtension($resolvedParameters['extension']);
+        $media->setProviderServiceName($resolvedParameters['storage_provider']);
+        $media->setName($resolvedParameters['name']);
+        $media->setDescription($resolvedParameters['description']);
+        $media->setSize($resolvedParameters['size']);
+        $media->setMimeType($resolvedParameters['mime_type']);
 
         $media->setMetadata(array_merge_recursive(
-            $metadata,
+            $resolvedParameters['metadata'],
             $this
-                ->guessMetadataExtractor($mimeType)
-                ->extract($defaultMediaPath)
+                ->guessMetadataExtractor($resolvedParameters['mime_type'])
+                ->extract($resolvedParameters['processing_file']->getRealPath())
         ));
 
         $this->add($media);
 
-        // Remove the media if a provider was well guess and used, and the media entity stored.
-        unlink($defaultMediaPath);
+        // Remove the media once the provider has well stored it.
+        unlink($resolvedParameters['processing_file']->getRealPath());
+        $resolvedParameters['processing_file'] = null;
 
         return $media;
     }
@@ -357,7 +428,13 @@ class MediaManager extends AbstractManager
     public function deleteMedia($reference)
     {
         $media = $this->retrieveMedia($reference);
-        $storageProvider = $this->getStorageProvider($media->getProviderServiceName());
+        $storageProvider = $this->getFilesystemMap()->get($media->getProviderServiceName());
+        $storageProvider->delete(
+            $this->buildStorageKey(
+                $media->getReferencePrefix(),
+                $media->getReference()
+            )
+        );
         $this->delete($media);
     }
 
@@ -373,9 +450,17 @@ class MediaManager extends AbstractManager
         $mediaTransformer = $this->guessMediaTransformer($options['format']);
 
         return $mediaTransformer->transform(
-            $this->getStorageProvider($media->getProviderServiceName()),
+            $this->getFilesystemMap()->get($media->getProviderServiceName()),
             $media,
-            $options
+            array_merge(
+                $options,
+                array(
+                    'storage_key' => $this->buildStorageKey(
+                        $media->getReferencePrefix(),
+                        $media->getReference()
+                    )
+                )
+            )
         );
     }
 
@@ -389,9 +474,8 @@ class MediaManager extends AbstractManager
     public function getMediaPublicUri(Media $media)
     {
         return sprintf('%s/media/%s',
-            $this->getApiPublicEndpoint(),
+            $this->getConfiguration('api_public_endpoint'),
             $media->getReference()
         );
     }
-
 }

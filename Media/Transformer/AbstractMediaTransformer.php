@@ -49,6 +49,7 @@ abstract class AbstractMediaTransformer implements MediaTransformerInterface
     protected function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setRequired(array(
+            'storage_key',
             'format'
         ));
         $resolver->setDefaults(array(
