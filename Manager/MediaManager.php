@@ -63,49 +63,42 @@ class MediaManager extends AbstractManager
     {
         $resolver
             ->setRequired(array(
-                'media',
-                'working_directory',
-                'cache_directory',
-                'storage_provider',
                 'api_public_endpoint',
+                'cache_directory',
+                'media',
+                'storage_provider',
+                'working_directory',
             ))
             ->setDefaults(array(
-                'processing_file'    => null,
-                'source'             => null,
-                'name'               => null,
                 'description'        => null,
+                'extension'          => null,
                 'metadata'           => array(),
                 'mime_type'          => null,
-                'extension'          => null,
+                'name'               => null,
+                'processing_file'    => null,
                 'size'               => null,
+                'source'             => null,
                 'reference'          => null,
                 'reference_prefix'   => null,
             ))
             ->setAllowedTypes(array(
-                'media'               => array('Symfony\Component\HttpFoundation\File\UploadedFile'),
-                'processing_file'     => array('Symfony\Component\HttpFoundation\File\File'),
-                'working_directory'   => array('string'),
-                'cache_directory'     => array('string'),
-                'storage_provider'    => array('string'),
                 'api_public_endpoint' => array('string'),
-                'source'              => array('null', 'string'),
-                'name'                => array('null', 'string'),
+                'cache_directory'     => array('string'),
                 'description'         => array('null', 'string'),
-                'metadata'            => array('array'),
-                'mime_type'           => array('null', 'string'),
                 'extension'           => array('null', 'string'),
+                'media'               => array('Symfony\Component\HttpFoundation\File\UploadedFile'),
+                'metadata'            => array('null', 'string', 'array'),
+                'mime_type'           => array('null', 'string'),
+                'name'                => array('null', 'string'),
+                'processing_file'     => array('null', 'Symfony\Component\HttpFoundation\File\File'),
                 'size'                => array('null', 'integer'),
+                'source'              => array('null', 'string'),
+                'storage_provider'    => array('string'),
+                'working_directory'   => array('string'),
                 'reference'           => array('null', 'string'),
                 'reference_prefix'    => array('null', 'string'),
             ))
             ->setNormalizers(array(
-                'name'             => function(Options $options, $value) {
-                    if (null !== $value) {
-                        return $value;
-                    }
-
-                    return $options['media']->getClientOriginalName();
-                },
                 'description'      => function(Options $options, $value) {
                     if (null !== $value) {
                         return $value;
@@ -113,11 +106,35 @@ class MediaManager extends AbstractManager
 
                     return $options['media']->getClientOriginalName();
                 },
+                'extension'        => function(Options $options, $value) {
+                    return $options['media']->guessExtension();
+                },
+                'metadata'         => function(Options $options, $value) {
+                    if (null === $value) {
+                        return array();
+                    }
+
+                    if (is_array($value)) {
+                        return $value;
+                    }
+
+                    $decodedMetadata = json_decode($value, true);
+
+                    if (null === $decodedMetadata) {
+                        return array();
+                    }
+
+                    return $decodedMetadata;
+                },
                 'mime_type'        => function(Options $options, $value) {
                     return $options['media']->getMimeType();
                 },
-                'extension'        => function(Options $options, $value) {
-                    return $options['media']->guessExtension();
+                'name'             => function(Options $options, $value) {
+                    if (null !== $value) {
+                        return $value;
+                    }
+
+                    return $options['media']->getClientOriginalName();
                 },
                 'processing_file'  => function(Options $options, $value) {
                     return $options['media']->move(
