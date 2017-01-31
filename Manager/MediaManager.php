@@ -40,8 +40,12 @@ class MediaManager extends AbstractManager
      */
     public static function guessReferencePrefix(array $metadata)
     {
-        $nodes = array();
+        if (isset($metadata['prefix'])) {
+            return $metadata['prefix'];
+        }
 
+        // Keep compatible with the old way
+        $nodes = array();
         if (isset($metadata['customer'])) {
             $nodes[] = $metadata['customer'];
         }
