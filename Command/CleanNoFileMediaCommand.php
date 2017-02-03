@@ -77,25 +77,20 @@ EOT
 
                 if (!$fileExists) {
                     $noFiles[] = $media;
-                    if ($input->getOption('force')) {
-                        $table->addRow(array(
-                            'REMOVED',
-                            $media->getId(),
-                            $media->getProviderServiceName(),
-                            $media->getReferencePrefix(),
-                            $media->getReference(),
-                        ));
+                    $action = 'TO REMOVE';
 
+                    if ($input->getOption('force')) {
                         $mediaManager->delete($media);
-                    } else {
-                        $table->addRow(array(
-                            'TO REMOVE',
-                            $media->getId(),
-                            $media->getProviderServiceName(),
-                            $media->getReferencePrefix(),
-                            $media->getReference(),
-                        ));
+                        $action = 'REMOVED';
                     }
+
+                    $table->addRow(array(
+                        $action,
+                        $media->getId(),
+                        $media->getProviderServiceName(),
+                        $media->getReferencePrefix(),
+                        $media->getReference(),
+                    ));
                 }
             } catch (\Exception $e) {
                 $table->addRow(array(
