@@ -54,7 +54,11 @@ class MediaManager extends AbstractManager
             $nodes[] = $metadata['offer'];
         }
 
-        return implode('/', $nodes);
+        if (!empty($nodes)) {
+            return implode('/', $nodes);
+        }
+
+        return null;
     }
 
     /**
