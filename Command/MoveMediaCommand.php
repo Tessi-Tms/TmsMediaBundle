@@ -9,7 +9,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
-
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Helper\Table;
 
 class MoveMediaCommand extends ContainerAwareCommand
 {
@@ -18,8 +19,10 @@ class MoveMediaCommand extends ContainerAwareCommand
         $this
             ->setName('tms-media:move')
             ->setDescription('Move media files following to their metadata')
-            ->addOption('force','f', InputOption::VALUE_NONE, 'if present the files will be moved')
-            ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, 'Limit the number of media to process', 10000)
+            ->addOption('provider', 'p', InputOption::VALUE_REQUIRED, 'The media provider service name', 'default_media')
+            ->addOption('limit', 'l', InputOption::VALUE_REQUIRED, 'The limit to processed', 10000)
+            ->addOption('offset', 'o', InputOption::VALUE_REQUIRED, 'The offset to processed', 1)
+            ->addOption('force','f', InputOption::VALUE_NONE, 'if present, the files will be moved')
             ->setHelp(<<<EOT
 The <info>%command.name%</info> command.
 
@@ -30,54 +33,90 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $timeStart = microtime(true);
         $manager = $this->getContainer()->get('tms_media.manager.media');
+        $newProviderServiceName = $input->getOption('provider');
+        $newMediaProvider = $manager
+            ->getFilesystemMap()
+            ->get($newProviderServiceName)
+        ;
 
         $medias = $manager
             ->findBy(
                 array('referencePrefix' => null),
                 array(),
-                $input->getOption('limit')
+                $input->getOption('limit'),
+                $input->getOption('offset')
             )
         ;
+        $moved = array();
 
-        $output->writeln(sprintf('<info>Start to move %s media</info>', count($medias)));
+        $progress = new ProgressBar($output, count($medias));
+        $output->writeln('');
+        $progress->start();
+        $table = new Table($output);
+        $table->setHeaders(array('Action', 'ID', 'Reference', 'FROM', 'TO'));
 
         foreach ($medias as $media) {
-            $provider = $manager->getFilesystemMap()->get($media->getProviderServiceName());
-            $prefix = $manager::guessReferencePrefix($media->getMetadata());
+            $newPrefix = $manager::guessReferencePrefix($media->getMetadata());
 
-            if (empty($prefix)) {
-                $output->writeln(sprintf('<error>[%d] Media (%s) has no prefix</error>',
-                    $media->getId(),
-                    $media->getReference()
-                ));
-
+            if (empty($newPrefix)) {
                 continue;
             }
 
-            $output->writeln(sprintf('<info>[%d] Media (%s) with  metadata: %s to move to: %s</info>',
-                $media->getId(),
-                $media->getReference(),
-                json_encode($media->getMetadata()),
-                $prefix
-            ));
+            try {
+                $moved[] = $media;
+                $action = 'TO MOVE';
+                $oldProviderServiceName = $media->getProviderServiceName();
+                $oldPrefix = $media->getReferencePrefix();
+                $oldMediaProvider = $manager
+                    ->getFilesystemMap()
+                    ->get($oldProviderServiceName)
+                ;
 
-            if ($input->getOption('force')) {
-                try {
-                    $provider->write(
-                        $manager->buildStorageKey($prefix, $media->getReference()),
-                        $provider->read($media->getReference())
+                if ($input->getOption('force')) {
+                    $action = 'MOVED';
+                    $newMediaProvider->write(
+                        $manager->buildStorageKey($newPrefix, $media->getReference()),
+                        $oldMediaProvider->read($media->getReference())
                     );
 
-                    $provider->delete($media->getReference());
+                    $oldMediaProvider->delete($media->getReference());
 
-                    $media->setReferencePrefix($prefix);
-                    $media->setProviderServiceName('web_images');
+                    $media->setReferencePrefix($newPrefix);
+                    $media->setProviderServiceName($newProviderServiceName);
                     $manager->update($media);
-                } catch (\Exception $e) {
-                    $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
                 }
+
+                $table->addRow(array(
+                    $action,
+                    $media->getId(),
+                    $media->getReference(),
+                    sprintf('%s (/%s)', $oldProviderServiceName, $oldPrefix),
+                    sprintf('%s (/%s)', $newProviderServiceName, $newPrefix)
+                ));
+            } catch (\Exception $e) {
+                $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
             }
+
+            $progress->advance();
         }
+
+        $progress->finish();
+        $output->writeln('');
+        $output->writeln('');
+
+        $table->setStyle('borderless');
+        $table->render();
+
+        $timeEnd = microtime(true);
+        $time = $timeEnd - $timeStart;
+
+        $output->writeln('');
+        $output->writeln(sprintf(
+            '<comment>%d media processed [%d sec]</comment>',
+            count($moved),
+            $time
+        ));
     }
 }
