@@ -9,16 +9,19 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Helper\Table;
 
-class CleanUpMediaWithoutFileCommand extends ContainerAwareCommand
+class CleanNoFileMediaCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
         $this
-            ->setName('tms-media:cleanup:without-file-medias')
+            ->setName('tms-media:clean:no-file')
             ->setDescription('Display or remove media without associated files')
-            // ->addArgument('folderPath', InputArgument::REQUIRED, 'The folder\'s path')
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'if present the media record will be removed from entities')
+            ->addOption('limit', 'l', InputOption::VALUE_REQUIRED, 'The limit to processed', 10000)
+            ->addOption('offset', 'o', InputOption::VALUE_REQUIRED, 'The offset to processed', 1)
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'if a media file is missing, the entity will be removed.')
             ->setHelp(<<<EOT
 The <info>%command.name%</info> command.
 
@@ -43,8 +46,20 @@ EOT
 
         $mediaManager = $this->getContainer()->get('tms_media.manager.media');
 
-        $medias = $mediaManager->findAll();
-        $count = $rcount = $pcount = 0;
+        $medias = $mediaManager->findBy(
+            array(),
+            array(),
+            $input->getOption('limit'),
+            $input->getOption('offset')
+        );
+        $noFiles = array();
+
+        $progress = new ProgressBar($output, count($medias));
+        $output->writeln('');
+        $progress->start();
+        $table = new Table($output);
+        $table->setHeaders(array('Action', 'ID', 'ProviderServiceName', 'ReferencePrefix', 'Reference'));
+
         foreach ($medias as $media) {
             try {
                 $storageProvider = $mediaManager
@@ -60,50 +75,56 @@ EOT
                     ))
                 ;
 
-                if ($fileExists) {
-                    $output->writeln(sprintf(
-                        '<comment>[FOUND] %s // %s</comment>',
-                        $media->getProviderServiceName(),
-                        $media->getReference()
-                    ));
-                } else {
+                if (!$fileExists) {
+                    $noFiles[] = $media;
                     if ($input->getOption('force')) {
-                        $output->writeln(sprintf(
-                            '<info>[REMOVE] %s // %s</info>',
+                        $table->addRow(array(
+                            'REMOVED',
+                            $media->getId(),
                             $media->getProviderServiceName(),
-                            $media->getReference()
+                            $media->getReferencePrefix(),
+                            $media->getReference(),
                         ));
 
                         $mediaManager->delete($media);
-                        $rcount++;
                     } else {
-                        $output->writeln(sprintf(
-                            '<error>[NOT FOUND] %s // %s</error>',
+                        $table->addRow(array(
+                            'TO REMOVE',
+                            $media->getId(),
                             $media->getProviderServiceName(),
-                            $media->getReference()
+                            $media->getReferencePrefix(),
+                            $media->getReference(),
                         ));
                     }
-
-                    $pcount++;
                 }
             } catch (\Exception $e) {
-                $output->writeln(sprintf(
-                    '<error>[ERROR] %s</error>',
-                    $e->getMessage()
+                $table->addRow(array(
+                    'ERROR: '.$e->getMessage(),
+                    $media->getId(),
+                    $media->getProviderServiceName(),
+                    $media->getReferencePrefix(),
+                    $media->getReference(),
                 ));
             }
-            $count++;
+
+            $progress->advance();
         }
+
+        $progress->finish();
+        $output->writeln('');
+        $output->writeln('');
+
+        $table->setStyle('borderless');
+        $table->render();
+
         $timeEnd = microtime(true);
         $time = $timeEnd - $timeStart;
 
+        $output->writeln('');
         $output->writeln(sprintf(
-            '<comment>[DONE] %d sec %d problem encountered on %d entities processed, %d entities removed, %d entities untouched</comment>',
-            $time,
-            $pcount,
-            $count,
-            $rcount,
-            ($count-$rcount)
+            '<comment>%d no file media processed [%d sec]</comment>',
+            count($noFiles),
+            $time
         ));
     }
 }
