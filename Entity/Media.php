@@ -37,9 +37,15 @@ class Media
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     protected $source;
+
+    /**
+     * @var string
+     * @ORM\Column(name="ip_source", type="string", length=64, nullable=true)
+     */
+    protected $ipSource;
 
     /**
      * @var string
@@ -143,6 +149,7 @@ class Media
         return array(
             'id'                  => $this->getId(),
             'source'              => $this->getSource(),
+            'ipSource'            => $this->getIpSource(),
             'reference'           => $this->getReference(),
             'extension'           => $this->getExtension(),
             'providerServiceName' => $this->getProviderServiceName(),
@@ -187,6 +194,29 @@ class Media
     public function getSource()
     {
         return $this->source;
+    }
+
+    /**
+     * Set ip source
+     *
+     * @param string $ipSource
+     * @return Media
+     */
+    public function setIpSource($ipSource)
+    {
+        $this->ipSource = $ipSource;
+
+        return $this;
+    }
+
+    /**
+     * Get ip source
+     *
+     * @return string
+     */
+    public function getIpSource()
+    {
+        return $this->ipSource;
     }
 
     /**

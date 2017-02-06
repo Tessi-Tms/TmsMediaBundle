@@ -34,24 +34,20 @@ class MediaManager extends AbstractManager
     /**
      * Guess reference prefix
      *
-     * @param array $metadata
+     * @param array $options
      *
      * @return string.
      */
-    public static function guessReferencePrefix(array $metadata)
+    public static function guessReferencePrefix($options)
     {
-        if (isset($metadata['prefix'])) {
-            return $metadata['prefix'];
-        }
-
-        // Keep compatible with the old way
         $nodes = array();
-        if (isset($metadata['customer'])) {
-            $nodes[] = $metadata['customer'];
+
+        if (isset($options['metadata']['customer'])) {
+            $nodes[] = $options['metadata']['customer'];
         }
 
-        if (isset($metadata['offer'])) {
-            $nodes[] = $metadata['offer'];
+        if (isset($options['metadata']['offer'])) {
+            $nodes[] = $options['metadata']['offer'];
         }
 
         if (!empty($nodes)) {
@@ -80,6 +76,7 @@ class MediaManager extends AbstractManager
             ->setDefaults(array(
                 'description'        => null,
                 'extension'          => null,
+                'ip_source'          => null,
                 'metadata'           => array(),
                 'mime_type'          => null,
                 'name'               => null,
@@ -94,6 +91,7 @@ class MediaManager extends AbstractManager
                 'cache_directory'     => array('string'),
                 'description'         => array('null', 'string'),
                 'extension'           => array('null', 'string'),
+                'ip_source'           => array('null', 'string'),
                 'media'               => array('Symfony\Component\HttpFoundation\File\UploadedFile'),
                 'metadata'            => array('null', 'string', 'array'),
                 'mime_type'           => array('null', 'string'),
@@ -168,11 +166,7 @@ class MediaManager extends AbstractManager
                     );
                 },
                 'reference_prefix' => function(Options $options, $value) {
-                    if (null === $value) {
-                        return MediaManager::guessReferencePrefix($options['metadata']);
-                    }
-
-                    return $value;
+                    return MediaManager::guessReferencePrefix($options);
                 },
             ))
         ;
@@ -419,22 +413,24 @@ class MediaManager extends AbstractManager
         // Keep media informations in database
         $media = new Media();
 
-        $media->setSource($resolvedParameters['source']);
-        $media->setReference($resolvedParameters['reference']);
-        $media->setReferencePrefix($resolvedParameters['reference_prefix']);
-        $media->setExtension($resolvedParameters['extension']);
-        $media->setProviderServiceName($resolvedParameters['storage_provider']);
-        $media->setName($resolvedParameters['name']);
-        $media->setDescription($resolvedParameters['description']);
-        $media->setSize($resolvedParameters['size']);
-        $media->setMimeType($resolvedParameters['mime_type']);
-
-        $media->setMetadata(array_merge_recursive(
-            $resolvedParameters['metadata'],
-            $this
-                ->guessMetadataExtractor($resolvedParameters['mime_type'])
-                ->extract($resolvedParameters['processing_file']->getRealPath())
-        ));
+        $media
+            ->setSource($resolvedParameters['source'])
+            ->setIpSource($resolvedParameters['ip_source'])
+            ->setReference($resolvedParameters['reference'])
+            ->setReferencePrefix($resolvedParameters['reference_prefix'])
+            ->setExtension($resolvedParameters['extension'])
+            ->setProviderServiceName($resolvedParameters['storage_provider'])
+            ->setName($resolvedParameters['name'])
+            ->setDescription($resolvedParameters['description'])
+            ->setSize($resolvedParameters['size'])
+            ->setMimeType($resolvedParameters['mime_type'])
+            ->setMetadata(array_merge_recursive(
+                $resolvedParameters['metadata'],
+                $this
+                    ->guessMetadataExtractor($resolvedParameters['mime_type'])
+                    ->extract($resolvedParameters['processing_file']->getRealPath())
+            ))
+        ;
 
         $this->add($media);
 

@@ -40,14 +40,12 @@ class ApiController extends Controller
         $response = new Response();
         try {
             $media = $this->get('tms_media.manager.media')->addMedia(array(
-                'media'       => $request->files->get('media'),
-                'source'      => sprintf('[%s] %s',
-                    $request->getClientIp(),
-                    $request->request->get('source', null)
-                ),
-                'name'        => $request->request->get('name', null),
-                'description' => $request->request->get('description', null),
-                'metadata'    => $request->request->get('metadata', array()),
+                'media'            => $request->files->get('media'),
+                'source'           => $request->request->get('source', null),
+                'ip_source'        => $request->getClientIp(),
+                'name'             => $request->request->get('name', null),
+                'description'      => $request->request->get('description', null),
+                'metadata'         => $request->request->get('metadata', array()),
             ));
 
             $response->setStatusCode(201);
