@@ -58,6 +58,8 @@ EOT
         $table->setHeaders(array('Action', 'ID', 'Reference', 'FROM', 'TO'));
 
         foreach ($medias as $media) {
+            $progress->advance();
+
             $newPrefix = $manager::guessReferencePrefix($media);
             $oldPrefix = $media->getReferencePrefix();
             $oldProviderServiceName = $media->getProviderServiceName();
@@ -112,8 +114,6 @@ EOT
                     sprintf('%s (/%s)', $newProviderServiceName, $newPrefix)
                 ));
             }
-
-            $progress->advance();
         }
 
         $progress->finish();
