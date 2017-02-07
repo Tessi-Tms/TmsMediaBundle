@@ -43,7 +43,7 @@ EOT
 
         $medias = $manager
             ->findBy(
-                array('referencePrefix' => null),
+                array(),
                 array(),
                 $input->getOption('limit'),
                 $input->getOption('offset')
@@ -58,17 +58,25 @@ EOT
         $table->setHeaders(array('Action', 'ID', 'Reference', 'FROM', 'TO'));
 
         foreach ($medias as $media) {
-            $newPrefix = $manager::guessReferencePrefix($media->getMetadata());
+            $newPrefix = $manager::guessReferencePrefix($media);
+            $oldPrefix = $media->getReferencePrefix();
+            $oldProviderServiceName = $media->getProviderServiceName();
 
-            if (empty($newPrefix)) {
+            if ($oldPrefix === $newPrefix) {
+                $table->addRow(array(
+                    'UNCHANGED',
+                    $media->getId(),
+                    $media->getReference(),
+                    sprintf('%s (/%s)', $oldProviderServiceName, $oldPrefix),
+                    sprintf('%s (/%s)', $newProviderServiceName, $newPrefix)
+                ));
+
                 continue;
             }
 
             try {
                 $moved[] = $media;
                 $action = 'TO MOVE';
-                $oldProviderServiceName = $media->getProviderServiceName();
-                $oldPrefix = $media->getReferencePrefix();
                 $oldMediaProvider = $manager
                     ->getFilesystemMap()
                     ->get($oldProviderServiceName)
@@ -78,10 +86,10 @@ EOT
                     $action = 'MOVED';
                     $newMediaProvider->write(
                         $manager->buildStorageKey($newPrefix, $media->getReference()),
-                        $oldMediaProvider->read($media->getReference())
+                        $oldMediaProvider->read($manager->buildStorageKey($oldPrefix, $media->getReference()))
                     );
 
-                    $oldMediaProvider->delete($media->getReference());
+                    $oldMediaProvider->delete($manager->buildStorageKey($oldPrefix, $media->getReference()));
 
                     $media->setReferencePrefix($newPrefix);
                     $media->setProviderServiceName($newProviderServiceName);
@@ -96,7 +104,13 @@ EOT
                     sprintf('%s (/%s)', $newProviderServiceName, $newPrefix)
                 ));
             } catch (\Exception $e) {
-                $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
+                $table->addRow(array(
+                    sprintf('Error: %s', $e->getMessage()),
+                    $media->getId(),
+                    $media->getReference(),
+                    sprintf('%s (/%s)', $oldProviderServiceName, $oldPrefix),
+                    sprintf('%s (/%s)', $newProviderServiceName, $newPrefix)
+                ));
             }
 
             $progress->advance();

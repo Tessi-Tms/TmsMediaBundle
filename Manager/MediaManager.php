@@ -34,24 +34,36 @@ class MediaManager extends AbstractManager
     /**
      * Guess reference prefix
      *
-     * @param array $options
+     * @param array|Media $media
      *
-     * @return string.
+     * @return string|null.
      */
-    public static function guessReferencePrefix($options)
+    public static function guessReferencePrefix($media)
     {
+        $metadata = array();
+        $source   = null;
+
+        if ($media instanceof Media) {
+            $metadata = $media->getMetadata();
+            $source   = $media->getSource();
+        } else {
+            $metadata = $media['metadata'];
+            $source   = $media['source'];
+        }
+
         $nodes = array();
-
-        if (isset($options['metadata']['customer'])) {
-            $nodes[] = $options['metadata']['customer'];
+        if (isset($metadata['customer'])) {
+            $nodes[] = $metadata['customer'];
         }
-
-        if (isset($options['metadata']['offer'])) {
-            $nodes[] = $options['metadata']['offer'];
+        if (isset($metadata['offer'])) {
+            $nodes[] = $metadata['offer'];
         }
-
         if (!empty($nodes)) {
             return implode('/', $nodes);
+        }
+
+        if (!empty($source)) {
+            return $source;
         }
 
         return null;
@@ -370,7 +382,7 @@ class MediaManager extends AbstractManager
      */
     public function buildStorageKey($referencePrefix, $reference)
     {
-        if ('' === $referencePrefix) {
+        if (null === $referencePrefix) {
             return $reference;
         }
 
