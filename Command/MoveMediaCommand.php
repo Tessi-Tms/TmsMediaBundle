@@ -49,7 +49,7 @@ EOT
                 $input->getOption('offset')
             )
         ;
-        $moved = array();
+        $moved = 0;
 
         $progress = new ProgressBar($output, count($medias));
         $output->writeln('');
@@ -77,7 +77,6 @@ EOT
             }
 
             try {
-                $moved[] = $media;
                 $action = 'TO MOVE';
                 $oldMediaProvider = $manager
                     ->getFilesystemMap()
@@ -105,6 +104,7 @@ EOT
                     sprintf('%s (/%s)', $oldProviderServiceName, $oldPrefix),
                     sprintf('%s (/%s)', $newProviderServiceName, $newPrefix)
                 ));
+                $moved++;
             } catch (\Exception $e) {
                 $table->addRow(array(
                     sprintf('Error: %s', $e->getMessage()),
@@ -128,8 +128,8 @@ EOT
 
         $output->writeln('');
         $output->writeln(sprintf(
-            '<comment>%d media processed [%d sec]</comment>',
-            count($moved),
+            '<comment>%d media moved [%d sec]</comment>',
+            $moved,
             $time
         ));
     }
