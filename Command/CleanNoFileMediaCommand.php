@@ -52,7 +52,8 @@ EOT
             $input->getOption('limit'),
             $input->getOption('offset')
         );
-        $noFiles = array();
+        $noFiles = 0;
+        $action = $input->getOption('force') ? 'REMOVED' : 'TO REMOVE';
 
         $progress = new ProgressBar($output, count($medias));
         $output->writeln('');
@@ -76,12 +77,8 @@ EOT
                 ;
 
                 if (!$fileExists) {
-                    $noFiles[] = $media;
-                    $action = 'TO REMOVE';
-
                     if ($input->getOption('force')) {
                         $mediaManager->delete($media);
-                        $action = 'REMOVED';
                     }
 
                     $table->addRow(array(
@@ -92,6 +89,7 @@ EOT
                         $media->getReference(),
                     ));
                 }
+                $noFiles++;
             } catch (\Exception $e) {
                 $table->addRow(array(
                     'ERROR: '.$e->getMessage(),
@@ -117,8 +115,9 @@ EOT
 
         $output->writeln('');
         $output->writeln(sprintf(
-            '<comment>%d no file media processed [%d sec]</comment>',
-            count($noFiles),
+            '<comment>%d no file media %s [%d sec]</comment>',
+            $noFiles,
+            $action,
             $time
         ));
     }

@@ -50,6 +50,7 @@ EOT
             )
         ;
         $moved = 0;
+        $action = $input->getOption('force') ? 'MOVED' : 'TO MOVE';
 
         $progress = new ProgressBar($output, count($medias));
         $output->writeln('');
@@ -77,14 +78,12 @@ EOT
             }
 
             try {
-                $action = 'TO MOVE';
                 $oldMediaProvider = $manager
                     ->getFilesystemMap()
                     ->get($oldProviderServiceName)
                 ;
 
                 if ($input->getOption('force')) {
-                    $action = 'MOVED';
                     $newMediaProvider->write(
                         $manager->buildStorageKey($newPrefix, $media->getReference()),
                         $oldMediaProvider->read($manager->buildStorageKey($oldPrefix, $media->getReference()))
@@ -128,8 +127,9 @@ EOT
 
         $output->writeln('');
         $output->writeln(sprintf(
-            '<comment>%d media moved [%d sec]</comment>',
+            '<comment>%d media %s [%d sec]</comment>',
             $moved,
+            $action,
             $time
         ));
     }
