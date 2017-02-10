@@ -88,8 +88,8 @@ EOT
                         $media->getReferencePrefix(),
                         $media->getReference(),
                     ));
+                    $noFiles++;
                 }
-                $noFiles++;
             } catch (\Exception $e) {
                 $table->addRow(array(
                     'ERROR: '.$e->getMessage(),
