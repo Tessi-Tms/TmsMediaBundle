@@ -65,7 +65,7 @@ EOT
             $oldPrefix = $media->getReferencePrefix();
             $oldProviderServiceName = $media->getProviderServiceName();
 
-            if ($oldPrefix === $newPrefix) {
+            if ($oldPrefix === $newPrefix && $oldProviderServiceName === $newProviderServiceName) {
                 $table->addRow(array(
                     'UNCHANGED',
                     $media->getId(),
