@@ -20,7 +20,7 @@ class CleanNoFileMediaCommand extends ContainerAwareCommand
             ->setName('tms-media:clean:no-file')
             ->setDescription('Display or remove media without associated files')
             ->addOption('limit', 'l', InputOption::VALUE_REQUIRED, 'The limit to processed', 10000)
-            ->addOption('offset', 'o', InputOption::VALUE_REQUIRED, 'The offset to processed', 1)
+            ->addOption('offset', 'o', InputOption::VALUE_REQUIRED, 'The offset to processed', 0)
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'if a media file is missing, the entity will be removed.')
             ->setHelp(<<<EOT
 The <info>%command.name%</info> command.

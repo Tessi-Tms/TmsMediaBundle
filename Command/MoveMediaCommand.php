@@ -21,7 +21,7 @@ class MoveMediaCommand extends ContainerAwareCommand
             ->setDescription('Move media files following to their metadata')
             ->addOption('provider', 'p', InputOption::VALUE_REQUIRED, 'The media provider service name', 'default_media')
             ->addOption('limit', 'l', InputOption::VALUE_REQUIRED, 'The limit to processed', 10000)
-            ->addOption('offset', 'o', InputOption::VALUE_REQUIRED, 'The offset to processed', 1)
+            ->addOption('offset', 'o', InputOption::VALUE_REQUIRED, 'The offset to processed', 0)
             ->addOption('force','f', InputOption::VALUE_NONE, 'if present, the files will be moved')
             ->setHelp(<<<EOT
 The <info>%command.name%</info> command.
