@@ -142,13 +142,13 @@ class ApiController extends Controller
                     $media,
                     array_merge(
                         $request->query->all(),
-                        array('format' => $request->getRequestFormat())
+                        array('format' => $_format)
                     )
                 );
             } catch (InvalidOptionsException $e) {
                 $responseMedia = $this->get('tms_media.manager.media')->transform(
                     $media,
-                    array('format' => $request->getRequestFormat())
+                    array('format' => $_format)
                 );
             }
 
