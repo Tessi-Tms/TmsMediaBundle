@@ -132,7 +132,7 @@ EOT
             "size"                  => $size,
             "mime_type"             => $mimeType,
             "enabled"               => 1,
-            "metadata"              => $metadata,
+            "metadata"              => json_decode($metadata),
         );
     }
 
