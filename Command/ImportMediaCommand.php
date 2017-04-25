@@ -116,7 +116,7 @@ EOT
             $error
         ) = $data;
 
-        if (empty($reference) || 0 != $error ) {
+        if (empty($reference)) {
             return null;
         }
 
