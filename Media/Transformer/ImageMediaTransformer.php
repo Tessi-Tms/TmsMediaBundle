@@ -10,11 +10,9 @@
 namespace Tms\Bundle\MediaBundle\Media\Transformer;
 
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
-use Symfony\Component\OptionsResolver\Options;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Tms\Bundle\MediaBundle\Media\ResponseMedia;
 use Tms\Bundle\MediaBundle\Media\ImageMedia;
-use Tms\Bundle\MediaBundle\Exception\ImagickException;
 use Gaufrette\Filesystem;
 
 class ImageMediaTransformer extends AbstractMediaTransformer

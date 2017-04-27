@@ -9,7 +9,6 @@
 
 namespace Tms\Bundle\MediaBundle\Media\Transformer;
 
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Tms\Bundle\MediaBundle\Entity\Media;
 use Gaufrette\Filesystem;
 use Tms\Bundle\MediaBundle\Media\ResponseMedia;

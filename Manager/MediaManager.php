@@ -480,10 +480,7 @@ class MediaManager extends AbstractManager
      */
     public function transform(Media $media, $options)
     {
-        // If the asked format if the same as the original media format, do not transform !
-        $format = $media->getExtension() == $options['format'] ? null : $options['format'];
-
-        $mediaTransformer = $this->guessMediaTransformer($format);
+        $mediaTransformer = $this->guessMediaTransformer($options['format']);
 
         return $mediaTransformer->transform(
             $this->getFilesystemMap()->get($media->getProviderServiceName()),
