@@ -47,6 +47,7 @@ class ImportMediaCommand extends ContainerAwareCommand
             ->addOption('delimiter', 'd', InputOption::VALUE_REQUIRED, 'The csv delimiter', ',')
             ->addOption('enclosure', 'c', InputOption::VALUE_REQUIRED, 'The csv enclosure', '"')
             ->addOption('provider', 'p', InputOption::VALUE_REQUIRED, 'The media provider service name', 'batch_media')
+            ->addOption('batch', 'b', InputOption::VALUE_REQUIRED, 'To execute the import in batch mode', 1)
             ->setHelp(<<<EOT
 The <info>%command.name%</info> command.
 
@@ -148,6 +149,7 @@ EOT
         $this->delimiter = $input->getOption('delimiter');
         $this->enclosure = $input->getOption('enclosure');
         $this->provider  = $input->getOption('provider');
+        $batch           = (integer)$input->getOption('batch');
 
         $countImported = 0;
 
@@ -164,25 +166,23 @@ EOT
         $mediaManager = $this->getContainer()->get('tms_media.manager.media');
 
         foreach ($rows as $i => $row) {
-            $progress->advance();
+            $media = new Media();
+            $media
+                ->setSource($row['source'])
+                ->setIpSource($row['ip_source'])
+                ->setReference($row['reference'])
+                ->setReferencePrefix($row['reference_prefix'])
+                ->setExtension($row['extension'])
+                ->setProviderServiceName($row['provider_service_name'])
+                ->setName($row['name'])
+                ->setDescription($row['description'])
+                ->setSize($row['size'])
+                ->setMimeType($row['mime_type'])
+                ->setEnabled($row['enabled'])
+                ->setMetadata($row['metadata'])
+            ;
 
             try {
-                $media = new Media();
-                $media
-                    ->setSource($row['source'])
-                    ->setIpSource($row['ip_source'])
-                    ->setReference($row['reference'])
-                    ->setReferencePrefix($row['reference_prefix'])
-                    ->setExtension($row['extension'])
-                    ->setProviderServiceName($row['provider_service_name'])
-                    ->setName($row['name'])
-                    ->setDescription($row['description'])
-                    ->setSize($row['size'])
-                    ->setMimeType($row['mime_type'])
-                    ->setEnabled($row['enabled'])
-                    ->setMetadata($row['metadata'])
-                ;
-
                 $mediaManager->add($media);
 
                 $table->addRow(array(
@@ -196,9 +196,13 @@ EOT
                     sprintf('Error: %s', $e->getMessage()),
                     $media->getReference()
                 ));
-
-                continue;
             }
+
+            if (1 == $batch) {
+                $mediaManager->detach($media);
+            }
+
+            $progress->advance();
         }
 
         $progress->finish();
