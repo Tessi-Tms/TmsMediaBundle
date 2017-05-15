@@ -160,9 +160,6 @@ EOT
         $progress = new ProgressBar($output, count($rows));
         $progress->start();
 
-        $table = new Table($output);
-        $table->setHeaders(array('Action', 'Reference'));
-
         $mediaManager = $this->getContainer()->get('tms_media.manager.media');
 
         foreach ($rows as $i => $row) {
@@ -184,33 +181,19 @@ EOT
 
             try {
                 $mediaManager->add($media);
-
-                $table->addRow(array(
-                    'IMPORTED',
-                    $media->getReference()
-                ));
-
                 $countImported++;
             } catch (\Exception $e) {
-                $table->addRow(array(
-                    sprintf('Error: %s', $e->getMessage()),
-                    $media->getReference()
-                ));
+                sprintf('Error: %s', $e->getMessage());
             }
 
             if (1 == $batch) {
-                $mediaManager->detach($media);
+                $mediaManager->getEntityManager()->detach($media);
             }
 
             $progress->advance();
         }
 
         $progress->finish();
-        $output->writeln('');
-        $output->writeln('');
-
-        $table->setStyle('borderless');
-        $table->render();
 
         $timeEnd = microtime(true);
         $time = $timeEnd - $timeStart;
