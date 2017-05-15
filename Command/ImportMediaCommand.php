@@ -151,6 +151,7 @@ EOT
         $this->provider  = $input->getOption('provider');
         $batch           = (integer)$input->getOption('batch');
 
+        $countAdded    = 0;
         $countImported = 0;
 
         $output->writeln('<comment>Start  import</comment>');
@@ -179,18 +180,25 @@ EOT
                 ->setMetadata($row['metadata'])
             ;
 
+            $existingMedia = $mediaManager->findOneBy(array('reference' => $media->getReference()));
+            if (null !== $existingMedia) {
+                $output->writeln(sprintf('<error>Already extisting media (%s)</error>', $media->getReference()));
+
+                continue;
+            }
+
             try {
-                $mediaManager->add($media);
-                $countImported++;
+                $mediaManager->add($media, false);
+                $countAdded++;
+                if (0 === $countAdded % $batch) {
+                    $mediaManager->getEntityManager()->flush();
+                    $mediaManager->getEntityManager()->clear('TmsMediaBundle:Media');
+                    $countImported = $countAdded;
+                    $progress->advance($batch);
+                }
             } catch (\Exception $e) {
-                sprintf('Error: %s', $e->getMessage());
+                $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
             }
-
-            if (1 == $batch) {
-                $mediaManager->getEntityManager()->detach($media);
-            }
-
-            $progress->advance();
         }
 
         $progress->finish();

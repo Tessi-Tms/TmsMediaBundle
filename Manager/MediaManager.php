@@ -247,14 +247,14 @@ class MediaManager extends AbstractManager
     /**
      * {@inheritdoc}
      */
-    public function add($entity)
+    public function add($entity, $flush = true)
     {
         $this->getEventDispatcher()->dispatch(
             MediaEvents::PRE_CREATE,
             new MediaEvent($entity)
         );
 
-        parent::add($entity);
+        parent::add($entity, $flush);
 
         $this->getEventDispatcher()->dispatch(
             MediaEvents::POST_CREATE,

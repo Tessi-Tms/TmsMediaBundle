@@ -64,12 +64,16 @@ abstract class AbstractManager
      * Add
      * Use the entity manager to add (persist) the given object
      *
-     * @param object $entity
+     * @param object  $entity
+     * @param boolean $flush   A boolean to flush or not during the add.
      */
-    public function add($entity)
+    public function add($entity, $flush = true)
     {
         $this->getEntityManager()->persist($entity);
-        $this->getEntityManager()->flush();
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 
     /**
