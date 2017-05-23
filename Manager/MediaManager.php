@@ -9,6 +9,8 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Tms\Bundle\MediaBundle\Event\MediaEvent;
 use Tms\Bundle\MediaBundle\Event\MediaEvents;
 use Tms\Bundle\MediaBundle\StorageMapper\StorageMapperInterface;
@@ -30,6 +32,7 @@ class MediaManager extends AbstractManager
     protected $filesystemMap;
     protected $metadataExtractors;
     protected $mediaTransformers;
+    protected $cacheDirectory;
 
     /**
      * Guess reference prefix
@@ -196,7 +199,8 @@ class MediaManager extends AbstractManager
         array $configuration = array(),
         EntityManager $entityManager,
         EventDispatcherInterface $eventDispatcher,
-        FilesystemMap $filesystemMap
+        FilesystemMap $filesystemMap,
+        $cacheDirectory
     )
     {
         parent::__construct($entityManager, $eventDispatcher);
@@ -205,6 +209,8 @@ class MediaManager extends AbstractManager
         $this->filesystemMap      = $filesystemMap;
         $this->metadataExtractors = array();
         $this->mediaTransformers  = array();
+        $this->cacheDirectory     = $cacheDirectory;
+
     }
 
     /**
@@ -510,5 +516,25 @@ class MediaManager extends AbstractManager
             $this->getConfiguration('api_public_endpoint'),
             $media->getReference()
         );
+    }
+
+    /**
+     * Clear a media cached files.
+     *
+     * @param Media $media
+     *
+     * @return boolean True if the cache was clean, false otherwise.
+     */
+    public function clearMediaCache(Media $media)
+    {
+        $process = new Process(sprintf('rm -f %s/%s_*', $this->cacheDirectory, $media->getReference()));
+        $process->run();
+
+        // executes after the command finishes
+        if (!$process->isSuccessful()) {
+            return false;
+        }
+
+        return true;
     }
 }

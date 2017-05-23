@@ -12,6 +12,7 @@ services:
             - @doctrine.orm.entity_manager
             - @event_dispatcher
             - @knp_gaufrette.filesystem_map
+            - %tms_media.cache_directory%
 
 
     ## Metadata Extrators ##

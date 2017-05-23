@@ -140,6 +140,16 @@ class Media
     }
 
     /**
+     * toString
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getReference();
+    }
+
+    /**
      * toArray
      *
      * @return array
