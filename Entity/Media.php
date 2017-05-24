@@ -11,6 +11,7 @@
 namespace Tms\Bundle\MediaBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * Media
@@ -114,9 +115,9 @@ class Media
     protected $createdAt;
 
     /**
-     * @var string
+     * @var UploadedFile
      */
-    private $raw;
+    protected $uploadedFile;
 
     /**
      * On create
@@ -488,25 +489,25 @@ class Media
     }
 
     /**
-     * Set raw
+     * Set uploaded file.
      *
-     * @param string $raw
+     * @param UploadedFile $uploadedFile
      * @return Media
      */
-    public function setRaw($raw)
+    public function setUploadedFile(UploadedFile $uploadedFile)
     {
-        $this->raw = $raw;
+        $this->uploadedFile = $uploadedFile;
 
         return $this;
     }
 
     /**
-     * Get raw
+     * Returns uploaded file.
      *
-     * @return string
+     * @return UploadedFile
      */
-    public function getRaw()
+    public function getUploadedFile()
     {
-        return $this->raw;
+        return $this->uploadedFile;
     }
 }

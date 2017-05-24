@@ -537,4 +537,45 @@ class MediaManager extends AbstractManager
 
         return true;
     }
+
+    /**
+     * Change a media file.
+     *
+     * @param Media $media
+     *
+     * @return boolean True if the media was changed, false otherwise.
+     */
+    public function changeMedia(Media $media)
+    {
+        if (null == $media->getUploadedFile()) {
+            return false;
+        }
+
+        try {
+            $file = $media->getUploadedFile()->move(
+                $this->getConfiguration("working_directory"),
+                uniqid('tmp_media_')
+            );
+
+            $media
+                ->setExtension($file->guessExtension())
+                ->setMimeType($file->getMimeType())
+                ->setName($media->getUploadedFile()->getClientOriginalName())
+                ->setSize($file->getSize())
+            ;
+
+            $this->update($media);
+
+            $storageProvider = $this->getFilesystemMap()->get($media->getProviderServiceName());
+            $storageIdentifier = $this->buildStorageKey($media->getReferencePrefix(), $media->getReference());
+
+            $storageProvider->delete($storageIdentifier);
+            $storageProvider->write($storageIdentifier, file_get_contents($file->getRealPath()));
+            $this->clearMediaCache($media);
+        } catch(\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
 }
