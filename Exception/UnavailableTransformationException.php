@@ -1,14 +1,14 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @license: GPL
  *
  */
 namespace Tms\Bundle\MediaBundle\Exception;
 
-class UnavailabeTransformationException extends \Exception
+class UnavailableTransformationException extends \Exception
 {
     /**
      * The constructor.
@@ -17,6 +17,6 @@ class UnavailabeTransformationException extends \Exception
      */
     public function __construct($options)
     {
-        parent::__construct(sprintf('This transformation is unavailabed: %s', print_r($options)));
+        parent::__construct(sprintf('This transformation is unavailable: %s', json_encode($options)));
     }
 }
