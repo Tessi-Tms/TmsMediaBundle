@@ -1,10 +1,8 @@
 <?php
 
 /**
- *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @license: GPL
- *
  */
 
 namespace Tms\Bundle\MediaBundle\Media\Transformer;
@@ -21,7 +19,6 @@ class ImageMediaTransformer extends AbstractMediaTransformer
     private static $fileinfo;
 
     /**
-     * @param ImageMedia $imageMedia
      * @param string $cacheDirectory
      */
     public function __construct($cacheDirectory)
@@ -116,7 +113,7 @@ class ImageMediaTransformer extends AbstractMediaTransformer
             file_get_contents($cachedImageSourcePath),
             finfo_file(self::$fileinfo, $cachedImageSourcePath),
             filesize($cachedImageSourcePath),
-            new \DateTime('now')
+            \DateTime::createFromFormat('U', filemtime($cachedImageSourcePath))
         );
     }
 

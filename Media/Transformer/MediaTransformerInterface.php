@@ -1,10 +1,8 @@
 <?php
 
 /**
- *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @license: GPL
- *
  */
 
 namespace Tms\Bundle\MediaBundle\Media\Transformer;

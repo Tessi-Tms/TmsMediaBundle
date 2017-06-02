@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
  * @license: GPL
  *
@@ -16,6 +16,7 @@ class ResponseMedia
     protected $content;
     protected $contentType;
     protected $contentLength;
+    protected $contentDisposition;
     protected $eTag;
     protected $lastModifiedAt;
     protected $expires;
@@ -89,6 +90,29 @@ class ResponseMedia
     public function getContentLength()
     {
         return $this->contentLength;
+    }
+
+    /**
+     * Set contentDisposition
+     *
+     * @param string $contentDisposition
+     * @return ResponseMedia
+     */
+    public function setContentDisposition($contentDisposition)
+    {
+        $this->contentDisposition = $contentDisposition;
+
+        return $this;
+    }
+
+    /**
+     * Get contentDisposition
+     *
+     * @return string
+     */
+    public function getContentDisposition()
+    {
+        return $this->contentDisposition;
     }
 
     /**

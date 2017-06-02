@@ -160,11 +160,10 @@ class ApiController extends Controller
             $response->setETag($responseMedia->getETag());
             $response->setLastModified($responseMedia->getLastModifiedAt());
             $response->setContent($responseMedia->getContent());
-/*
-            $response->setExpires($responseMedia->getExpires());
-            $response->setMaxAge($responseMedia->getMaxAge());
-            $response->setSharedMaxAge($responseMedia->getSharedMaxAge());
-*/
+
+            if (null !== $responseMedia->getContentDisposition()) {
+                $response->headers->set('Content-Disposition', $responseMedia->getContentDisposition());
+            }
         } catch (MediaNotFoundException $e) {
             $response->setStatusCode(404);
             $response->setContent($e->getMessage());
