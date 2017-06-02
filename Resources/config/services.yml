@@ -32,20 +32,32 @@ services:
 
     ## Media Transformers ##
 
+    tms_media.transformer.document:
+        class: Tms\Bundle\MediaBundle\Media\Transformer\DocumentMediaTransformer
+        public: false
+        tags:
+            - { name: tms_media.transformer }
     tms_media.transformer.image:
         class: Tms\Bundle\MediaBundle\Media\Transformer\ImageMediaTransformer
         arguments: [%tms_media.cache_directory%]
         public: false
         tags:
             - { name: tms_media.transformer }
-    tms_media.transformer.document:
-        class: Tms\Bundle\MediaBundle\Media\Transformer\DocumentMediaTransformer
-        public: false
-        tags:
-            - { name: tms_media.transformer }
     tms_media.transformer.rest:
         class: Tms\Bundle\MediaBundle\Media\Transformer\RestMediaTransformer
         arguments: [@idci_exporter.manager]
+        public: false
+        tags:
+            - { name: tms_media.transformer }
+    tms_media.transformer.svg:
+        class: Tms\Bundle\MediaBundle\Media\Transformer\SvgMediaTransformer
+        arguments: [%tms_media.cache_directory%]
+        public: false
+        tags:
+            - { name: tms_media.transformer }
+    tms_media.transformer.unica:
+        class: Tms\Bundle\MediaBundle\Media\Transformer\UnicaMediaTransformer
+        arguments: [%tms_media.cache_directory%, %knp_gaufrette.adapters.batch_media.local.directory%]
         public: false
         tags:
             - { name: tms_media.transformer }
