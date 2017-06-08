@@ -20,11 +20,11 @@ class ReplaceMediaCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('tms-media:replace-media')
+            ->setName('tms-media:replace')
             ->setDescription('Updates the existing media with ones in the specified folder.')
             ->addArgument('path', InputArgument::REQUIRED, 'The folder to look through')
             ->addOption('recursive', 'r', InputOption::VALUE_OPTIONAL, 'Look through sub-folders as well? (recursive)', -1)
-            ->addOption('extension', null, InputOption::VALUE_OPTIONAL, 'File extension to look for')
+            ->addOption('extension', null, InputOption::VALUE_OPTIONAL, 'File extension to look for', '*')
             ->setHelp(<<<EOT
 The <info>%command.name%</info> command.
 
@@ -42,20 +42,18 @@ EOT
     {
         $timeStart = microtime(true);
 
+        //Restrict search to extension / handle '.' or not '.'
+        $pattern = $input->getOption('extension');
+        if ('*' !== $pattern) {
+            $pattern = '*.'.$pattern;
+        }
+
         $finder = new Finder();
         $finder
             ->files()
             ->in($input->getArgument('path'))
+            ->name($pattern);
         ;
-
-        //Restrict search to extension / handle '.' or not '.'
-        if ($input->getOption('extension')) {
-            if (substr($input->getOption('extension'), 0, 1) === '.') {
-                $finder->name('*'.$input->getOption('extension'));
-            } else {
-                $finder->name('*.'.$input->getOption('extension'));
-            }
-        }
 
         //Define if recursive and if so determine the max depth
         if ($input->getOption('recursive') >= 0) {
@@ -71,8 +69,8 @@ EOT
         $progress->start();
 
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        //Remove the extension from filename
         foreach ($finder as $file) {
+            //Remove the extension from filename
             $filename = preg_split('/\./', $file->getBasename())[0];
 
             try {
@@ -82,7 +80,9 @@ EOT
                     $file->getRealPath(),
                     $filename,
                     finfo_file($finfo, $file->getRealPath()),
-                    filesize($file->getRealPath())
+                    filesize($file->getRealPath()),
+                    UPLOAD_ERR_OK,
+                    true
                 ));
                 $this->getContainer()->get('tms_media.manager.media')->changeMedia($media);
                 $imported += 1;
