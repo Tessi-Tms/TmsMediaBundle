@@ -204,13 +204,12 @@ EOT
         $progress->finish();
 
         $timeEnd = microtime(true);
-        $time = $timeEnd - $timeStart;
 
         $output->writeln(sprintf(
             '<comment>%d/%d imported [%d sec]</comment>',
             $countImported,
             count($rows),
-            $time
+            $timeEnd - $timeStart
         ));
     }
 }

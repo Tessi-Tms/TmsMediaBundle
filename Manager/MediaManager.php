@@ -544,6 +544,7 @@ class MediaManager extends AbstractManager
      * @param Media $media
      *
      * @return boolean True if the media was changed, false otherwise.
+     * @throws Exception
      */
     public function changeMedia(Media $media)
     {
@@ -551,30 +552,28 @@ class MediaManager extends AbstractManager
             return false;
         }
 
-        try {
-            $file = $media->getUploadedFile()->move(
-                $this->getConfiguration("working_directory"),
-                uniqid('tmp_media_')
-            );
+        $workingFileName = uniqid('tmp_media_');
+        $file = $media->getUploadedFile()->move(
+            $this->getConfiguration("working_directory"),
+            $workingFileName
+        );
 
-            $media
-                ->setExtension($file->guessExtension())
-                ->setMimeType($file->getMimeType())
-                ->setName($media->getUploadedFile()->getClientOriginalName())
-                ->setSize($file->getSize())
-            ;
+        $media
+            ->setExtension($file->guessExtension())
+            ->setMimeType($file->getMimeType())
+            ->setName($media->getUploadedFile()->getClientOriginalName())
+            ->setSize($file->getSize())
+        ;
 
-            $this->update($media);
+        $this->update($media);
 
-            $storageProvider = $this->getFilesystemMap()->get($media->getProviderServiceName());
-            $storageIdentifier = $this->buildStorageKey($media->getReferencePrefix(), $media->getReference());
+        $storageProvider = $this->getFilesystemMap()->get($media->getProviderServiceName());
+        $storageIdentifier = $this->buildStorageKey($media->getReferencePrefix(), $media->getReference());
 
-            $storageProvider->delete($storageIdentifier);
-            $storageProvider->write($storageIdentifier, file_get_contents($file->getRealPath()));
-            $this->clearMediaCache($media);
-        } catch(\Exception $e) {
-            return false;
-        }
+        $storageProvider->delete($storageIdentifier);
+        $storageProvider->write($storageIdentifier, file_get_contents($file->getRealPath()));
+        $this->clearMediaCache($media);
+        unlink($this->getConfiguration("working_directory").DIRECTORY_SEPARATOR.$workingFileName);
 
         return true;
     }
