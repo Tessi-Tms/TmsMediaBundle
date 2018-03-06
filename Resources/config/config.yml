@@ -1,3 +1,6 @@
+imports:
+    - { resource: elasticsearch_index.yml }
+
 idci_exporter:
     entities:
         medias:
