@@ -209,7 +209,7 @@ class ApiController extends Controller
     public function getEndpointAction(Request $request, $_format)
     {
         $data = array(
-            'publicEndpoint' => $this->get('tms_media.manager.media')->getApiPublicEndpoint()
+            'publicEndpoint' => $this->get('tms_media.manager.media')->getConfiguration('api_public_endpoint'),
         );
 
         $response = new Response();
