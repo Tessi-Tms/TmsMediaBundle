@@ -8,11 +8,11 @@ services:
     tms_media.manager.media:
         class: Tms\Bundle\MediaBundle\Manager\MediaManager
         arguments:
-            - %tms_media.configuration%
-            - @doctrine.orm.entity_manager
-            - @event_dispatcher
-            - @knp_gaufrette.filesystem_map
-            - %tms_media.cache_directory%
+            - "%tms_media.configuration%"
+            - "@doctrine.orm.entity_manager"
+            - "@event_dispatcher"
+            - "@knp_gaufrette.filesystem_map"
+            - "%tms_media.cache_directory%"
 
 
     ## Metadata Extrators ##
@@ -39,13 +39,13 @@ services:
             - { name: tms_media.transformer }
     tms_media.transformer.image:
         class: Tms\Bundle\MediaBundle\Media\Transformer\ImageMediaTransformer
-        arguments: [%tms_media.cache_directory%]
+        arguments: ["%tms_media.cache_directory%"]
         public: false
         tags:
             - { name: tms_media.transformer }
     tms_media.transformer.rest:
         class: Tms\Bundle\MediaBundle\Media\Transformer\RestMediaTransformer
-        arguments: [@idci_exporter.manager]
+        arguments: ["@idci_exporter.manager"]
         public: false
         tags:
             - { name: tms_media.transformer }
@@ -57,7 +57,7 @@ services:
             - { name: tms_media.transformer }
     tms_media.transformer.unica:
         class: Tms\Bundle\MediaBundle\Media\Transformer\UnicaMediaTransformer
-        arguments: [%tms_media.cache_directory%, %knp_gaufrette.adapters.batch_media.local.directory%]
+        arguments: ["%tms_media.cache_directory%", "%knp_gaufrette.adapters.batch_media.local.directory%"]
         public: false
         tags:
             - { name: tms_media.transformer }
