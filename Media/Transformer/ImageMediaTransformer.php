@@ -44,7 +44,7 @@ class ImageMediaTransformer extends AbstractMediaTransformer
         parent::setDefaultOptions($resolver);
 
         $resolver
-            ->setOptional(array(
+            ->setDefined(array(
                 'resize',
                 'scale',
                 'grayscale',
