@@ -11,15 +11,21 @@
             "homepage": "http://www.tessi.fr"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/Tessi-Tms/ExporterBundle.git"
+        }
+    ],
     "require": {
         "php":                          ">=5.3.3",
         "ext-imagick":                  "*",
         "symfony/symfony":              ">=2.3",
-        "doctrine/orm":                 "~2.2,>=2.2.3,<2.5",
+        "doctrine/orm":                 "~2.2,>=2.2.3",
         "doctrine/doctrine-bundle":     ">=1.2",
         "twig/twig":                    "~1.0",
         "knplabs/knp-gaufrette-bundle": "~0.3",
-        "idci/exporter-bundle":         "~1.0"
+        "idci/exporter-bundle":         "dev-master"
     },
     "autoload": {
         "psr-0": { "Tms\\Bundle\\MediaBundle": "" }
